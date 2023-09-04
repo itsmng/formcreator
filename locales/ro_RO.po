@@ -1634,7 +1634,7 @@ msgstr ""
 
 #: install/install.php:284
 msgid "A form from GLPI need to be validate"
-msgstr "Un formular din GLPI necesită să fie validat"
+msgstr "Un formular din ITSMNG necesită să fie validat"
 
 #: install/install.php:285
 msgid ""

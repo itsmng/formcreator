@@ -177,7 +177,7 @@ msgstr "Varsayılan soruyu yanıtlayan kullanıcı türü birimi"
 
 #: inc/abstracttarget.class.php:216
 msgid "From a GLPI object > Entity type question answer"
-msgstr "Bir GLPI nesnesinden > Birim türü soru yanıtı"
+msgstr "Bir ITSMNG nesnesinden > Birim türü soru yanıtı"
 
 #: inc/abstracttarget.class.php:223
 msgid "Tags from questions"
@@ -468,7 +468,7 @@ msgstr "Kurallı ifade geçersiz"
 
 #: inc/entityconfig.class.php:78
 msgid "GLPi's helpdesk"
-msgstr "GLPI destek merkezi"
+msgstr "ITSMNG destek merkezi"
 
 #: inc/entityconfig.class.php:79
 msgid "Service catalog simplified"
@@ -700,7 +700,7 @@ msgstr "Oluştur"
 
 #: inc/form.class.php:1878 inc/form.class.php:1889
 msgid "Please contact your GLPI administrator."
-msgstr "Lütfen GLPI yöneticiniz ile görüşün."
+msgstr "Lütfen ITSMNG yöneticiniz ile görüşün."
 
 #: inc/form.class.php:1879 inc/form.class.php:1890
 msgctxt "button"
@@ -1529,8 +1529,8 @@ msgstr "Ek değerlendirme"
 #: inc/field/glpiselectfield.class.php:158
 msgid "GLPI object"
 msgid_plural "GLPI objects"
-msgstr[0] "GLPI nesnesi"
-msgstr[1] "GLPI nesneleri"
+msgstr[0] "ITSMNG nesnesi"
+msgstr[1] "ITSMNG nesneleri"
 
 #: inc/field/integerfield.class.php:58
 #, php-format
@@ -1627,13 +1627,13 @@ msgid ""
 "##formcreator.request_id## and transmitted to the helpdesk team.\\nYou can "
 "see your answers onto the following link:\\n##formcreator.validation_link##"
 msgstr ""
-"Merhaba,\\nGLPI üzerindeki isteğiniz ##formcreator.request_id## numara ile "
+"Merhaba,\\nITSMNG üzerindeki isteğiniz ##formcreator.request_id## numara ile "
 "kaydedilerek destek ekibimize iletildi.\\nİsteğinize verilen yanıtları şu "
 "bağlantıdan görebilirsiniz:\\n##formcreator.validation_link##"
 
 #: install/install.php:282
 msgid "A form from GLPI need to be validate"
-msgstr "Değerlendirilmesi gereken bir GLPI formu var"
+msgstr "Değerlendirilmesi gereken bir ITSMNG formu var"
 
 #: install/install.php:283
 msgid ""
@@ -1641,7 +1641,7 @@ msgid ""
 "validator.\\nYou can access it by clicking onto this "
 "link:\\n##formcreator.validation_link##"
 msgstr ""
-"Merhaba,\\nGLPI üzerinde değerlendirilmesi gereken bir formu değerlendirmek "
+"Merhaba,\\nITSMNG üzerinde değerlendirilmesi gereken bir formu değerlendirmek "
 "üzere seçildiniz.\\nAşağıdaki bağlantıya tıklayarak forma "
 "erişebilirsiniz:\\n##formcreator.validation_link##"
 

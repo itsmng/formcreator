@@ -179,7 +179,7 @@ msgstr "Standaard entiteit van een gebruiker type antwoord"
 
 #: inc/abstracttarget.class.php:216
 msgid "From a GLPI object > Entity type question answer"
-msgstr "Van een GLPI object -> Entiteit type vraag"
+msgstr "Van een ITSMNG object -> Entiteit type vraag"
 
 #: inc/abstracttarget.class.php:223
 msgid "Tags from questions"
@@ -473,7 +473,7 @@ msgstr "The reguliere expressie is invalide"
 
 #: inc/entityconfig.class.php:78
 msgid "GLPi's helpdesk"
-msgstr "GLPI's helpdesk"
+msgstr "ITSMNG's helpdesk"
 
 #: inc/entityconfig.class.php:79
 msgid "Service catalog simplified"
@@ -705,7 +705,7 @@ msgstr "Creëren "
 
 #: inc/form.class.php:1878 inc/form.class.php:1889
 msgid "Please contact your GLPI administrator."
-msgstr "Neem contact op met uw GLPI beheerder"
+msgstr "Neem contact op met uw ITSMNG beheerder"
 
 #: inc/form.class.php:1879 inc/form.class.php:1890
 msgctxt "button"
@@ -1633,13 +1633,13 @@ msgid ""
 "##formcreator.request_id## and transmitted to the helpdesk team.\\nYou can "
 "see your answers onto the following link:\\n##formcreator.validation_link##"
 msgstr ""
-"Hallo, je aanvraag van GLPI is succesvol bewaard met nummer  "
+"Hallo, je aanvraag van ITSMNG is succesvol bewaard met nummer  "
 "##formcreator.request_id## en aan de helpdesk toegekend.\\nJe kunt hier je "
 "ticket volgen:\\n##formcreator.validation_link## "
 
 #: install/install.php:282
 msgid "A form from GLPI need to be validate"
-msgstr "Een formulier van GLPI heeft validatie nodig"
+msgstr "Een formulier van ITSMNG heeft validatie nodig"
 
 #: install/install.php:283
 msgid ""
@@ -1647,7 +1647,7 @@ msgid ""
 "validator.\\nYou can access it by clicking onto this "
 "link:\\n##formcreator.validation_link##"
 msgstr ""
-"Hallo, \\nJe bent uitgekozen om een formulier van GLPI te valideren. \\nJe "
+"Hallo, \\nJe bent uitgekozen om een formulier van ITSMNG te valideren. \\nJe "
 "kunt hier het forumulier bekijken\\n##formcreator.validation_link##"
 
 #: install/install.php:288

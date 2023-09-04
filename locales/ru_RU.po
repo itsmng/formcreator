@@ -185,8 +185,8 @@ msgid "Default entity of a user type question answer"
 msgstr "Организация по умолчанию пользователя из вопроса"
 
 #: inc/abstracttarget.class.php:216
-msgid "From a GLPI object > Entity type question answer"
-msgstr "Организация из вопроса Объект GLPI > Организации"
+msgid "From a GLPI object > Entity type question answer"k
+msgstr "Организация из вопроса Объект ITSMNG > Организации"
 
 #: inc/abstracttarget.class.php:223
 msgid "Tags from questions"
@@ -487,7 +487,7 @@ msgstr "Недействительное регулярное выражение
 
 #: inc/entityconfig.class.php:78
 msgid "GLPi's helpdesk"
-msgstr "Служба поддержки GLPI"
+msgstr "Служба поддержки ITSMNG"
 
 #: inc/entityconfig.class.php:79
 msgid "Service catalog simplified"
@@ -723,7 +723,7 @@ msgstr "Создать"
 
 #: inc/form.class.php:1878 inc/form.class.php:1889
 msgid "Please contact your GLPI administrator."
-msgstr "Пожалуйста, свяжитесь с администратором GLPI."
+msgstr "Пожалуйста, свяжитесь с администратором ITSMNG."
 
 #: inc/form.class.php:1879 inc/form.class.php:1890
 msgctxt "button"
@@ -1581,10 +1581,10 @@ msgstr "Дополнительная проверка"
 #: inc/field/glpiselectfield.class.php:158
 msgid "GLPI object"
 msgid_plural "GLPI objects"
-msgstr[0] "Объект GLPI"
-msgstr[1] "Объекты GLPI"
-msgstr[2] "Объекты GLPI"
-msgstr[3] "Объекты GLPI"
+msgstr[0] "Объект ITSMNG"
+msgstr[1] "Объекты ITSMNG"
+msgstr[2] "Объекты ITSMNG"
+msgstr[3] "Объекты ITSMNG"
 
 #: inc/field/integerfield.class.php:58
 #, php-format
@@ -1697,7 +1697,7 @@ msgid ""
 "validator.\\nYou can access it by clicking onto this "
 "link:\\n##formcreator.validation_link##"
 msgstr ""
-"Здравствуйте,\\nТребуется согласовать форму в GLPI, и вы выбраны в качестве "
+"Здравствуйте,\\nТребуется согласовать форму в ITSMNG, и вы выбраны в качестве "
 "согласующего.\\nПерейдите по ссылке для "
 "согласования:\\n##formcreator.validation_link##"
 

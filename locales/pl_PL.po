@@ -189,7 +189,7 @@ msgstr "Odpowiedź na pytanie o domyślny typ użytkownika"
 
 #: inc/abstracttarget.class.php:216
 msgid "From a GLPI object > Entity type question answer"
-msgstr "Z obiektu GLPI> odpowiedź na pytanie o typ jednostki"
+msgstr "Z obiektu ITSMNG> odpowiedź na pytanie o typ jednostki"
 
 #: inc/abstracttarget.class.php:223
 msgid "Tags from questions"
@@ -490,7 +490,7 @@ msgstr "Wyrażenie regularne jest nieprawidłowe"
 
 #: inc/entityconfig.class.php:78
 msgid "GLPi's helpdesk"
-msgstr "Pomoc techniczna GLPI"
+msgstr "Pomoc techniczna ITSMNG"
 
 #: inc/entityconfig.class.php:79
 msgid "Service catalog simplified"
@@ -726,7 +726,7 @@ msgstr "Utwórz"
 
 #: inc/form.class.php:1878 inc/form.class.php:1889
 msgid "Please contact your GLPI administrator."
-msgstr "Proszę skontaktuj się z Administratorem Systemu GLPI"
+msgstr "Proszę skontaktuj się z Administratorem Systemu ITSMNG"
 
 #: inc/form.class.php:1879 inc/form.class.php:1890
 msgctxt "button"
@@ -1682,13 +1682,13 @@ msgid ""
 "##formcreator.request_id## and transmitted to the helpdesk team.\\nYou can "
 "see your answers onto the following link:\\n##formcreator.validation_link##"
 msgstr ""
-"Twój wniosek z GLPI został zapisany pod numerem ##formcreator.request_id## i przekazany do działu pomocy.\n"
+"Twój wniosek z ITSMNG został zapisany pod numerem ##formcreator.request_id## i przekazany do działu pomocy.\n"
 "Możesz zobaczyć swoje odpowiedzi pod podanym adresem:\n"
 "##formcreator.validation_link##"
 
 #: install/install.php:282
 msgid "A form from GLPI need to be validate"
-msgstr "Formularz z GLPI musi zostać zatwierdzony"
+msgstr "Formularz z ITSMNG musi zostać zatwierdzony"
 
 #: install/install.php:283
 msgid ""
@@ -1696,7 +1696,7 @@ msgid ""
 "validator.\\nYou can access it by clicking onto this "
 "link:\\n##formcreator.validation_link##"
 msgstr ""
-"Formularz GLPI musi być zatwierdzony i ty zostałeś wyznaczony jako osoba zatwierdzająca.\n"
+"Formularz ITSMNG musi być zatwierdzony i ty zostałeś wyznaczony jako osoba zatwierdzająca.\n"
 "Aby uzyskać dostęp kliknij na poniższy odnośnik:\n"
 "##formcreator.validation_link##"
 

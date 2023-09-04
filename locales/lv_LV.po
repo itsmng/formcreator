@@ -175,7 +175,7 @@ msgstr "Noklusēta lietotāja tipa atbildes nodaļa"
 
 #: inc/abstracttarget.class.php:194
 msgid "From a GLPI object > Entity type question answer"
-msgstr "No GLPI objekta > Nodaļas tipa jautājuma atbilde"
+msgstr "No ITSMNG objekta > Nodaļas tipa jautājuma atbilde"
 
 #: inc/abstracttarget.class.php:201
 msgid "Tags from questions"
@@ -462,7 +462,7 @@ msgstr ""
 
 #: inc/entityconfig.class.php:78
 msgid "GLPi's helpdesk"
-msgstr "GLPI helpdesks"
+msgstr "ITSMNG helpdesks"
 
 #: inc/entityconfig.class.php:79
 msgid "Service catalog simplified"
@@ -696,7 +696,7 @@ msgstr "Izveidot"
 
 #: inc/form.class.php:1837 inc/form.class.php:1848
 msgid "Please contact your GLPI administrator."
-msgstr "Lūdzu sazināties ar GLPI administratoru."
+msgstr "Lūdzu sazināties ar ITSMNG administratoru."
 
 #: inc/form.class.php:1838 inc/form.class.php:1849
 msgctxt "button"
@@ -1631,13 +1631,13 @@ msgid ""
 "##formcreator.request_id## and transmitted to the helpdesk team.\\nYou can "
 "see your answers onto the following link:\\n##formcreator.validation_link##"
 msgstr ""
-"Sveicināti,\\nJūsu pieprasījums no GLPI veiksmīgi saglabāts ar numuru "
+"Sveicināti,\\nJūsu pieprasījums no ITSMNG veiksmīgi saglabāts ar numuru "
 "##formcreator.request_id## un nodots helpdesk komandai.\\nJūs varat sekot "
 "līdzi sekojošā vietnē:\\n##formcreator.validation_link##"
 
 #: install/install.php:284
 msgid "A form from GLPI need to be validate"
-msgstr "Formai no GLPI jābūt apstiprinātai"
+msgstr "Formai no ITSMNG jābūt apstiprinātai"
 
 #: install/install.php:285
 msgid ""
@@ -1645,7 +1645,7 @@ msgid ""
 "validator.\\nYou can access it by clicking onto this "
 "link:\\n##formcreator.validation_link##"
 msgstr ""
-"Sveicināti,\\nFormai no GLPI jābūt apstiprinātai un jūs tika izvēlēti kā "
+"Sveicināti,\\nFormai no ITSMNG jābūt apstiprinātai un jūs tika izvēlēti kā "
 "apstiprinātājs.\\nJūs varat piekļūt tam sekojošā "
 "vietnē:\\n##formcreator.validation_link##"
 

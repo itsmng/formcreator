@@ -178,7 +178,7 @@ msgstr "Entidade padrão de uma resposta de pergunta de tipo de usuário"
 
 #: inc/abstracttarget.class.php:194
 msgid "From a GLPI object > Entity type question answer"
-msgstr "De um objeto GLPI > resposta de pergunta de tipo de entidade"
+msgstr "De um objeto ITSMNG > resposta de pergunta de tipo de entidade"
 
 #: inc/abstracttarget.class.php:201
 msgid "Tags from questions"
@@ -460,7 +460,7 @@ msgstr ""
 
 #: inc/entityconfig.class.php:78
 msgid "GLPi's helpdesk"
-msgstr "Helpdesk do GLPi"
+msgstr "Helpdesk do ITSMNG"
 
 #: inc/entityconfig.class.php:79
 msgid "Service catalog simplified"
@@ -692,7 +692,7 @@ msgstr "Criar"
 
 #: inc/form.class.php:1837 inc/form.class.php:1848
 msgid "Please contact your GLPI administrator."
-msgstr "Por favor, contate o administrador do GLPI."
+msgstr "Por favor, contate o administrador do ITSMNG."
 
 #: inc/form.class.php:1838 inc/form.class.php:1849
 msgctxt "button"
@@ -1614,14 +1614,14 @@ msgid ""
 "##formcreator.request_id## and transmitted to the helpdesk team.\\nYou can "
 "see your answers onto the following link:\\n##formcreator.validation_link##"
 msgstr ""
-"Olá,\\n O seu pedido de GLPI foi gravado com sucesso com o número "
+"Olá,\\n O seu pedido de ITSMNG foi gravado com sucesso com o número "
 "##formcreator.request_id## e transmitido para a equipa de helpdesk. \\n Pode"
 " verificar as suas respostas no seguinte "
 "link:\\n##formcreator.validation_link##"
 
 #: install/install.php:284
 msgid "A form from GLPI need to be validate"
-msgstr "Precisa validar um formulário de GLPI"
+msgstr "Precisa validar um formulário de ITSMNG"
 
 #: install/install.php:285
 msgid ""
@@ -1629,7 +1629,7 @@ msgid ""
 "validator.\\nYou can access it by clicking onto this "
 "link:\\n##formcreator.validation_link##"
 msgstr ""
-"Olá,\\n Precisa de validar um formulário de GLPI e foi escolhido como  "
+"Olá,\\n Precisa de validar um formulário de ITSMNG e foi escolhido como  "
 "validador.\\nVocê pode acede-lo clicando no "
 "link:\\n##formcreator.validation_link##"
 

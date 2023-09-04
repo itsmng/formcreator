@@ -455,7 +455,7 @@ msgstr ""
 
 #: inc/entityconfig.class.php:78
 msgid "GLPi's helpdesk"
-msgstr "GLPi's helpdesk"
+msgstr "ITSMNG's helpdesk"
 
 #: inc/entityconfig.class.php:79
 msgid "Service catalog simplified"
@@ -1606,13 +1606,13 @@ msgid ""
 "##formcreator.request_id## and transmitted to the helpdesk team.\\nYou can "
 "see your answers onto the following link:\\n##formcreator.validation_link##"
 msgstr ""
-"Hei,\\nDin henvendelse til GLPI har blitt opprettet med saksnummer "
+"Hei,\\nDin henvendelse til ITSMNG har blitt opprettet med saksnummer "
 "##formcreator.request_id## og oversent til helpdesk.\\nDu kan se dine svar "
 "ved å klikke lenken:\\n##formcreator.validation_link##"
 
 #: install/install.php:284
 msgid "A form from GLPI need to be validate"
-msgstr "Et skjema ifra GLPI trenger godkjenning"
+msgstr "Et skjema ifra ITSMNG trenger godkjenning"
 
 #: install/install.php:285
 msgid ""

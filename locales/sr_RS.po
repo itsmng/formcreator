@@ -175,7 +175,7 @@ msgstr "Podrazumijevani entitet korisnikovih pitanja odgovora "
 
 #: inc/abstracttarget.class.php:194
 msgid "From a GLPI object > Entity type question answer"
-msgstr "Od GLPI objekta > Vrsta pitanja odgovora entiteta"
+msgstr "Od ITSMNG objekta > Vrsta pitanja odgovora entiteta"
 
 #: inc/abstracttarget.class.php:201
 msgid "Tags from questions"
@@ -462,7 +462,7 @@ msgstr ""
 
 #: inc/entityconfig.class.php:78
 msgid "GLPi's helpdesk"
-msgstr "GLPI Helpdesk"
+msgstr "ITSMNG Helpdesk"
 
 #: inc/entityconfig.class.php:79
 msgid "Service catalog simplified"
@@ -1637,7 +1637,7 @@ msgstr ""
 
 #: install/install.php:284
 msgid "A form from GLPI need to be validate"
-msgstr "Obrazac sa GLPI-ja potrobno odobriti"
+msgstr "Obrazac sa ITSMNG-ja potrobno odobriti"
 
 #: install/install.php:285
 msgid ""
@@ -1645,7 +1645,7 @@ msgid ""
 "validator.\\nYou can access it by clicking onto this "
 "link:\\n##formcreator.validation_link##"
 msgstr ""
-"Pozdrav,\\nObrazac sa GLPI-ja je potrebno odobriti i vi ste izabrani kao "
+"Pozdrav,\\nObrazac sa ITSMNG-ja je potrebno odobriti i vi ste izabrani kao "
 "validator.\\nMožete pristupiti klikom na ovaj "
 "link:\\n##formcreator.validation_link##"
 

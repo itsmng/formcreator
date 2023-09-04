@@ -182,7 +182,7 @@ msgstr "Predvolená používateľská entita typu odpoved na otázku"
 
 #: inc/abstracttarget.class.php:216
 msgid "From a GLPI object > Entity type question answer"
-msgstr "Z objektu GLPI > Odpoveď na otázku typu entity"
+msgstr "Z objektu ITSMNG > Odpoveď na otázku typu entity"
 
 #: inc/abstracttarget.class.php:223
 msgid "Tags from questions"
@@ -483,7 +483,7 @@ msgstr "Bežný výraz je neplatný"
 
 #: inc/entityconfig.class.php:78
 msgid "GLPi's helpdesk"
-msgstr "GLPI service desk"
+msgstr "ITSMNG service desk"
 
 #: inc/entityconfig.class.php:79
 msgid "Service catalog simplified"
@@ -719,7 +719,7 @@ msgstr "Vytvoriť"
 
 #: inc/form.class.php:1878 inc/form.class.php:1889
 msgid "Please contact your GLPI administrator."
-msgstr "Kontaktujte svojho správcu GLPI."
+msgstr "Kontaktujte svojho správcu ITSMNG."
 
 #: inc/form.class.php:1879 inc/form.class.php:1890
 msgctxt "button"
@@ -1676,13 +1676,13 @@ msgid ""
 "##formcreator.request_id## and transmitted to the helpdesk team.\\nYou can "
 "see your answers onto the following link:\\n##formcreator.validation_link##"
 msgstr ""
-"Dobrý deň, Vaša žiadosť z GLPI bola úspešne uložená pod číslom "
+"Dobrý deň, Vaša žiadosť z ITSMNG bola úspešne uložená pod číslom "
 "##formcreator.request_id## a postúpená service desku. \\nSvoje odpovede si "
 "môžete pozrieť na nasledujúcom odkaze:\\n##formcreator.validation_link##"
 
 #: install/install.php:282
 msgid "A form from GLPI need to be validate"
-msgstr "Formulár z GLPI je potrebné overiť"
+msgstr "Formulár z ITSMNG je potrebné overiť"
 
 #: install/install.php:283
 msgid ""
@@ -1690,7 +1690,7 @@ msgid ""
 "validator.\\nYou can access it by clicking onto this "
 "link:\\n##formcreator.validation_link##"
 msgstr ""
-"Dobrý deň,\\nformulár z GLPI je potrebné overiť a vy ste boli vybratí ako "
+"Dobrý deň,\\nformulár z ITSMNG je potrebné overiť a vy ste boli vybratí ako "
 "overovateľ.\\nMôžete sa k nemu dostať kliknutím na tento "
 "odkaz:\\n##formcreator.validation_link##"
 

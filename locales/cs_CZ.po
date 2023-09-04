@@ -183,7 +183,7 @@ msgstr "Výchozí entita dle typu odpovědi uživatele"
 
 #: inc/abstracttarget.class.php:216
 msgid "From a GLPI object > Entity type question answer"
-msgstr "Z objektu GLPI > Typ entity otázka odpověď"
+msgstr "Z objektu ITSMNG > Typ entity otázka odpověď"
 
 #: inc/abstracttarget.class.php:223
 msgid "Tags from questions"
@@ -484,7 +484,7 @@ msgstr "Regulární výraz není platný"
 
 #: inc/entityconfig.class.php:78
 msgid "GLPi's helpdesk"
-msgstr "GLPI služba podpory"
+msgstr "ITSMNG služba podpory"
 
 #: inc/entityconfig.class.php:79
 msgid "Service catalog simplified"
@@ -720,7 +720,7 @@ msgstr "Vytvořit"
 
 #: inc/form.class.php:1878 inc/form.class.php:1889
 msgid "Please contact your GLPI administrator."
-msgstr "Obraťte se na svého správce GLPI."
+msgstr "Obraťte se na svého správce ITSMNG."
 
 #: inc/form.class.php:1879 inc/form.class.php:1890
 msgctxt "button"
@@ -1574,10 +1574,10 @@ msgstr "Dodatečné ověření"
 #: inc/field/glpiselectfield.class.php:158
 msgid "GLPI object"
 msgid_plural "GLPI objects"
-msgstr[0] "GLPI objekt"
-msgstr[1] "GLPI objektů"
-msgstr[2] "GLPI objektů"
-msgstr[3] "GLPI objekty"
+msgstr[0] "ITSMNG objekt"
+msgstr[1] "ITSMNG objektů"
+msgstr[2] "ITSMNG objektů"
+msgstr[3] "ITSMNG objekty"
 
 #: inc/field/integerfield.class.php:58
 #, php-format
@@ -1676,13 +1676,13 @@ msgid ""
 "##formcreator.request_id## and transmitted to the helpdesk team.\\nYou can "
 "see your answers onto the following link:\\n##formcreator.validation_link##"
 msgstr ""
-"Dobrý den,\\n Váš požadavek z GLPI byl úspěšně uložen pod číslem "
+"Dobrý den,\\n Váš požadavek z ITSMNG byl úspěšně uložen pod číslem "
 "##formcreator.request_id## a předán týmu podpory. Odpovědi můžete vidět na "
 "následujícím odkazu:\\n##formcreator.validation_link##"
 
 #: install/install.php:282
 msgid "A form from GLPI need to be validate"
-msgstr "Formulář z GLPI je třeba ověřit"
+msgstr "Formulář z ITSMNG je třeba ověřit"
 
 #: install/install.php:283
 msgid ""
@@ -1690,7 +1690,7 @@ msgid ""
 "validator.\\nYou can access it by clicking onto this "
 "link:\\n##formcreator.validation_link##"
 msgstr ""
-"Dobrý den,\\n je třeba, aby formulář z GLPI byl ověřen a vy jste byl vybrán "
+"Dobrý den,\\n je třeba, aby formulář z ITSMNG byl ověřen a vy jste byl vybrán "
 "jako ověřovatel.\\n K formuláři můžete přistoupit kliknutím na tento "
 "odkaz:\\n##formcreator.validation_link##"
 

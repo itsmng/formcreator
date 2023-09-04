@@ -180,7 +180,7 @@ msgstr "Standatd Einheit einer Antwort einer Benutzeranfrage"
 
 #: inc/abstracttarget.class.php:194
 msgid "From a GLPI object > Entity type question answer"
-msgstr "Aus einem GLPI-Objekt > Antwort auf eine Gruppen-Frage"
+msgstr "Aus einem ITSMNG-Objekt > Antwort auf eine Gruppen-Frage"
 
 #: inc/abstracttarget.class.php:201
 msgid "Tags from questions"
@@ -462,7 +462,7 @@ msgstr ""
 
 #: inc/entityconfig.class.php:78
 msgid "GLPi's helpdesk"
-msgstr "Helpdesk von GLPI"
+msgstr "Helpdesk von ITSMNG"
 
 #: inc/entityconfig.class.php:79
 msgid "Service catalog simplified"
@@ -694,7 +694,7 @@ msgstr "Erstellen"
 
 #: inc/form.class.php:1837 inc/form.class.php:1848
 msgid "Please contact your GLPI administrator."
-msgstr "Setzen Sie sich bitte mit Ihrem GLPI-Administrator in Verbindung."
+msgstr "Setzen Sie sich bitte mit Ihrem ITSMNG-Administrator in Verbindung."
 
 #: inc/form.class.php:1838 inc/form.class.php:1849
 msgctxt "button"
@@ -1615,14 +1615,14 @@ msgid ""
 "##formcreator.request_id## and transmitted to the helpdesk team.\\nYou can "
 "see your answers onto the following link:\\n##formcreator.validation_link##"
 msgstr ""
-"Guten Tag, \\nIhr Formular in GLPI wurde erfolgreich mit Nummer "
+"Guten Tag, \\nIhr Formular in ITSMNG wurde erfolgreich mit Nummer "
 "##formcreator.request_id## gespeichert und an das Help-Desk übertragen. \\n "
 "Sie können Ihre Anforderung unter folgendem Link einsehen: "
 "\\n##formcreator.validation_link##"
 
 #: install/install.php:284
 msgid "A form from GLPI need to be validate"
-msgstr "Ein Formular von GLPI wartet auf Genehmigung"
+msgstr "Ein Formular von ITSMNG wartet auf Genehmigung"
 
 #: install/install.php:285
 msgid ""
@@ -1630,7 +1630,7 @@ msgid ""
 "validator.\\nYou can access it by clicking onto this "
 "link:\\n##formcreator.validation_link##"
 msgstr ""
-"Guten Tag, \\nEin Formular von GLPI wartet auf Genehmigung. Sie wurden als "
+"Guten Tag, \\nEin Formular von ITSMNG wartet auf Genehmigung. Sie wurden als "
 "Genehmiger ausgewählt. \\n Das Formular kann unter folgendem Link aufgerufen"
 " werden, um genehmigt bzw. abgelehnt zu "
 "werden:\\n##formcreator.validation_link##"

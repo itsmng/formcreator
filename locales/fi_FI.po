@@ -173,7 +173,7 @@ msgstr "Oletusyksikkö käyttäjätyypin kysymyksen vastaukselle"
 
 #: inc/abstracttarget.class.php:194
 msgid "From a GLPI object > Entity type question answer"
-msgstr "GLPI-objektista > Yksikkötyypin kysymyksen vastaukseen"
+msgstr "ITSMNG-objektista > Yksikkötyypin kysymyksen vastaukseen"
 
 #: inc/abstracttarget.class.php:201
 msgid "Tags from questions"
@@ -455,7 +455,7 @@ msgstr ""
 
 #: inc/entityconfig.class.php:78
 msgid "GLPi's helpdesk"
-msgstr "GLPI-tukipalvelu"
+msgstr "ITSMNG-tukipalvelu"
 
 #: inc/entityconfig.class.php:79
 msgid "Service catalog simplified"
@@ -687,7 +687,7 @@ msgstr "Luo"
 
 #: inc/form.class.php:1837 inc/form.class.php:1848
 msgid "Please contact your GLPI administrator."
-msgstr "Ota yhteyttä GLPI-ylläpitäjään."
+msgstr "Ota yhteyttä ITSMNG-ylläpitäjään."
 
 #: inc/form.class.php:1838 inc/form.class.php:1849
 msgctxt "button"
@@ -1609,13 +1609,13 @@ msgid ""
 "##formcreator.request_id## and transmitted to the helpdesk team.\\nYou can "
 "see your answers onto the following link:\\n##formcreator.validation_link##"
 msgstr ""
-"Hei, \\nGLPI:n pyyntösi on tallennettu numerolla ## formcreator.request_id##"
+"Hei, \\nITSMNG:n pyyntösi on tallennettu numerolla ## formcreator.request_id##"
 " ja lähetetty helpdesk-tiimiin. \\nVoit nähdä vastauksesi seuraavasta "
 "linkistä: \\n## formcreator.validation_link##"
 
 #: install/install.php:284
 msgid "A form from GLPI need to be validate"
-msgstr "GLPI-lomake on vahvistettava"
+msgstr "ITSMNG-lomake on vahvistettava"
 
 #: install/install.php:285
 msgid ""
@@ -1623,7 +1623,7 @@ msgid ""
 "validator.\\nYou can access it by clicking onto this "
 "link:\\n##formcreator.validation_link##"
 msgstr ""
-"Hei,\\nGLPI lomake tarvitsee vahvistuksen ja sinut on valittu "
+"Hei,\\nITSMNG lomake tarvitsee vahvistuksen ja sinut on valittu "
 "vahvistajaksi.\\nPääset lomakkeeseen klikkaamalla tätä "
 "linkkiä:\\n##formcreator.validation_link##"
 

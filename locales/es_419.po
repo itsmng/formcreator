@@ -455,7 +455,7 @@ msgstr ""
 
 #: inc/entityconfig.class.php:78
 msgid "GLPi's helpdesk"
-msgstr "Mesa de ayuda GLPI"
+msgstr "Mesa de ayuda ITSMNG"
 
 #: inc/entityconfig.class.php:79
 msgid "Service catalog simplified"

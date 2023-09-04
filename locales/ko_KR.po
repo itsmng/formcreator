@@ -175,7 +175,7 @@ msgstr "사용자 유형 질답의 기본 개체"
 
 #: inc/abstracttarget.class.php:216
 msgid "From a GLPI object > Entity type question answer"
-msgstr "GLPI 객체에서 > 개체 유형 질답"
+msgstr "ITSMNG 객체에서 > 개체 유형 질답"
 
 #: inc/abstracttarget.class.php:223
 msgid "Tags from questions"
@@ -461,7 +461,7 @@ msgstr "정규식이 잘못되었습니다"
 
 #: inc/entityconfig.class.php:78
 msgid "GLPi's helpdesk"
-msgstr "GLPi 업무 지원 센터"
+msgstr "ITSMNG 업무 지원 센터"
 
 #: inc/entityconfig.class.php:79
 msgid "Service catalog simplified"
@@ -691,7 +691,7 @@ msgstr "생성"
 
 #: inc/form.class.php:1878 inc/form.class.php:1889
 msgid "Please contact your GLPI administrator."
-msgstr "GLPI 관리자에게 연락하세요."
+msgstr "ITSMNG 관리자에게 연락하세요."
 
 #: inc/form.class.php:1879 inc/form.class.php:1890
 msgctxt "button"
@@ -1501,7 +1501,7 @@ msgstr "추가 확인"
 #: inc/field/glpiselectfield.class.php:158
 msgid "GLPI object"
 msgid_plural "GLPI objects"
-msgstr[0] "GLPI 객체"
+msgstr[0] "ITSMNG 객체"
 
 #: inc/field/integerfield.class.php:58
 #, php-format
@@ -1597,12 +1597,12 @@ msgid ""
 "##formcreator.request_id## and transmitted to the helpdesk team.\\nYou can "
 "see your answers onto the following link:\\n##formcreator.validation_link##"
 msgstr ""
-"안녕하세요,\\nGLPI에서의 요청이 ##formcreator.request_id##로 잘 저장되었고 업무 지원 센터 팀에 전달 "
+"안녕하세요,\\nITSMNG에서의 요청이 ##formcreator.request_id##로 잘 저장되었고 업무 지원 센터 팀에 전달 "
 "되었습니다.\\n다음 링크에서 당신의 질문을 확인할 수 있습니다:\\n##formcreator.validation_link##"
 
 #: install/install.php:282
 msgid "A form from GLPI need to be validate"
-msgstr "GLPI에서의 양식은 확인이 필요합니다"
+msgstr "ITSMNG에서의 양식은 확인이 필요합니다"
 
 #: install/install.php:283
 msgid ""
@@ -1610,7 +1610,7 @@ msgid ""
 "validator.\\nYou can access it by clicking onto this "
 "link:\\n##formcreator.validation_link##"
 msgstr ""
-"안녕하세요,\\nGLPI에서의 양식은 확인이 필요하고 당신은 확인자로 선택 되었습니다.\\n이 링크를 클릭하여 접속할 수 "
+"안녕하세요,\\nITSMNG에서의 양식은 확인이 필요하고 당신은 확인자로 선택 되었습니다.\\n이 링크를 클릭하여 접속할 수 "
 "있습니다:\\n##formcreator.validation_link##"
 
 #: install/install.php:288

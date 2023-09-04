@@ -174,7 +174,7 @@ msgstr "A felhasználó típus kérdés válaszából az alapértelmezett szerve
 
 #: inc/abstracttarget.class.php:194
 msgid "From a GLPI object > Entity type question answer"
-msgstr "A GLPI objektum > szervezet típus kérdés válaszából "
+msgstr "A ITSMNG objektum > szervezet típus kérdés válaszából "
 
 #: inc/abstracttarget.class.php:201
 msgid "Tags from questions"
@@ -1609,14 +1609,14 @@ msgid ""
 "##formcreator.request_id## and transmitted to the helpdesk team.\\nYou can "
 "see your answers onto the following link:\\n##formcreator.validation_link##"
 msgstr ""
-"Üdvözlöm,\\nA kérelme a GLPI-ben mentésre került, a "
+"Üdvözlöm,\\nA kérelme a ITSMNG-ben mentésre került, a "
 "száma:##formcreator.request_id##. Kérelmét továbbítottuk a helpdesk "
 "csapatnak.\\nA válaszokat az alábbi linken nézheti "
 "meg:\\n##formcreator.validation_link##"
 
 #: install/install.php:284
 msgid "A form from GLPI need to be validate"
-msgstr "Egy űrlapot jóvá kell hagynia a GLPI-ben"
+msgstr "Egy űrlapot jóvá kell hagynia a ITSMNG-ben"
 
 #: install/install.php:285
 msgid ""
@@ -1624,7 +1624,7 @@ msgid ""
 "validator.\\nYou can access it by clicking onto this "
 "link:\\n##formcreator.validation_link##"
 msgstr ""
-"Üdvözlöm,\\nEgy űrlapot jóvá kell hagynia a GLPI-ben, melyen önt "
+"Üdvözlöm,\\nEgy űrlapot jóvá kell hagynia a ITSMNG-ben, melyen önt "
 "választották jóváhagyónak.\\nElérheti az alábbi linkre "
 "kattintva:\\n##formcreator.validation_link##"
 

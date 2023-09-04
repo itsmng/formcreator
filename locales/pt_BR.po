@@ -194,7 +194,7 @@ msgstr "Entidade padrão de uma resposta de tipo usuário"
 
 #: inc/abstracttarget.class.php:216
 msgid "From a GLPI object > Entity type question answer"
-msgstr "De um objeto do GLPI > Entidade tipo pergunta resposta"
+msgstr "De um objeto do ITSMNG > Entidade tipo pergunta resposta"
 
 #: inc/abstracttarget.class.php:223
 msgid "Tags from questions"
@@ -490,7 +490,7 @@ msgstr "A expressão regular é inválida"
 
 #: inc/entityconfig.class.php:78
 msgid "GLPi's helpdesk"
-msgstr "Helpdesk do GLPI"
+msgstr "Helpdesk do ITSMNG"
 
 #: inc/entityconfig.class.php:79
 msgid "Service catalog simplified"
@@ -726,7 +726,7 @@ msgstr "Criar"
 
 #: inc/form.class.php:1878 inc/form.class.php:1889
 msgid "Please contact your GLPI administrator."
-msgstr "Entre em contato com o administrador do GLPI."
+msgstr "Entre em contato com o administrador do ITSMNG."
 
 #: inc/form.class.php:1879 inc/form.class.php:1890
 msgctxt "button"
@@ -1569,9 +1569,9 @@ msgstr "Validação adicional"
 #: inc/field/glpiselectfield.class.php:158
 msgid "GLPI object"
 msgid_plural "GLPI objects"
-msgstr[0] "Objeto do GLPI"
-msgstr[1] "Objetos do GLPI"
-msgstr[2] "Objetos do GLPI"
+msgstr[0] "Objeto do ITSMNG"
+msgstr[1] "Objetos do ITSMNG"
+msgstr[2] "Objetos do ITSMNG"
 
 #: inc/field/integerfield.class.php:58
 #, php-format
@@ -1669,13 +1669,13 @@ msgid ""
 "##formcreator.request_id## and transmitted to the helpdesk team.\\nYou can "
 "see your answers onto the following link:\\n##formcreator.validation_link##"
 msgstr ""
-"Olá,\\nSua requisição do GLPI foi salva com sucesso com o número "
+"Olá,\\nSua requisição do ITSMNG foi salva com sucesso com o número "
 "##formcreator.request_id## e transmitido para a equipe de helpdesk.\\nVocê "
 "pode ver suas respostas no seguinte link:\\n##formcreator.validation_link##"
 
 #: install/install.php:282
 msgid "A form from GLPI need to be validate"
-msgstr "Um formulário vindo do GLPI necessita ser validado"
+msgstr "Um formulário vindo do ITSMNG necessita ser validado"
 
 #: install/install.php:283
 msgid ""
@@ -1683,7 +1683,7 @@ msgid ""
 "validator.\\nYou can access it by clicking onto this "
 "link:\\n##formcreator.validation_link##"
 msgstr ""
-"Olá,\\nUm formulário do GLPI precisa ser validado e você foi escolhido como "
+"Olá,\\nUm formulário do ITSMNG precisa ser validado e você foi escolhido como "
 "validador.\\nVocê pode acessá-lo clicando neste "
 "link:\\n##formcreator.validation_link##"
 

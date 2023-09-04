@@ -181,7 +181,7 @@ msgstr "Entité par défaut d'un utilisateur issue d'une question"
 
 #: inc/abstracttarget.class.php:216
 msgid "From a GLPI object > Entity type question answer"
-msgstr "Depuis un objet GLPI > Entité type question réponse"
+msgstr "Depuis un objet ITSMNG > Entité type question réponse"
 
 #: inc/abstracttarget.class.php:223
 msgid "Tags from questions"
@@ -480,7 +480,7 @@ msgstr "L'expression régulière n'est pas valide"
 
 #: inc/entityconfig.class.php:78
 msgid "GLPi's helpdesk"
-msgstr "Libre-service de GLPI"
+msgstr "Libre-service de ITSMNG"
 
 #: inc/entityconfig.class.php:79
 msgid "Service catalog simplified"
@@ -560,7 +560,7 @@ msgstr "Accès public"
 
 #: inc/form.class.php:64 inc/form.class.php:369
 msgid "Private access"
-msgstr "Utilisateur GLPI authentifié"
+msgstr "Utilisateur ITSMNG authentifié"
 
 #: inc/form.class.php:65 inc/form.class.php:373
 msgid "Restricted access"
@@ -716,7 +716,7 @@ msgstr "Créer"
 
 #: inc/form.class.php:1878 inc/form.class.php:1889
 msgid "Please contact your GLPI administrator."
-msgstr "Veuillez contacter votre administrateur GLPI."
+msgstr "Veuillez contacter votre administrateur ITSMNG."
 
 #: inc/form.class.php:1879 inc/form.class.php:1890
 msgctxt "button"
@@ -1563,9 +1563,9 @@ msgstr "Validation supplémentaire"
 #: inc/field/glpiselectfield.class.php:158
 msgid "GLPI object"
 msgid_plural "GLPI objects"
-msgstr[0] "Objet GLPI"
-msgstr[1] "Objets GLPI"
-msgstr[2] "Objets GLPI"
+msgstr[0] "Objet ITSMNG"
+msgstr[1] "Objets ITSMNG"
+msgstr[2] "Objets ITSMNG"
 
 #: inc/field/integerfield.class.php:58
 #, php-format
@@ -1670,7 +1670,7 @@ msgstr ""
 
 #: install/install.php:282
 msgid "A form from GLPI need to be validate"
-msgstr "Un formulaire GLPI est en attente de validation"
+msgstr "Un formulaire ITSMNG est en attente de validation"
 
 #: install/install.php:283
 msgid ""
@@ -1678,7 +1678,7 @@ msgid ""
 "validator.\\nYou can access it by clicking onto this "
 "link:\\n##formcreator.validation_link##"
 msgstr ""
-"Bonjour,\\nUn formulaire GLPI est en attente de validation et vous avez été "
+"Bonjour,\\nUn formulaire ITSMNG est en attente de validation et vous avez été "
 "choisi comme valideur.\\nVous pouvez accéder à celui-ci en cliquant sur le "
 "lien ci-dessous :\\n##formcreator.validation_link##"
 

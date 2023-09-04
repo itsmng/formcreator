@@ -113,7 +113,7 @@ msgstr "Helpdesk"
 
 #: inc/entityconfig.class.php:98
 msgid "GLPi's helpdesk"
-msgstr "GLPi's helpdesk"
+msgstr "ITSMNG's helpdesk"
 
 #: inc/entityconfig.class.php:99
 msgid "Service catalog simplified"
@@ -302,7 +302,7 @@ msgstr "Create"
 
 #: inc/form.class.php:1771 inc/form.class.php:1782
 msgid "Please contact your GLPI administrator."
-msgstr "Please contact your GLPI administrator."
+msgstr "Please contact your ITSMNG administrator."
 
 #: inc/form.class.php:1772 inc/form.class.php:1783
 msgctxt "button"
@@ -694,7 +694,7 @@ msgstr "Default entity of a user type question answer"
 
 #: inc/targetbase.class.php:186
 msgid "From a GLPI object > Entity type question answer"
-msgstr "From a GLPI object > Entity type question answer"
+msgstr "From a ITSMNG object > Entity type question answer"
 
 #: inc/targetbase.class.php:193
 msgid "Tags from questions"
@@ -1157,13 +1157,13 @@ msgid ""
 "##formcreator.request_id## and transmitted to the helpdesk team.\\nYou can "
 "see your answers onto the following link:\\n##formcreator.validation_link##"
 msgstr ""
-"Hi,\\nYour request from GLPI has been successfully saved with number "
+"Hi,\\nYour request from ITSMNG has been successfully saved with number "
 "##formcreator.request_id## and transmitted to the helpdesk team.\\nYou can "
 "see your answers onto the following link:\\n##formcreator.validation_link##"
 
 #: install/install.php:270
 msgid "A form from GLPI need to be validate"
-msgstr "A form from GLPI need to be validate"
+msgstr "A form from ITSMNG need to be validate"
 
 #: install/install.php:271
 msgid ""
@@ -1171,7 +1171,7 @@ msgid ""
 "validator.\\nYou can access it by clicking onto this "
 "link:\\n##formcreator.validation_link##"
 msgstr ""
-" Hi,\\nA form from GLPI need to be validate and you have been choosen as the"
+" Hi,\\nA form from ITSMNG need to be validate and you have been choosen as the"
 " validator.\\nYou can access it by clicking onto this "
 "link:\\n##formcreator.validation_link##"
 

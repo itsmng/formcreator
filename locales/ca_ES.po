@@ -178,7 +178,7 @@ msgstr "Entitat per defecte de la resposta de la pregunta tipus Usuari"
 
 #: inc/abstracttarget.class.php:216
 msgid "From a GLPI object > Entity type question answer"
-msgstr "Object GLPI > Resporta d'una pregunta de tipus Entitat"
+msgstr "Object ITSMNG > Resporta d'una pregunta de tipus Entitat"
 
 #: inc/abstracttarget.class.php:223
 msgid "Tags from questions"
@@ -469,7 +469,7 @@ msgstr "Expressió regular no vàlida"
 
 #: inc/entityconfig.class.php:78
 msgid "GLPi's helpdesk"
-msgstr "GLPI Helpdesk"
+msgstr "ITSMNG Helpdesk"
 
 #: inc/entityconfig.class.php:79
 msgid "Service catalog simplified"
@@ -701,7 +701,7 @@ msgstr "Crea"
 
 #: inc/form.class.php:1878 inc/form.class.php:1889
 msgid "Please contact your GLPI administrator."
-msgstr "Siusplau, contacta amb l'administrador del GLPI."
+msgstr "Siusplau, contacta amb l'administrador del ITSMNG."
 
 #: inc/form.class.php:1879 inc/form.class.php:1890
 msgctxt "button"

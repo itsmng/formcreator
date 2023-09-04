@@ -174,7 +174,7 @@ msgstr "Default entity of a user type question answer"
 
 #: inc/abstracttarget.class.php:216
 msgid "From a GLPI object > Entity type question answer"
-msgstr "From a GLPI object > Entity type question answer"
+msgstr "From a ITSMNG object > Entity type question answer"
 
 #: inc/abstracttarget.class.php:223
 msgid "Tags from questions"
@@ -465,7 +465,7 @@ msgstr "The regular expression is invalid"
 
 #: inc/entityconfig.class.php:78
 msgid "GLPi's helpdesk"
-msgstr "GLPi's helpdesk"
+msgstr "ITSMNG's helpdesk"
 
 #: inc/entityconfig.class.php:79
 msgid "Service catalog simplified"
@@ -697,7 +697,7 @@ msgstr "Create"
 
 #: inc/form.class.php:1878 inc/form.class.php:1889
 msgid "Please contact your GLPI administrator."
-msgstr "Please contact your GLPI administrator."
+msgstr "Please contact your ITSMNG administrator."
 
 #: inc/form.class.php:1879 inc/form.class.php:1890
 msgctxt "button"
@@ -1526,8 +1526,8 @@ msgstr "Additional validation"
 #: inc/field/glpiselectfield.class.php:158
 msgid "GLPI object"
 msgid_plural "GLPI objects"
-msgstr[0] "GLPI object"
-msgstr[1] "GLPI objects"
+msgstr[0] "ITSMNG object"
+msgstr[1] "ITSMNG objects"
 
 #: inc/field/integerfield.class.php:58
 #, php-format
@@ -1624,13 +1624,13 @@ msgid ""
 "##formcreator.request_id## and transmitted to the helpdesk team.\\nYou can "
 "see your answers onto the following link:\\n##formcreator.validation_link##"
 msgstr ""
-"Hi,\\nYour request from GLPI has been successfully saved with number "
+"Hi,\\nYour request from ITSMNG has been successfully saved with number "
 "##formcreator.request_id## and transmitted to the helpdesk team.\\nYou can "
 "see your answers onto the following link:\\n##formcreator.validation_link##"
 
 #: install/install.php:282
 msgid "A form from GLPI need to be validate"
-msgstr "A form from GLPI need to be validate"
+msgstr "A form from ITSMNG need to be validate"
 
 #: install/install.php:283
 msgid ""
@@ -1638,7 +1638,7 @@ msgid ""
 "validator.\\nYou can access it by clicking onto this "
 "link:\\n##formcreator.validation_link##"
 msgstr ""
-"Hi,\\nA form from GLPI need to be validate and you have been choosen as the "
+"Hi,\\nA form from ITSMNG need to be validate and you have been choosen as the "
 "validator.\\nYou can access it by clicking onto this "
 "link:\\n##formcreator.validation_link##"
 

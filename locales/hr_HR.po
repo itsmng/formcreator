@@ -179,7 +179,7 @@ msgstr "Standardni entitet za odgovor na korisničku vrstu pitanja"
 
 #: inc/abstracttarget.class.php:216
 msgid "From a GLPI object > Entity type question answer"
-msgstr "Od GLPI objekta > Odgovor na entitetsku vrstu pitanja"
+msgstr "Od ITSMNG objekta > Odgovor na entitetsku vrstu pitanja"
 
 #: inc/abstracttarget.class.php:223
 msgid "Tags from questions"
@@ -476,7 +476,7 @@ msgstr "Regularni izraz nije ispravan"
 
 #: inc/entityconfig.class.php:78
 msgid "GLPi's helpdesk"
-msgstr "GLPI podrška"
+msgstr "ITSMNG podrška"
 
 #: inc/entityconfig.class.php:79
 msgid "Service catalog simplified"
@@ -712,7 +712,7 @@ msgstr "Stvori"
 
 #: inc/form.class.php:1878 inc/form.class.php:1889
 msgid "Please contact your GLPI administrator."
-msgstr "Obrati se GLPI administratoru."
+msgstr "Obrati se ITSMNG administratoru."
 
 #: inc/form.class.php:1879 inc/form.class.php:1890
 msgctxt "button"
@@ -1554,9 +1554,9 @@ msgstr "Dodatna potvrda"
 #: inc/field/glpiselectfield.class.php:158
 msgid "GLPI object"
 msgid_plural "GLPI objects"
-msgstr[0] "GLPI objekt"
-msgstr[1] "GLPI objekti"
-msgstr[2] "GLPI objekti"
+msgstr[0] "ITSMNG objekt"
+msgstr[1] "ITSMNG objekti"
+msgstr[2] "ITSMNG objekti"
 
 #: inc/field/integerfield.class.php:58
 #, php-format
@@ -1654,13 +1654,13 @@ msgid ""
 "##formcreator.request_id## and transmitted to the helpdesk team.\\nYou can "
 "see your answers onto the following link:\\n##formcreator.validation_link##"
 msgstr ""
-"Pozdrav,\\ntvoj zahtjev iz GLPI-a je spremljen pod brojem "
+"Pozdrav,\\ntvoj zahtjev iz ITSMNG-a je spremljen pod brojem "
 "##formcreator.request_id## i proslijeđen podršci.\\nTvoje odgovore možeš "
 "vidjeti na:\\n##formcreator.validation_link##"
 
 #: install/install.php:282
 msgid "A form from GLPI need to be validate"
-msgstr "Potrebno je potvrditi GLPI obrazac"
+msgstr "Potrebno je potvrditi ITSMNG obrazac"
 
 #: install/install.php:283
 msgid ""
@@ -1668,7 +1668,7 @@ msgid ""
 "validator.\\nYou can access it by clicking onto this "
 "link:\\n##formcreator.validation_link##"
 msgstr ""
-"Pozdrav,\\nobrazac iz GLPI-a treba potvrditi, a tebe smo odabrali za "
+"Pozdrav,\\nobrazac iz ITSMNG-a treba potvrditi, a tebe smo odabrali za "
 "potvrditelja.\\nPristupi obrascu putem "
 "poveznice:\\n##formcreator.validation_link##"
 

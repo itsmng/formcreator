@@ -182,7 +182,7 @@ msgstr "Відповідь для питання типу Типовий під�
 
 #: inc/abstracttarget.class.php:216
 msgid "From a GLPI object > Entity type question answer"
-msgstr "З об'єкту GLPI > Відповідь для питання типу Підрозділ"
+msgstr "З об'єкту ITSMNG > Відповідь для питання типу Підрозділ"
 
 #: inc/abstracttarget.class.php:223
 msgid "Tags from questions"
@@ -483,7 +483,7 @@ msgstr "Регулярний вираз недійсний"
 
 #: inc/entityconfig.class.php:78
 msgid "GLPi's helpdesk"
-msgstr "Сервіс-деск GLPi"
+msgstr "Сервіс-деск ITSMNG"
 
 #: inc/entityconfig.class.php:79
 msgid "Service catalog simplified"
@@ -719,7 +719,7 @@ msgstr "Створити"
 
 #: inc/form.class.php:1878 inc/form.class.php:1889
 msgid "Please contact your GLPI administrator."
-msgstr "Зверніться до адміністратора GLPI."
+msgstr "Зверніться до адміністратора ITSMNG."
 
 #: inc/form.class.php:1879 inc/form.class.php:1890
 msgctxt "button"
@@ -1572,10 +1572,10 @@ msgstr "Додаткова перевірка"
 #: inc/field/glpiselectfield.class.php:158
 msgid "GLPI object"
 msgid_plural "GLPI objects"
-msgstr[0] "Об'єкт GLPI"
-msgstr[1] "Об'єкти GLPI"
-msgstr[2] "Об'єкти GLPI"
-msgstr[3] "Об'єкти GLPI"
+msgstr[0] "Об'єкт ITSMNG"
+msgstr[1] "Об'єкти ITSMNG"
+msgstr[2] "Об'єкти ITSMNG"
+msgstr[3] "Об'єкти ITSMNG"
 
 #: inc/field/integerfield.class.php:58
 #, php-format
