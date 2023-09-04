@@ -47,7 +47,7 @@ class PluginFormcreatorFormList extends CommonGLPI
    }
 
    static function getMenuContent() {
-      $menu = parent::getMenuContent();
+      $menu = (parent::getMenuContent() == FALSE) ? [] : parent::getMenuContent();
       $menu['title'] = static::getTypeName(2);
       $menu['page'] = '/' . Plugin::getWebDir('formcreator', false) . '/front/formlist.php';
       $menu['icon'] = 'fas fa-edit';
