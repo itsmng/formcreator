@@ -1,0 +1,18 @@
+{
+    "dependencies": {
+        "jquery-slinky": "^4.1",
+        "masonry-layout": "^4.2"
+    },
+    "devDependencies": {
+        "standard-version": "^8.0",
+        "conventional-changelog-cli": "^2.0"
+    },
+    "standard-version": {
+        "skip": {
+            "bump": true,
+            "commit": true,
+            "tag": true
+        }
+    },
+    "version": "2.12.7"
+}
