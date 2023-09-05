@@ -35,12 +35,12 @@ define('PLUGIN_FORMCREATOR_VERSION', '2.12.7');
 // Schema version of this version (major.minor only)
 define('PLUGIN_FORMCREATOR_SCHEMA_VERSION', '2.12');
 // is or is not an official release of the plugin
-define('PLUGIN_FORMCREATOR_IS_OFFICIAL_RELEASE', false);
+define('PLUGIN_FORMCREATOR_IS_OFFICIAL_RELEASE', true);
 
 // Minimal GLPI version, inclusive
-define ('PLUGIN_FORMCREATOR_ITSMNG_MIN_VERSION', '1.5.1');
+define ('PLUGIN_FORMCREATOR_ITSMNG_MIN_VERSION', '9.5');
 // Maximum GLPI version, exclusive (ignored if PLUGIN_FORMCREATOR_IS_OFFICIAL_RELEASE == false)
-define ('PLUGIN_FORMCREATOR_ITSMNG_MAX_VERSION', '1.5.1');
+define ('PLUGIN_FORMCREATOR_ITSMNG_MAX_VERSION', '9.6');
 
 define('FORMCREATOR_ROOTDOC', Plugin::getWebDir('formcreator'));
 
@@ -50,7 +50,7 @@ define('FORMCREATOR_ROOTDOC', Plugin::getWebDir('formcreator'));
  * @return Array [name, version, author, homepage, license, minGlpiVersion]
  */
 function plugin_version_formcreator() {
-   $glpiVersion = rtrim(ITSM_VERSION, '-dev');
+   $glpiVersion = rtrim(GLPI_VERSION, '-dev');
    if (!method_exists('Plugins', 'checkGlpiVersion') && version_compare($glpiVersion, PLUGIN_FORMCREATOR_ITSMNG_MIN_VERSION, 'lt')) {
       echo 'This plugin requires GLPI >= ' . PLUGIN_FORMCREATOR_ITSMNG_MIN_VERSION;
       return false;
@@ -83,8 +83,8 @@ function plugin_version_formcreator() {
 function plugin_formcreator_check_prerequisites() {
    $prerequisitesSuccess = true;
 
-   if (version_compare(ITSM_VERSION, PLUGIN_FORMCREATOR_ITSMNG_MIN_VERSION, 'lt')
-       || PLUGIN_FORMCREATOR_IS_OFFICIAL_RELEASE && version_compare(ITSM_VERSION, PLUGIN_FORMCREATOR_ITSMNG_MAX_VERSION, 'ge')) {
+   if (version_compare(GLPI_VERSION, PLUGIN_FORMCREATOR_ITSMNG_MIN_VERSION, 'lt')
+       || PLUGIN_FORMCREATOR_IS_OFFICIAL_RELEASE && version_compare(GLPI_VERSION, PLUGIN_FORMCREATOR_ITSMNG_MAX_VERSION, 'ge')) {
       echo "This plugin requires GLPI >= " . PLUGIN_FORMCREATOR_ITSMNG_MIN_VERSION . " and GLPI < " . PLUGIN_FORMCREATOR_ITSMNG_MAX_VERSION . "<br>";
       $prerequisitesSuccess = false;
    }
