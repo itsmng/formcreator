@@ -5,7 +5,7 @@
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![GitHub All Releases](https://img.shields.io/github/downloads/itsmng/formcreator/total)](https://github.com/itsmng/formcreator/releases)
 
-Extend GLPI with Plugins.
+Extend ITSMNG with Plugins.
 
 ## Table of Contents
 
