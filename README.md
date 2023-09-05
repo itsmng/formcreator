@@ -1,9 +1,8 @@
 # Form Creator
 
-[![License GPL 3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](https://github.com/itsmng/formcreator/blob/main/LICENSE.md)
+[![License](https://img.shields.io/github/license/itsmng/formcreator.svg?&label=License)](https://github.com/itsmng/formcreator/blob/main/LICENSE)
 [![Project Status: Active](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
-[![GitHub All Releases](https://img.shields.io/github/downloads/itsmng/formcreator/total)](https://github.com/itsmng/formcreator/releases)
+[![GitHub release](https://img.shields.io/github/release/itsmng/formcreator.svg)](https://github.com/itsmng/formcreator/releases)
 
 Extend ITSMNG with Plugins.
 
