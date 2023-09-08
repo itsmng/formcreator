@@ -58,7 +58,7 @@ function plugin_version_formcreator() {
    $requirements = [
       'name'           => 'Form Creator',
       'version'        => PLUGIN_FORMCREATOR_VERSION,
-      'author'         => 'Teclib\'',
+      'author'         => 'ITSMNG Team & Teclib',
       'homepage'       => 'https://github.com/itsmng/formcreator',
       'license'        => '<a href="../plugins/formcreator/LICENSE" target="_blank">GPLv2</a>',
       'requirements'   => [
