@@ -1,3 +1,11 @@
+<a name="2.13.0"></a>
+## 2.13.0 (2023-09-08)
+
+
+### Feature
+
+* New version by ITSM-NG
+
 <a name="2.12.7"></a>
 ## [2.12.7](https://github.com/pluginsglpi/formcreator/compare/v2.12.6..2.12.7) (2022-11-24)
 
