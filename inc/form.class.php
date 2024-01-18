@@ -436,6 +436,15 @@ PluginFormcreatorTranslatableInterface
 
       echo '</tr>';
 
+      echo '<tr><td>'.__('Icon Type').'</td><td>';
+      $rand = Dropdown::showFromArray('icon_type', [
+         '0' => __('Font Awesome'),
+         '1' => __('Image'),
+      ], [
+         'value' => $this->fields['icon_type'],
+         'on_change' => ''
+      ]);
+      echo '</td></tr>';
       echo '<tr class="tab_bg_1">';
       echo '<td>' . __('Form icon', 'formcreator') . '</td>';
       echo '<td>';
