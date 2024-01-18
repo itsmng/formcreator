@@ -1497,7 +1497,7 @@ PluginFormcreatorTranslatableInterface
                }
             }
          };
-      } else {
+      } else if (isset($input['id'])) {
          $form = new self();
          $form->getFromDB($input['id']);
          if ($form->fields['icon_type'] == 1) {
@@ -1516,7 +1516,6 @@ PluginFormcreatorTranslatableInterface
             return [];
          }
       }
-
       return $input;
    }
 
