@@ -437,22 +437,47 @@ PluginFormcreatorTranslatableInterface
       echo '</tr>';
 
       echo '<tr><td>'.__('Icon Type').'</td><td>';
-      $rand = Dropdown::showFromArray('icon_type', [
+      Dropdown::showFromArray('icon_type', [
          '0' => __('Font Awesome'),
          '1' => __('Image'),
       ], [
          'value' => $this->fields['icon_type'],
-         'on_change' => ''
+         'on_change' => <<<JS
+            if (this.value == 0) {
+               $("#icon_fa").show();
+               $("#icon_fa input").removeAttr("disabled");
+               $("#icon_image").hide();
+               $("#icon_image input").attr("disabled", true);
+            } else {
+               $("#icon_fa").hide();
+               $("#icon_fa input").attr("disabled", true);
+               $("#icon_image").show();
+               $("#icon_image input").removeAttr("disabled");
+            }
+         JS,
       ]);
       echo '</td></tr>';
       echo '<tr class="tab_bg_1">';
       echo '<td>' . __('Form icon', 'formcreator') . '</td>';
-      echo '<td>';
+   
+      echo '<td id="icon_fa"';
+      if ($this->fields['icon_type'] == 1) {
+         echo ' style="display: none"';
+      }
+      echo '>';
       $icon = $this->fields['icon'] == '' ? 'fa fa-question-circle' : $this->fields['icon'];
-      PluginFormcreatorCommon::showFontAwesomeDropdown('icon', ['value' => $icon]);
+      PluginFormcreatorCommon::showFontAwesomeDropdown('icon', ['value' => $icon, 'disabled' => $this->fields['icon_type'] == 1]);
       $iconColor = $this->fields['icon_color'] == '' ? '#999999' : $this->fields['icon_color'];
-      Html::showColorField('icon_color', ['value' => $iconColor]);
+      Html::showColorField('icon_color', ['value' => $iconColor, 'disabled' => $this->fields['icon_type'] == 1]);
       echo '</td>';
+   
+      echo '<td id="icon_image"';
+      if ($this->fields['icon_type'] == 0) {
+         echo ' style="display: none"';
+      }
+      echo '>';
+      echo '</td>';
+   
       echo '<td>' . __('Background color', 'formcreator') . '</td>';
       echo '<td>';
       $tileColor = $this->fields['background_color'] == '' ? '#E7E7E7' : $this->fields['background_color'];
