@@ -516,25 +516,61 @@ function buildTiles(list) {
          }
 
          if (item.type == 'form') {
-            forms.push(
-               '<div data-itemtype="PluginFormcreatorForm" data-id="' + item.id + '" style="background-color: ' + item.background_color + '" class="plugin_formcreator_formTile '+item.type+' '+default_class+'" title="'+item.description+'">'
-               + '<i class="' + item.icon + '" style="color: ' + item.icon_color+ '"></i>'
-               + '<a href="' + url + '" class="plugin_formcreator_formTile_title">'
-               + item.name
-               + '</a>'
-               + description
-               + '</div>'
-            );
+            forms.push(`
+               <div data-itemtype="PluginFormcreatorForm"
+                     data-id="${item.id}"
+                     style="background-color: ${item.background_color};"
+                     class="plugin_formcreator_formTile ${item.type} ${default_class}"
+                     title="${item.description}">
+
+                  <div style="display:flex;align-items:center;width:90%;height:2.5rem">
+                     ${
+                        item.icon_type
+                        ? `<img src="${item.icon}"
+                                 style="width:2rem; height: 2rem; color: ${item.icon_color};">
+                           </img>`
+                        : `<i class="${item.icon}"
+                                 style="color: ${item.icon_color};">
+                           </i>`
+                     }
+                     
+                     <a href="${url}"
+                        class="plugin_formcreator_formTile_title">
+                        ${item.name}
+                     </a>
+                  </div>
+                  
+                  ${description}
+                  
+               </div>
+            `);
          } else {
-            faqs.push(
-               '<div style="background-color: ' + item.background_color + '" class="plugin_formcreator_formTile '+item.type+' '+default_class+'" title="'+item.description+'">'
-               + '<i class="fa ' + item.icon + '" style="color: ' + item.icon_color+ '"></i>'
-               + '<a href="' + url + '" class="plugin_formcreator_formTile_title">'
-               + item.name
-               + '</a>'
-               + description
-               + '</div>'
-            );
+            faqs.push(`
+            <div  style="background-color: ${item.background_color};"
+                  class="plugin_formcreator_formTile ${item.type} ${default_class}"
+                  title="${item.description}">
+
+               <div style="display:flex;align-items:center;width:90%;height:2.5rem">
+                  ${
+                     item.icon_type
+                     ? `<img src="${item.icon}"
+                              style="width:2rem; height: 2rem; color: ${item.icon_color};">
+                        </img>`
+                     : `<i class="${item.icon}"
+                              style="color: ${item.icon_color};">
+                        </i>`
+                  }
+                  
+                  <a href="${url}"
+                     class="plugin_formcreator_formTile_title">
+                     ${item.name}
+                  </a>
+               </div>
+               
+               ${description}
+               
+            </div>
+         `);
          }
       });
 
