@@ -438,7 +438,7 @@ PluginFormcreatorTranslatableInterface
 
       echo '<tr><td>'.__('Icon Type').'</td><td>';
       Dropdown::showFromArray('icon_type', [
-         '0' => __('Font Awesome'),
+         '0' => __('Icon'),
          '1' => __('Image'),
       ], [
          'value' => $this->fields['icon_type'],
