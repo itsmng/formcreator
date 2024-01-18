@@ -436,14 +436,55 @@ PluginFormcreatorTranslatableInterface
 
       echo '</tr>';
 
+      echo '<tr><td>'.__('Icon Type').'</td><td>';
+      Dropdown::showFromArray('icon_type', [
+         '0' => __('Icon'),
+         '1' => __('Image'),
+      ], [
+         'value' => $this->fields['icon_type'],
+         'on_change' => <<<JS
+            if (this.value == 0) {
+               $("#icon_fa").show();
+               $("#icon_fa input").removeAttr("disabled");
+               $("#icon_fa select").removeAttr("disabled");
+               $("#icon_image").hide();
+               $("#icon_image input").attr("disabled", true);
+            } else {
+               $("#icon_fa").hide();
+               $("#icon_fa input").attr("disabled", true);
+               $("#icon_fa select").attr("disabled", true);
+               $("#icon_image").show();
+               $("#icon_image input").removeAttr("disabled");
+            }
+         JS,
+      ]);
+      echo '</td></tr>';
       echo '<tr class="tab_bg_1">';
       echo '<td>' . __('Form icon', 'formcreator') . '</td>';
-      echo '<td>';
+   
+      echo '<td id="icon_fa"';
+      if ($this->fields['icon_type'] == 1) {
+         echo ' style="display: none"';
+      }
+      echo '>';
       $icon = $this->fields['icon'] == '' ? 'fa fa-question-circle' : $this->fields['icon'];
-      PluginFormcreatorCommon::showFontAwesomeDropdown('icon', ['value' => $icon]);
+      PluginFormcreatorCommon::showFontAwesomeDropdown('icon', ['value' => $icon, 'disabled' => $this->fields['icon_type'] == 1]);
       $iconColor = $this->fields['icon_color'] == '' ? '#999999' : $this->fields['icon_color'];
-      Html::showColorField('icon_color', ['value' => $iconColor]);
+      Html::showColorField('icon_color', ['value' => $iconColor, 'disabled' => $this->fields['icon_type'] == 1]);
       echo '</td>';
+   
+      echo '<td id="icon_image"';
+      if ($this->fields['icon_type'] == 0) {
+         echo ' style="display: none"';
+      }
+      echo '>';
+      if ($this->fields['icon_type'] && $this->fields['icon'] != '') {
+         echo "<img class='user_picture_small' alt=\"".__s('Picture')."\" src='".
+         $CFG_GLPI["root_doc"]."/front/document.send.php?file=_pictures/". $this->fields['icon'] ."'>";
+      }
+      echo Html::file(['name' => 'icon', 'display' => false, 'onlyimages' => true]);
+      echo '</td>';
+   
       echo '<td>' . __('Background color', 'formcreator') . '</td>';
       echo '<td>';
       $tileColor = $this->fields['background_color'] == '' ? '#E7E7E7' : $this->fields['background_color'];
@@ -876,7 +917,7 @@ PluginFormcreatorTranslatableInterface
     * @return array
     */
    public function showFormList(int $rootCategory = 0, string $keywords = '', bool $helpdeskHome = false) : array {
-      global $DB, $TRANSLATE;
+      global $DB, $TRANSLATE, $CFG_GLPI;
 
       $table_cat          = getTableForItemType('PluginFormcreatorCategory');
       $table_form         = getTableForItemType('PluginFormcreatorForm');
@@ -936,7 +977,7 @@ PluginFormcreatorTranslatableInterface
 
       $result_forms = $DB->request([
          'SELECT' => [
-            $table_form => ['id', 'name', 'icon', 'icon_color', 'background_color', 'description', 'usage_count', 'is_default'],
+            $table_form => ['id', 'name', 'icon_type', 'icon', 'icon_color', 'background_color', 'description', 'usage_count', 'is_default'],
          ],
          'FROM' => $table_form,
          'LEFT JOIN' => [
@@ -996,7 +1037,8 @@ PluginFormcreatorTranslatableInterface
             $formList[] = [
                'id'               => $form['id'],
                'name'             => __($form['name'], $domain),
-               'icon'             => $form['icon'],
+               'icon_type'        => $form['icon_type'],
+               'icon'             => $form['icon_type'] ? $CFG_GLPI['root_doc'] . '/front/document.send.php?file=_pictures/' .  $form['icon'] : $form['icon'],
                'icon_color'       => $form['icon_color'],
                'background_color' => $form['background_color'],
                'description'      => __($form['description'], $domain),
@@ -1429,6 +1471,39 @@ PluginFormcreatorTranslatableInterface
          $input['uuid'] = plugin_formcreator_getUuid();
       }
 
+      if ($input['icon_type'] == 1) {
+         $fullpath = GLPI_TMP_DIR . '/' . $input['_icon'][0];
+         if (Document::isImage($fullpath)) {
+            // move the file to the right directory
+            $filename     = uniqid(rand().'_');
+            $sub          = substr($filename, -2); /* 2 hex digit */
+            
+            // output images with possible transparency to png, other to jpg
+            $extension = strtolower(pathinfo($fullpath, PATHINFO_EXTENSION));
+            $extension = in_array($extension, ['png', 'gif'])
+            ? 'png'
+            : 'jpg';
+            
+            @mkdir(GLPI_PICTURE_DIR . "/$sub");
+            $picture_path = GLPI_PICTURE_DIR  . "/$sub/{$filename}.$extension";
+            if (Document::renameForce($fullpath, $picture_path)) {
+               $input['icon'] = "$sub/{$filename}.$extension";
+               if (isset($input['id'])) {
+                  $form = new self();
+                  $form->getFromDB($input['id']);
+                  if ($form->fields['icon_type'] == 1) {
+                     User::dropPictureFiles($form->fields['icon']);
+                  }
+               }
+            }
+         };
+      } else if (isset($input['id'])) {
+         $form = new self();
+         $form->getFromDB($input['id']);
+         if ($form->fields['icon_type'] == 1) {
+            User::dropPictureFiles($form->fields['icon']);
+         }
+      }
       // Control fields values :
       // - name is required
       if (isset($input['name'])) {
@@ -1441,7 +1516,6 @@ PluginFormcreatorTranslatableInterface
             return [];
          }
       }
-
       return $input;
    }
 

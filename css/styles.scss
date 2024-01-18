@@ -970,7 +970,7 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
 
 .plugin_formcreator_formTile {
    margin: 0 3px 6px 3px;
-   width: 300px;
+   width: 20rem;
    display: inline-block;
    vertical-align: top;
    text-align: left;
@@ -982,6 +982,26 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
    animation-iteration-count: 1;
    animation-timing-function: ease-in;
    animation-duration: 0.3s;
+   height: 6rem;
+   display: flex;
+
+   & > div:first-child {
+      width: 6rem;
+      font-size: 4.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      & > img {
+         width: 4.5rem;
+         height: 4.5rem;
+         object-fit: contain;
+      }
+   }
+
+   &:hover {
+      background-color: #EEEEEE;
+   }
 }
 .plugin_formcreator_formTile:hover {
    background-color: #EEEEEE
@@ -1001,23 +1021,11 @@ a.plugin_formcreator_formTile_title {
    cursor: pointer;
 }
 
-.plugin_formcreator_formTile {
-    i.fa, i.fab, i.fas {
-      font-size: 2.5em;
-      margin-right: 10px;
-      float: left;
-      margin: 10px;
-   }
-}
-
 .plugin_formcreator_formTile_description {
    padding: 0 15px 5px 15px;
-}
-
-.plugin_formcreator_formTile div:first-child {
-   color: #F00;
-   float: right;
-   margin: 0 5px;
+   height: 2rem;
+   overflow-y: auto;
+   overflow-wrap: break-word;
 }
 
 #plugin_formcreator_lastForms {
