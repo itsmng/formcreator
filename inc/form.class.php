@@ -1488,8 +1488,21 @@ PluginFormcreatorTranslatableInterface
             $picture_path = GLPI_PICTURE_DIR  . "/$sub/{$filename}.$extension";
             if (Document::renameForce($fullpath, $picture_path)) {
                $input['icon'] = "$sub/{$filename}.$extension";
+               if (isset($input['id'])) {
+                  $form = new self();
+                  $form->getFromDB($input['id']);
+                  if ($form->fields['icon_type'] == 1) {
+                     User::dropPictureFiles($form->fields['icon']);
+                  }
+               }
             }
          };
+      } else {
+         $form = new self();
+         $form->getFromDB($input['id']);
+         if ($form->fields['icon_type'] == 1) {
+            User::dropPictureFiles($form->fields['icon']);
+         }
       }
       // Control fields values :
       // - name is required
