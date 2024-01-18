@@ -37,7 +37,7 @@ class PluginFormcreatorUpgradeTo2_13 {
     */
    public function upgrade(Migration $migration) {
       // add icon_type field
-      $migration->addField('glpi_plugin_formcreator_forms', 'icon_type', 'tinyint(1) NOT NULL DEFAULT 0 AFTER `is_revursive`');
+      $migration->addField('glpi_plugin_formcreator_forms', 'icon_type', 'tinyint(1) NOT NULL DEFAULT 0 AFTER `is_recursive`');
       $this->migration = $migration;
    }
 }
