@@ -463,7 +463,7 @@ PluginFormcreatorTranslatableInterface
       echo '<td>' . __('Form icon', 'formcreator') . '</td>';
    
       echo '<td id="icon_fa"';
-      if ($this->fields['icon_type'] == 1) {
+      if ($this->fields['icon_type']) {
          echo ' style="display: none"';
       }
       echo '>';
@@ -474,7 +474,7 @@ PluginFormcreatorTranslatableInterface
       echo '</td>';
    
       echo '<td id="icon_image"';
-      if ($this->fields['icon_type'] == 0) {
+      if (!$this->fields['icon_type']) {
          echo ' style="display: none"';
       }
       echo '>';
