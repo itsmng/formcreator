@@ -1,7 +1,0 @@
-# Composer
-/vendor/
-composer.lock
-
-# Tests
-/report/
-

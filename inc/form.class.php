@@ -1471,7 +1471,7 @@ PluginFormcreatorTranslatableInterface
          $input['uuid'] = plugin_formcreator_getUuid();
       }
 
-      if ($input['icon_type'] == 1) {
+      if ($input['icon_type'] == 1 && isset($input['_icon'])) {
          $fullpath = GLPI_TMP_DIR . '/' . $input['_icon'][0];
          if (Document::isImage($fullpath)) {
             // move the file to the right directory
