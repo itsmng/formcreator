@@ -129,8 +129,6 @@ function plugin_init_formcreator() {
    // Set the plugin CSRF compliance (required since GLPI 0.84)
    $PLUGIN_HOOKS['csrf_compliant']['formcreator'] = true;
 
-   $PLUGIN_HOOKS['change_profile']['formcreator'] = array(PluginFormcreatorProfile::class, 'changeProfile');
-
    // Can assign FormAnswer to tickets
    $PLUGIN_HOOKS['assign_to_ticket']['formcreator'] = true;
    array_push($CFG_GLPI["ticket_types"], PluginFormcreatorFormAnswer::class);
