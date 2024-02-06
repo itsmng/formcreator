@@ -52,6 +52,10 @@ class PluginFormcreatorWizard {
       }
       $HEADER_LOADED = true;
 
+
+      $fcConfig = new PluginFormcreatorConfig();
+      $config = $fcConfig->getConfig();
+
       Html::includeHeader($title, 'helpdesk');
 
       $body_class = "layout_".$_SESSION['glpilayout'];
@@ -66,8 +70,9 @@ class PluginFormcreatorWizard {
       echo "<body class='$body_class' id='plugin_formcreator_serviceCatalog'>";
 
       $toggle_menu = '';
-      if (isset($_SESSION['plugin_formcreator_toggle_menu'])
-          && $_SESSION['plugin_formcreator_toggle_menu']) {
+      if (!isset($_SESSION['plugin_formcreator_toggle_menu'])) {
+         $toggle_menu = $config['collapse_menu'] == 1 ? "toggle_menu" : "";
+      } else if ($_SESSION['plugin_formcreator_toggle_menu']) {
          $toggle_menu = "toggle_menu";
       }
       echo '<div class="plugin_formcreator_container '.$toggle_menu.'">';

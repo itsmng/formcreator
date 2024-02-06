@@ -317,3 +317,11 @@ CREATE TABLE IF NOT EXISTS `glpi_plugin_formcreator_forms_languages` (
   `uuid`                              varchar(255)  DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `glpi_plugin_formcreator_configs` (
+  `id`                int(11) NOT NULL AUTO_INCREMENT,
+  `name`              varchar(255) NOT NULL DEFAULT '',
+  `value`             text,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
