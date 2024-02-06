@@ -75,7 +75,7 @@
         PluginFormcreatorCategory::dropdown(['name' => 'default_categories_id', 'value' => $defaultCategory]);
         $defaultCategoryDropdown = ob_get_clean();
 
-        $seeAllLabel = __('See all', 'formcreator');
+        $seeAllLabel = __('Enable See all tab', 'formcreator');
         $seeAll = $config['see_all'] == 1 ? 'checked' : '';
 
         $action = Plugin::getWebDir('formcreator') . '/front/config.form.php';
@@ -91,23 +91,23 @@
                         <th colspan="4">$headerGeneral</th>
                     </tr>
                     <tr>
-                        <td>$profileLabel</td>
-                        <td>
-                            <input type="hidden" name="enable_profile_info" value="0">
-                            <input type="checkbox" name="enable_profile_info" value="1" {$pofileChecked}/>
-                        </td>
-                        <td>$defaultCategoryLabel</td>
-                        <td>$defaultCategoryDropdown</td>
-                    </tr>
-                    <tr>
                         <td>$seeAllLabel</td>
                         <td>
                             <input type="hidden" name="see_all" value="0">
                             <input type="checkbox" name="see_all" value="1" {$seeAll}/>
                         </td>
+                        <td>$defaultCategoryLabel</td>
+                        <td>$defaultCategoryDropdown</td>
                     </tr>
                     <tr>
                         <th colspan="4">$headerSimplified</th>
+                    </tr>
+                    <tr>
+                        <td>$profileLabel</td>
+                        <td>
+                            <input type="hidden" name="enable_profile_info" value="0">
+                            <input type="checkbox" name="enable_profile_info" value="1" {$pofileChecked}/>
+                        </td>
                     </tr>
                     <tr>
                         <td>$collapseLabel</td>
