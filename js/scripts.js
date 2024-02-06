@@ -107,9 +107,11 @@ $(function() {
       showHomepageFormList();
 
    } else if ($('#plugin_formcreator_wizard_categories').length > 0) {
-      updateCategoriesView();
+      const isActive = updateCategoriesView();
       updateWizardFormsView(0);
-      $("#wizard_seeall").parent().addClass('category_active');
+      if (!isActive) {
+         $("#wizard_seeall").parent().addClass('category_active');
+      }
 
       // Setup events
       $('.plugin_formcreator_sort [value=mostPopularSort]').click(function () {
@@ -212,6 +214,21 @@ function showHomepageFormList() {
    });
 }
 
+function updateActiveCategory(tree) {
+   console.log(tree.id, tree.active)
+   if (tree.active) {
+      $('#plugin_formcreator_wizard_categories .category_active').removeClass('category_active');
+      $('a[data-parent-category-id="' + tree.parent + '"][data-category-id="' + tree.id + '"]').parent().addClass('category_active');
+      return true;
+   }
+   for (var i = 0; i < tree.subcategories.length; i++) {
+      if (updateActiveCategory(tree.subcategories[i])) {
+         return true;
+      }
+   }
+   return false;
+}
+
 function updateCategoriesView() {
    $.post({
       url: formcreatorRootDoc + '/ajax/homepage_wizard.php',
@@ -225,6 +242,7 @@ function updateCategoriesView() {
       //Display categories
       $('#plugin_formcreator_wizard_categories .slinky-menu').remove();
       $('#plugin_formcreator_wizard_categories').append(html);
+      const isActive = updateActiveCategory(response);
 
       // Setup slinky
       slinkyCategories = $('#plugin_formcreator_wizard_categories div:nth(2)').slinky({
@@ -251,6 +269,8 @@ function updateCategoriesView() {
             $(this).addClass('category_active');
          }
       );
+
+      return isActive;
    });
 }
 
