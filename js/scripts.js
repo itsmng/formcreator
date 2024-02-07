@@ -107,9 +107,12 @@ $(function() {
       showHomepageFormList();
 
    } else if ($('#plugin_formcreator_wizard_categories').length > 0) {
-      updateCategoriesView();
-      updateWizardFormsView(0);
-      $("#wizard_seeall").parent().addClass('category_active');
+      updateCategoriesView().then((isActive) => {
+         updateWizardFormsView(isActive);
+         if (!isActive) {
+            $("#wizard_seeall").parent().addClass('category_active');
+         }
+      });
 
       // Setup events
       $('.plugin_formcreator_sort [value=mostPopularSort]').click(function () {
@@ -212,12 +215,27 @@ function showHomepageFormList() {
    });
 }
 
-function updateCategoriesView() {
-   $.post({
+function updateActiveCategory(tree) {
+   if (tree.active) {
+      $('#plugin_formcreator_wizard_categories .category_active').removeClass('category_active');
+      $('a[data-parent-category-id="' + tree.parent + '"][data-category-id="' + tree.id + '"]').parent().addClass('category_active');
+      return tree.id;
+   }
+   for (var i = 0; i < tree.subcategories.length; i++) {
+      const ret = updateActiveCategory(tree.subcategories[i]);
+      if (ret) {
+         return ret;
+      }
+   }
+   return 0;
+}
+
+async function updateCategoriesView() {
+   return $.post({
       url: formcreatorRootDoc + '/ajax/homepage_wizard.php',
       data: {wizard: 'categories'},
       dataType: "json"
-   }).done(function(response) {
+   }).then(function(response) {
       var html = '<div class="slinky-menu">';
       html = html + buildCategoryList(response);
       html = html + '</div>';
@@ -225,6 +243,7 @@ function updateCategoriesView() {
       //Display categories
       $('#plugin_formcreator_wizard_categories .slinky-menu').remove();
       $('#plugin_formcreator_wizard_categories').append(html);
+      const isActive = updateActiveCategory(response);
 
       // Setup slinky
       slinkyCategories = $('#plugin_formcreator_wizard_categories div:nth(2)').slinky({
@@ -251,6 +270,8 @@ function updateCategoriesView() {
             $(this).addClass('category_active');
          }
       );
+
+      return isActive;
    });
 }
 

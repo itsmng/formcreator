@@ -89,6 +89,9 @@ class PluginFormcreatorCategory extends CommonTreeDropdown
    public static function getCategoryTree($rootId = 0, $helpdeskHome = false) : array {
       global $DB;
 
+      $fcConfig = new PluginFormcreatorConfig();
+      $config = $fcConfig->getConfig();
+
       $cat_table  = PluginFormcreatorCategory::getTable();
       $form_table = PluginFormcreatorForm::getTable();
       $table_fp   = PluginFormcreatorForm_Profile::getTable();
@@ -176,6 +179,7 @@ class PluginFormcreatorCategory extends CommonTreeDropdown
             unset($categories[$index]);
             continue;
          }
+         $categories[$index]['active'] = $config['default_categories_id'] == $category['id'] ? 1 : 0;
          $categories[$index]['subcategories'] = [];
       }
 
@@ -184,6 +188,7 @@ class PluginFormcreatorCategory extends CommonTreeDropdown
          'name'            => '',
          'id'              => 0,
          'parent'          => 0,
+         'active'          => 0,
          'subcategories'   => [],
       ];
       $flat = [

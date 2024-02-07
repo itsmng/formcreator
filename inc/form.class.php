@@ -866,9 +866,15 @@ PluginFormcreatorTranslatableInterface
    }
 
    public function showWizard($service_catalog = false) : void {
+
+      $fcConfig = new PluginFormcreatorConfig();
+      $config = $fcConfig->getConfig();
+
       echo '<div id="plugin_formcreator_wizard_categories">';
       echo '<div><h2>'._n("Category", "Categories", 2, 'formcreator').'</h2></div>';
-      echo '<div><a href="#" id="wizard_seeall">' . __('see all', 'formcreator') . '</a></div>';
+      if ($config['see_all']) {
+         echo '<div><a href="#" id="wizard_seeall">' . __('see all', 'formcreator') . '</a></div>';
+      }
       echo '</div>';
 
       echo '<div id="plugin_formcreator_wizard_right">';

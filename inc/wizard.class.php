@@ -52,6 +52,10 @@ class PluginFormcreatorWizard {
       }
       $HEADER_LOADED = true;
 
+
+      $fcConfig = new PluginFormcreatorConfig();
+      $config = $fcConfig->getConfig();
+
       Html::includeHeader($title, 'helpdesk');
 
       $body_class = "layout_".$_SESSION['glpilayout'];
@@ -66,8 +70,9 @@ class PluginFormcreatorWizard {
       echo "<body class='$body_class' id='plugin_formcreator_serviceCatalog'>";
 
       $toggle_menu = '';
-      if (isset($_SESSION['plugin_formcreator_toggle_menu'])
-          && $_SESSION['plugin_formcreator_toggle_menu']) {
+      if (!isset($_SESSION['plugin_formcreator_toggle_menu'])) {
+         $toggle_menu = $config['collapse_menu'] == 1 ? "toggle_menu" : "";
+      } else if ($_SESSION['plugin_formcreator_toggle_menu']) {
          $toggle_menu = "toggle_menu";
       }
       echo '<div class="plugin_formcreator_container '.$toggle_menu.'">';
@@ -186,14 +191,19 @@ class PluginFormcreatorWizard {
    public static function showHeaderTopContent() {
       global $CFG_GLPI;
 
+      $fcConfig = new PluginFormcreatorConfig();
+      $config = $fcConfig->getConfig();
+
       // icons
       echo '</ul>';
       echo '<ul class="plugin_formcreator_userMenu_icons">';
       // preferences
-      echo '<li id="plugin_formcreator_preferences_icon">';
-      echo '<a href="'.$CFG_GLPI["root_doc"].'/front/preference.php" class="fa fa-cog" title="'.
-            __s('My settings').'"><span id="preferences_icon" title="'.__s('My settings').'" alt="'.__s('My settings').'" class="button-icon"></span>';
-      echo '</a></li>';
+      if ($config['enable_profile_info'] == 1) {
+         echo '<li id="plugin_formcreator_preferences_icon">';
+         echo '<a href="'.$CFG_GLPI["root_doc"].'/front/preference.php" class="fa fa-cog" title="'.
+               __s('My settings').'"><span id="preferences_icon" title="'.__s('My settings').'" alt="'.__s('My settings').'" class="button-icon"></span>';
+         echo '</a></li>';
+      }
       // Logout
       echo '<li id="plugin_formcreator_logoutIcon" ><a href="'.$CFG_GLPI["root_doc"].'/front/logout.php';      /// logout without noAuto login for extauth
       if (isset($_SESSION['glpiextauth']) && $_SESSION['glpiextauth']) {
@@ -206,16 +216,18 @@ class PluginFormcreatorWizard {
       echo '</ul>';
 
       // avatar
-      echo '<span id="plugin_formcreator_avatar">';
-      $user = new User;
-      $user->getFromDB($_SESSION['glpiID']);
-      echo '<a href="'.$CFG_GLPI["root_doc"].'/front/preference.php"
-               title="'.formatUserName (0, $_SESSION["glpiname"],
-                                           $_SESSION["glpirealname"],
-                                           $_SESSION["glpifirstname"], 0, 20).'">
-            <img src="'.User::getThumbnailURLForPicture($user->fields['picture']).'"/>
-            </a>
-            </span>';
+      if ($config['enable_profile_info'] == 1) {
+         echo '<span id="plugin_formcreator_avatar">';
+         $user = new User;
+         $user->getFromDB($_SESSION['glpiID']);
+         echo '<a href="'.$CFG_GLPI["root_doc"].'/front/preference.php"
+                  title="'.formatUserName (0, $_SESSION["glpiname"],
+                                             $_SESSION["glpirealname"],
+                                             $_SESSION["glpifirstname"], 0, 20).'">
+               <img src="'.User::getThumbnailURLForPicture($user->fields['picture']).'"/>
+               </a>
+               </span>';
+      }
 
       // Profile and entity selection
       echo '<ul class="plugin_formcreator_entityProfile">';
