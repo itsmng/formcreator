@@ -107,11 +107,12 @@ $(function() {
       showHomepageFormList();
 
    } else if ($('#plugin_formcreator_wizard_categories').length > 0) {
-      const isActive = updateCategoriesView();
-      updateWizardFormsView(0);
-      if (!isActive) {
-         $("#wizard_seeall").parent().addClass('category_active');
-      }
+      updateCategoriesView().then((isActive) => {
+         updateWizardFormsView(isActive);
+         if (!isActive) {
+            $("#wizard_seeall").parent().addClass('category_active');
+         }
+      });
 
       // Setup events
       $('.plugin_formcreator_sort [value=mostPopularSort]').click(function () {
@@ -215,26 +216,26 @@ function showHomepageFormList() {
 }
 
 function updateActiveCategory(tree) {
-   console.log(tree.id, tree.active)
    if (tree.active) {
       $('#plugin_formcreator_wizard_categories .category_active').removeClass('category_active');
       $('a[data-parent-category-id="' + tree.parent + '"][data-category-id="' + tree.id + '"]').parent().addClass('category_active');
-      return true;
+      return tree.id;
    }
    for (var i = 0; i < tree.subcategories.length; i++) {
-      if (updateActiveCategory(tree.subcategories[i])) {
-         return true;
+      const ret = updateActiveCategory(tree.subcategories[i]);
+      if (ret) {
+         return ret;
       }
    }
-   return false;
+   return 0;
 }
 
-function updateCategoriesView() {
-   $.post({
+async function updateCategoriesView() {
+   return $.post({
       url: formcreatorRootDoc + '/ajax/homepage_wizard.php',
       data: {wizard: 'categories'},
       dataType: "json"
-   }).done(function(response) {
+   }).then(function(response) {
       var html = '<div class="slinky-menu">';
       html = html + buildCategoryList(response);
       html = html + '</div>';

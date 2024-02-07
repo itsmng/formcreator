@@ -59,7 +59,7 @@
     public function showConfigForm() {
         $config = $this->getConfig();
 
-        $headerGeneral = __('General setup', 'formcreator');
+        $headerGeneral = __('General setup');
         $headerSimplified = __('Simplified view', 'formcreator');
 
         $profileLabel = __('Enable profile infos', 'formcreator');
@@ -72,7 +72,11 @@
         $defaultCategory = $config['default_categories_id'];
 
         ob_start();
-        PluginFormcreatorCategory::dropdown(['name' => 'default_categories_id', 'value' => $defaultCategory]);
+        PluginFormcreatorCategory::dropdown([
+            'name' => 'default_categories_id',
+            'value' => $defaultCategory,
+            'condition' => ['level' => 1]
+        ]);
         $defaultCategoryDropdown = ob_get_clean();
 
         $seeAllLabel = __('Enable See all tab', 'formcreator');
