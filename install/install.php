@@ -474,6 +474,7 @@ class PluginFormcreatorInstall {
          'PluginFormcreatorQuestionRange',
          'PluginFormcreatorQuestionRegex',
          'PluginFormcreatorForm_Language',
+         'PluginFormcreatorConfig',
       ];
 
       foreach ($itemtypes as $itemtype) {

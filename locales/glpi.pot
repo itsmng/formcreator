@@ -1685,3 +1685,23 @@ msgstr ""
 #: js/scripts.js:1318
 msgid "Are you sure you want to delete this destination:"
 msgstr ""
+
+#: inc/config.class.php:62
+msgid "Simplified view"
+msgstr ""
+
+#: inc/config.class.php:65
+msgid "Enable profile infos"
+msgstr ""
+
+#: inc/config.class.php:68
+msgid "Collapse menu by default"
+msgstr ""
+
+#: inc/config.class.php:71
+msgid "Default category"
+msgstr ""
+
+#: inc/config.class.php:82
+msgid "Enable See all tab"
+msgstr ""

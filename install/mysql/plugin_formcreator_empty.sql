@@ -325,3 +325,9 @@ CREATE TABLE IF NOT EXISTS `glpi_plugin_formcreator_configs` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+INSERT IGNORE INTO `glpi_plugin_formcreator_configs` (`name`, `value`) VALUES
+  ('enable_profile_info', 1),
+  ('collapse_menu', 0),
+  ('default_categories_id', 0),
+  ('see_all', 1);
