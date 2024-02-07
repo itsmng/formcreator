@@ -138,26 +138,28 @@ class PluginFormcreatorWizard {
          echo '</a></li>';
       }
 
-      Ajax::createSlidePanel(
-         'showSavedSearches',
-         [
-            'title'     => __('Saved searches'),
-            'url'       => $CFG_GLPI['root_doc'] . '/ajax/savedsearch.php?action=show',
-            'icon'      => '/pics/menu_config.png',
-            'icon_url'  => SavedSearch::getSearchURL(),
-            'icon_txt'  => __('Manage saved searches')
-         ]
-      );
-      echo '<li class="' . ($activeMenuItem == self::MENU_BOOKMARKS ? 'plugin_formcreator_selectedMenuItem' : '') . '">';
-      Ajax::createIframeModalWindow('loadbookmark',
-            $CFG_GLPI["root_doc"]."/front/savedsearch.php?action=load",
-            ['title'         => __('Saved searches'),
-            'reloadonclose' => true]);
-      echo '<a href="#" id="showSavedSearchesLink">';
-      echo '<span class="fa fa-star fc_list_icon" title="'.__('Saved searches').'"></span>';
-      echo '<span class="label">'.__('Saved searches').'</span>';
-      echo '</a>';
-      echo '</li>';
+      if ($config['enable_saved_search'] == 1) {
+         Ajax::createSlidePanel(
+            'showSavedSearches',
+            [
+               'title'     => __('Saved searches'),
+               'url'       => $CFG_GLPI['root_doc'] . '/ajax/savedsearch.php?action=show',
+               'icon'      => '/pics/menu_config.png',
+               'icon_url'  => SavedSearch::getSearchURL(),
+               'icon_txt'  => __('Manage saved searches')
+            ]
+         );
+         echo '<li class="' . ($activeMenuItem == self::MENU_BOOKMARKS ? 'plugin_formcreator_selectedMenuItem' : '') . '">';
+         Ajax::createIframeModalWindow('loadbookmark',
+               $CFG_GLPI["root_doc"]."/front/savedsearch.php?action=load",
+               ['title'         => __('Saved searches'),
+               'reloadonclose' => true]);
+         echo '<a href="#" id="showSavedSearchesLink">';
+         echo '<span class="fa fa-star fc_list_icon" title="'.__('Saved searches').'"></span>';
+         echo '<span class="label">'.__('Saved searches').'</span>';
+         echo '</a>';
+         echo '</li>';
+      }
 
       if (isset($CFG_GLPI["helpdesk_doc_url"]) && !empty($CFG_GLPI["helpdesk_doc_url"])) {
          echo '<li class="' . ($activeMenuItem == self::MENU_HELP ? 'plugin_formcreator_selectedMenuItem' : '') . 'plugin_formcreator_helpIcon">';

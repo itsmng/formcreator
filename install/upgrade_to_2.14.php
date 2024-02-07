@@ -64,5 +64,9 @@ class PluginFormcreatorUpgradeTo2_14 {
          'name'  => 'see_all',
          'value' => '1'
       ]);
+      $migration->insertInTable("glpi_plugin_formcreator_configs", [
+         'name'  => 'enable_saved_search',
+         'value' => '1'
+      ]);
    }
 }

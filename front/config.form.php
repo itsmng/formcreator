@@ -33,13 +33,13 @@ include("../../../inc/includes.php");
 require_once("../inc/config.class.php");
 
 $plugin = new Plugin();
-if($plugin->isActivated("formcreator")) {
+if($plugin->isActivated("formcreator") && Session::haveRight("config", UPDATE)) {
     $config = new PluginFormcreatorConfig();
     if(isset($_POST["update"])) {
         Session::checkRight("config", UPDATE);
         $config->updateConfig($_POST);
         Session::addMessageAfterRedirect(__('Your settings have been updated', 'formcreator'), true);
-        // Html::back();
+        Html::back();
     }
 
     Html::header("Form Creator", $_SERVER["PHP_SELF"], "config", "plugins");
