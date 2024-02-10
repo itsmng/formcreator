@@ -82,6 +82,9 @@
         $seeAllLabel = __('Enable See all tab', 'formcreator');
         $seeAll = $config['see_all'] == 1 ? 'checked' : '';
 
+        $savedSearchLabel = __('Saved searches');
+        $savedSearch = $config['enable_saved_search'] == 1 ? 'checked' : '';
+
         $action = Plugin::getWebDir('formcreator') . '/front/config.form.php';
 
         $updateLabel = __('Update');
@@ -111,6 +114,11 @@
                         <td>
                             <input type="hidden" name="enable_profile_info" value="0">
                             <input type="checkbox" name="enable_profile_info" value="1" {$pofileChecked}/>
+                        </td>
+                        <td>$savedSearchLabel</td>
+                        <td>
+                            <input type="hidden" name="enable_saved_search" value="0">
+                            <input type="checkbox" name="enable_saved_search" value="1" {$savedSearch}/>
                         </td>
                     </tr>
                     <tr>
