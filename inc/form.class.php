@@ -409,310 +409,271 @@ PluginFormcreatorTranslatableInterface
    public function showForm($ID, $options = []) {
       global $DB, $CFG_GLPI;
 
-      $this->initForm($ID, $options);
-      $this->showFormHeader($options);
-
-      echo '<tr class="tab_bg_1">';
-      echo '<td width="20%"><strong>' . __('Name') . ' <span class="red">*</span></strong></td>';
-      echo '<td width="30%"><input type="text" name="name" value="' . $this->fields["name"] . '" size="35"/></td>';
-      echo '<td width="20%"><strong>' . __('Active') . ' <span class="red">*</span></strong></td>';
-      echo '<td width="30%">';
-      Dropdown::showYesNo("is_active", $this->fields["is_active"]);
-      echo '</td>';
-      echo '</tr>';
-
-      echo '<tr class="tab_bg_2">';
-      echo '<td>' . __('Category') . '</td>';
-      echo '<td>';
-      PluginFormcreatorCategory::dropdown([
-         'name'  => 'plugin_formcreator_categories_id',
-         'value' => ($ID != 0) ? $this->fields["plugin_formcreator_categories_id"] : 0,
-      ]);
-      echo '</td>';
-      echo '<td>' . __('Direct access on homepage', 'formcreator') . '</td>';
-      echo '<td>';
-      Dropdown::showYesNo("helpdesk_home", $this->fields["helpdesk_home"]);
-      echo '</td>';
-
-      echo '</tr>';
-
-      echo '<tr><td>'.__('Icon Type').'</td><td>';
-      Dropdown::showFromArray('icon_type', [
-         '0' => __('Icon'),
-         '1' => __('Image'),
-      ], [
-         'value' => $this->fields['icon_type'],
-         'on_change' => <<<JS
-            if (this.value == 0) {
-               $("#icon_fa").show();
-               $("#icon_fa input").removeAttr("disabled");
-               $("#icon_fa select").removeAttr("disabled");
-               $("#icon_image").hide();
-               $("#icon_image input").attr("disabled", true);
-            } else {
-               $("#icon_fa").hide();
-               $("#icon_fa input").attr("disabled", true);
-               $("#icon_fa select").attr("disabled", true);
-               $("#icon_image").show();
-               $("#icon_image input").removeAttr("disabled");
+      $validators = [];
+      $validatorOptions = [];
+      if ($this->fields['validation_required'] > 0) {
+         $name = $this->fields['validation_required'] == 1 ? 'User' : 'Group';
+         $result = iterator_to_array($DB->request([
+            'SELECT' => ['items_id'],
+            'FROM'   => PluginFormcreatorForm_Validator::getTable(),
+            'WHERE'  => [
+               'plugin_formcreator_forms_id' => $ID,
+               'itemtype' => $name,
+            ],
+         ]));
+         foreach ($result as $item) {
+            $validators[] = $item['items_id'];
+         }
+         $allOptions = Dropdown::getDropdownValue([
+            'itemtype' => $name,
+            'specific_tags' => [
+               'multiple' => 'multiple',
+            ],
+            'entity_restrict' => $this->fields['entities_id'],
+         ], false);
+         foreach ($allOptions['results'] as $value) {
+            if (!$value || !count($value)) {
+               continue;
             }
-         JS,
-      ]);
-      echo '</td></tr>';
-      echo '<tr class="tab_bg_1">';
-      echo '<td>' . __('Form icon', 'formcreator') . '</td>';
-   
-      echo '<td id="icon_fa"';
-      if ($this->fields['icon_type']) {
-         echo ' style="display: none"';
+            if (isset($value['children'])) {
+               $validators[$value['text']] = [];
+               foreach ($value['children'] as $childValue) {
+                  $validatorOptions[$childValue['id']] = $childValue['text'] . ' (' . $value['text'] . ')';
+               }
+            } else {
+               $validatorOptions[$value['id']] = $value['text'];
+            }
+         }
       }
-      echo '>';
-      $icon = $this->fields['icon'] == '' ? 'fa fa-question-circle' : $this->fields['icon'];
-      PluginFormcreatorCommon::showFontAwesomeDropdown('icon', ['value' => $icon, 'disabled' => $this->fields['icon_type'] == 1]);
-      $iconColor = $this->fields['icon_color'] == '' ? '#999999' : $this->fields['icon_color'];
-      Html::showColorField('icon_color', ['value' => $iconColor, 'disabled' => $this->fields['icon_type'] == 1]);
-      echo '</td>';
-   
-      echo '<td id="icon_image"';
-      if (!$this->fields['icon_type']) {
-         echo ' style="display: none"';
-      }
-      echo '>';
-      if ($this->fields['icon_type'] && $this->fields['icon'] != '') {
-         echo "<img class='user_picture_small' alt=\"".__s('Picture')."\" src='".
-         $CFG_GLPI["root_doc"]."/front/document.send.php?file=_pictures/". $this->fields['icon'] ."'>";
-      }
-      echo Html::file(['name' => 'icon', 'display' => false, 'onlyimages' => true]);
-      echo '</td>';
-   
-      echo '<td>' . __('Background color', 'formcreator') . '</td>';
-      echo '<td>';
-      $tileColor = $this->fields['background_color'] == '' ? '#E7E7E7' : $this->fields['background_color'];
-      Html::showColorField('background_color', ['value' => $tileColor]);
-      echo '</td>';
-      echo '</tr>';
 
-      echo '<tr class="tab_bg_1">';
-      echo '<td>' . __('Description') . '</td>';
-      echo '<td><input type="text" name="description" value="' . $this->fields['description'] . '" size="35" /></td>';
-      echo '<td>' . __('Language') . '</td>';
-      echo '<td>';
-      Dropdown::showLanguages('language', [
-         'value'               => ($ID != 0) ? $this->fields['language'] : $_SESSION['glpilanguage'],
-         'display_emptychoice' => true,
-         'emptylabel'          => '--- ' . __('All langages', 'formcreator') . ' ---',
-      ]);
-      echo '</td>';
-      echo '</tr>';
-
-      echo '<tr class="tab_bg_1">';
-      echo '<td>' . _n('Header', 'Headers', 1, 'formcreator') . '</td>';
-      echo '<td colspan="3">';
-      echo Html::textarea([
-         'name'    => 'content',
-         'value'   => $this->fields['content'],
-         'enable_richtext' => true,
-         'display' => false,
-      ]);
-      echo '</td>';
-      echo '</tr>';
-
-      echo '<tr class="tab_bg_2">';
-      echo '<td>' . __('Need to be validate?', 'formcreator') . '</td>';
-      echo '<td class="validators_bloc">';
-
-      Dropdown::showFromArray('validation_required', [
-         self::VALIDATION_NONE  => Dropdown::EMPTY_VALUE,
-         self::VALIDATION_USER  => User::getTypeName(1),
-         self::VALIDATION_GROUP => Group::getTypeName(1),
-      ], [
-         'value'     =>  $this->fields['validation_required'],
-         'on_change' => 'plugin_formcreator_changeValidators(this.value)'
-      ]);
-      echo '</td>';
-      echo '<td colspan="2">';
-      // Select all users with ticket validation right and the groups
-      $userTable = User::getTable();
-      $userFk = User::getForeignKeyField();
-      $groupTable = Group::getTable();
-      $groupFk = Group::getForeignKeyField();
-      $profileUserTable = Profile_User::getTable();
-      $profileTable = Profile::getTable();
-      $profileFk = Profile::getForeignKeyField();
-      $profileRightTable = ProfileRight::getTable();
-      $groupUserTable = Group_User::getTable();
-      $subQuery = [
-         'SELECT' => "$profileUserTable.$userFk",
-         'FROM' => $profileUserTable,
-         'INNER JOIN' => [
-            $profileTable => [
-               'FKEY' => [
-                  $profileTable =>  'id',
-                  $profileUserTable => $profileFk,
+      $form = [
+         'action' => $this->getFormURL(),
+         'buttons' => [
+            $this->fields["is_deleted"] == 1 && self::canDelete() ? [
+               'type' => 'submit',
+               'name' => 'restore',
+               'value' => __('Restore'),
+               'class' => 'btn btn-secondary'
+            ] : ($this->canUpdateItem() ? [
+               'type' => 'submit',
+               'name' => $this->isNewID($ID) ? 'add' : 'update',
+               'value' => $this->isNewID($ID) ? __('Add') : __('Update'),
+               'class' => 'btn btn-secondary'
+            ] : []),
+            !$this->isNewID($ID) && !$this->isDeleted() && $this->canDeleteItem() ? [
+               'type' => 'submit',
+               'name' => 'delete',
+               'value' => __('Put in trashbin'),
+               'class' => 'btn btn-danger'
+            ] : (!$this->isNewID($ID) && self::canPurge() ? [
+               'type' => 'submit',
+               'name' => 'purge',
+               'value' => __('Delete permanently'),
+               'class' => 'btn btn-danger'
+            ] : []),
+         ],
+         'content' => [
+            $this->getTypeName(1) => [
+               'visible' => true,
+               'inputs' => [
+                  __('Name') => [
+                     'type' => 'text',
+                     'name' => 'name',
+                     'value' => $this->fields["name"],
+                     'size' => 35,
+                     'required' => true,
+                     'col_lg' => 6,
+                  ],
+                  __('Active') => [
+                     'type' => 'checkbox',
+                     'name' => 'is_active',
+                     'value' => $this->fields["is_active"],
+                     'col_lg' => 6,
+                  ],
+                  __('Category') => [
+                     'type' => 'select',
+                     'name' => 'plugin_formcreator_categories_id',
+                     'values' => getOptionForItems(PluginFormcreatorCategory::class),
+                     'value' => $this->fields["plugin_formcreator_categories_id"],
+                     'col_lg' => 6,
+                  ],
+                  __('Direct access on homepage', 'formcreator') => [
+                     'type' => 'checkbox',
+                     'name' => 'helpdesk_home',
+                     'value' => $this->fields["helpdesk_home"],
+                     'col_lg' => 6,
+                  ],
+                  __('Icon Type') => [
+                     'type' => 'select',
+                     'name' => 'icon_type',
+                     'id' => 'SelectoForIconType',
+                     'value' => $this->fields['icon_type'],
+                     'values' => [
+                        '0' => __('Icon'),
+                        '1' => __('Image'),
+                     ],
+                     'col_lg' => 12,
+                     'col_md' => 12,
+                     'hooks' => [
+                        'change' => <<<JS
+                        const iconType = $(this).val();
+                        $('select[name="icon"]').prop('disabled', iconType == 1);
+                        $('input[name="icon_color"]').prop('disabled', iconType == 1);
+                        $('input[name="icon"]').prop('disabled', iconType == 0);
+                        JS,
+                     ],
+                  ],
+                  __('Form icon', 'formcreator') => [
+                     'type' => 'select',
+                     'name' => 'icon',
+                     'values' => PluginFormcreatorCommon::getFontAwesomePictoNames(),
+                     'value' => $this->fields['icon'],
+                     'col_lg' => 6,
+                     $this->fields['icon_type'] != 0 ? 'disabled' : '' => true,
+                  ],
+                  __('Icon color', 'formcreator') => [
+                     'type' => 'color',
+                     'name' => 'icon_color',
+                     'value' => $this->fields['icon_color'],
+                     'col_lg' => 6,
+                     $this->fields['icon_type'] != 0 ? 'disabled' : '' => true,
+                  ],
+                  __('Form image', 'formcreator') => [
+                     'type' => 'file',
+                     'id' => 'FilePickForForm',
+                     'name' => 'icon',
+                     'value' => $this->fields['icon'],
+                     'col_lg' => 6,
+                     $this->fields['icon_type'] == 0 ? 'disabled' : '' => true,
+                  ],
+                  __('Background color', 'formcreator') => [
+                     'type' => 'color',
+                     'name' => 'background_color',
+                     'value' =>  $this->fields['background_color'] == '' ? '#E7E7E7' : $this->fields['background_color'],
+                     'col_lg' => 6,
+                  ],
+                  __('Description') => [
+                     'type' => 'text',
+                     'name' => 'description',
+                     'value' => $this->fields['description'],
+                     'size' => 35,
+                     'col_lg' => 6,
+                  ],
+                  __('Language') => [
+                     'type' => 'select',
+                     'name' => 'language',
+                     'values' => array_merge(['--- ' . __('All langages', 'formcreator') . ' ---'], Language::getLanguages()),
+                     'value' => $this->fields['language'],
+                     'col_lg' => 6,
+                  ],
+                  _n('Header', 'Headers', 1, 'formcreator') => [
+                     'type' => 'richtextarea',
+                     'name' => 'content',
+                     'value' => $this->fields['content'],
+                     'col_lg' => 12,
+                     'col_md' => 12,
+                  ],
+                  __('Need to be validate?', 'formcreator') => [
+                     'type' => 'select',
+                     'id' => 'SelectoForValidationRequired',
+                     'name' => 'validation_required',
+                     'values' => [
+                        self::VALIDATION_NONE  => Dropdown::EMPTY_VALUE,
+                        self::VALIDATION_USER  => User::getTypeName(1),
+                        self::VALIDATION_GROUP => Group::getTypeName(1),
+                     ],
+                     'value' =>  $this->fields['validation_required'],
+                     'col_lg' => 6,
+                     'hooks' => [
+                        'change' => <<<JS
+                        const validationRequired = $(this).val();
+                        $('#ChecklistForValidationBy').empty();
+                        if (validationRequired > 0) {
+                           $.ajax ({
+                              url: '{$CFG_GLPI['root_doc']}/ajax/getDropdownValue.php',
+                              type: 'POST',
+                              data: {
+                                 itemtype: validationRequired == 1 ? 'User' : 'Group',
+                                 specific_tags: {
+                                    'multiple': 'multiple',
+                                 },
+                                 entity_restrict: {$this->fields['entities_id']},
+                              },
+                              success: function (data) {
+                                 const result = data.results;
+                                 if (!result || result.length == 0) return;
+                                 for (let i = 0; i < result.length; i++) {
+                                    if (!result[i].children) {
+                                       $('#ChecklistForValidationBy').append($('<div>', {
+                                          class: 'row',
+                                          html: [
+                                             $('<input>', {
+                                                class: 'form-check-input col col-2',
+                                                type: 'checkbox',
+                                                value: result[i].id,
+                                                id: 'ChecklistForValidationBy_' + result[i].id,
+                                                name: '_validator_' + (validationRequired == 1 ? 'users' : 'groups') + '[]',
+                                                checked: result[i].selected,
+                                             }),
+                                             $('<label>', {
+                                                class: 'form-check-label col col-10',
+                                                for: 'ChecklistForValidationBy_' + result[i].id,
+                                                text: result[i].text,
+                                             }),
+                                          ],
+                                       }));
+                                       continue;
+                                    }
+                                    for (let j = 0; j < result[i].children.length; j++) {
+                                       $('#ChecklistForValidationBy').append($('<div>', {
+                                          class: 'row',
+                                          html: [
+                                             $('<input>', {
+                                                class: 'form-check-input col col-2',
+                                                type: 'checkbox',
+                                                value: result[i].children[j].id,
+                                                id: 'ChecklistForValidationBy_' + result[i].children[j].id,
+                                                name: '_validator_' + (validationRequired == 1 ? 'users' : 'groups') + '[]',
+                                                checked: result[i].children[j].selected,
+                                             }),
+                                             $('<label>', {
+                                                class: 'form-check-label col col-10',
+                                                for: 'ChecklistForValidationBy_' + result[i].children[j].id,
+                                                text: result[i].children[j].text,
+                                             }),
+                                          ],
+                                       }));                                       
+                                    }
+                                 }
+                              }
+                           })
+                        }
+                        JS,
+                     ]
+                  ],
+                  __('By') => [
+                     'type' => 'checklist',
+                     'id' => 'ChecklistForValidationBy',
+                     'name' => '_validator_' . ($this->fields['validation_required'] == 1 ? 'users' : 'groups'),
+                     'options' => $validatorOptions,
+                     'values' => $validators,
+                     'col_lg' => 6,
+                  ],
+                  __('Default form in service catalog', 'formcreator') => [
+                     'type' => 'checkbox',
+                     'name' => 'is_default',
+                     'value' => $this->fields['is_default'],
+                     'col_lg' => 6,
+                  ],
+                  (!$this->canPurgeItem()) ? [
+                     'content' => '<i class="fas fa-exclamation-triangle"></i>&nbsp;'
+                     . __('To delete this form you must delete all its answers first.', 'formcreator'),
+                  ] : [],
                ]
             ],
-            $profileRightTable =>[
-               'FKEY' => [
-                  $profileTable => 'id',
-                  $profileRightTable => $profileFk,
-               ]
-            ],
-         ],
-         'WHERE' => [
-            "$profileRightTable.name" => "ticketvalidation",
-            [
-               'OR' => [
-                  "$profileRightTable.rights" => ['&', TicketValidation::VALIDATEREQUEST],
-                  "$profileRightTable.rights" => ['&', TicketValidation::VALIDATEINCIDENT],
-               ],
-            ],
-            "$userTable.is_active" => '1',
-         ],
+         ]
       ];
-      $usersCondition = [
-         "$userTable.id" => new QuerySubquery($subQuery)
-      ];
-      $formValidator = new PluginFormcreatorForm_Validator();
-      $selectedValidatorUsers = [];
-      foreach ($formValidator->getValidatorsForForm($this, User::class) as $user) {
-         $selectedValidatorUsers[$user->getID()] = $user->computeFriendlyName();
-      }
-      $users = $DB->request([
-         'SELECT' => ['id', 'name', User::getFriendlyNameFields('friendly_name')],
-         'FROM' => User::getTable(),
-         'WHERE' => $usersCondition,
-      ]);
-      $validatorUsers = [];
-      foreach ($users as $user) {
-         $validatorUsers[$user['id']] = $user['friendly_name'];
-      }
-      echo '<div id="validators_users">';
-      echo User::getTypeName() . '&nbsp';
-      $params = [
-         'specific_tags' => [
-            'multiple' => 'multiple',
-         ],
-         'entity_restrict' => -1,
-         'itemtype'        => User::getType(),
-         'values'          => array_keys($selectedValidatorUsers),
-         'valuesnames'     => array_values($selectedValidatorUsers),
-         'condition'       => Dropdown::addNewCondition($usersCondition),
-         '_idor_token'     => Session::getNewIDORToken(User::getType()),
-      ];
-      echo Html::jsAjaxDropdown(
-         '_validator_users[]',
-         '_validator_users' . mt_rand(),
-         $CFG_GLPI['root_doc']."/ajax/getDropdownValue.php",
-         $params
-      );
-      echo '</div>';
-
-      // Validators groups
-      $subQuery = [
-         'SELECT' => "$groupUserTable.$groupFk",
-         'FROM' => $groupUserTable,
-         'INNER JOIN' => [
-            $userTable => [
-               'FKEY' => [
-                  $groupUserTable => $userFk,
-                  $userTable => 'id',
-               ]
-            ],
-            $profileUserTable => [
-               'FKEY' => [
-                  $profileUserTable => $userFk,
-                  $userTable => 'id',
-               ],
-            ],
-            $profileTable => [
-               'FKEY' => [
-                  $profileTable =>  'id',
-                  $profileUserTable => $profileFk,
-               ]
-            ],
-            $profileRightTable =>[
-               'FKEY' => [
-                  $profileTable => 'id',
-                  $profileRightTable => $profileFk,
-               ]
-            ],
-         ],
-         'WHERE' => [
-            "$groupUserTable.$userFk" => new QueryExpression("`$userTable`.`id`"),
-            "$profileRightTable.name" => "ticketvalidation",
-            [
-               'OR' => [
-                  "$profileRightTable.rights" => ['&', TicketValidation::VALIDATEREQUEST],
-                  "$profileRightTable.rights" => ['&', TicketValidation::VALIDATEINCIDENT],
-               ],
-            ],
-            "$userTable.is_active" => '1',
-         ],
-      ];
-      $groupsCondition = [
-         "$groupTable.id" => new QuerySubquery($subQuery),
-      ];
-      $groups = $DB->request([
-         'SELECT' => ['id' ,'name'],
-         'FROM'   => Group::getTable(),
-         'WHERE'  => $groupsCondition,
-      ]);
-      $formValidator = new PluginFormcreatorForm_Validator();
-      $selectecValidatorGroups = [];
-      foreach ($formValidator->getValidatorsForForm($this, Group::class) as $group) {
-         $selectecValidatorGroups[$group->getID()] = $group->fields['name'];
-      }
-      $validatorGroups = [];
-      foreach ($groups as $group) {
-         $validatorGroups[$group['id']] = $group['name'];
-      }
-      echo '<div id="validators_groups" style="width: 100%">';
-      echo Group::getTypeName() . '&nbsp';
-      $params = [
-         'specific_tags' => [
-            'multiple' => 'multiple',
-         ],
-         'entity_restrict' => -1,
-         'itemtype'        => Group::getType(),
-         'values'          => array_keys($selectecValidatorGroups),
-         'valuesnames'     => array_values($selectecValidatorGroups),
-         'condition'       => Dropdown::addNewCondition($groupsCondition),
-         'display_emptychoice' => false,
-         '_idor_token'    => Session::getNewIDORToken(Group::getType()),
-      ];
-      echo Html::jsAjaxDropdown(
-         '_validator_groups[]',
-         '_validator_groups' . mt_rand(),
-         $CFG_GLPI['root_doc']."/ajax/getDropdownValue.php",
-         $params
-      );
-      echo '</div>';
-
-      $script = '$(document).ready(function() {plugin_formcreator_changeValidators(' . $this->fields["validation_required"] . ');});';
-      echo Html::scriptBlock($script);
-
-      echo '</td>';
-      echo '</tr>';
-
-      echo '<tr>';
-      echo '<td>'.__('Default form in service catalog', 'formcreator').'</td>';
-      echo '<td>';
-      Dropdown::showYesNo('is_default', $this->fields['is_default']);
-      echo '</td>';
-      echo '<td></td>';
-      echo '<td></td>';
-      echo '</tr>';
-
-      if (!$this->canPurgeItem()) {
-         echo '<tr>';
-         echo '<td colspan="4">'
-         . '<i class="fas fa-exclamation-triangle"></i>&nbsp;'
-         . __('To delete this form you must delete all its answers first.', 'formcreator')
-         . '</td>';
-         echo '</tr>';
-      }
-
-      $this->showFormButtons($options);
+      renderTwigForm($form, '', $this->fields);
    }
 
    public function showTargets($ID, $options = []) {
@@ -2789,7 +2750,7 @@ PluginFormcreatorTranslatableInterface
       if ($language == '') {
          $language = $_SESSION['glpilanguage'];
       }
-      return "form_${id}_${language}";
+      return "form_{$id}_{$language}";
    }
 
    /**
