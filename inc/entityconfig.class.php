@@ -156,115 +156,89 @@ class PluginFormcreatorEntityconfig extends CommonDBTM {
       }
 
       $canedit = Entity::canUpdate() && $entity->canUpdateItem();
-      echo "<div class='spaced'>";
-      if ($canedit) {
-         echo "<form method='post' name=form action='".Toolbox::getItemTypeFormURL(__CLASS__)."'>";
-      }
-
-      echo "<table class='tab_cadre_fixe'>";
-      echo "<tr><th colspan='2'>".__('Helpdesk', 'formcreator')."</th></tr>";
-
-      $elements = self::getEnumHelpdeskMode();
+      
+      $helpdeskElements = self::getEnumHelpdeskMode();
       if ($ID == 0) {
-         unset($elements[self::CONFIG_PARENT]);
+         unset($helpdeskElements[self::CONFIG_PARENT]);
       }
-
-      echo "<tr class='tab_bg_1'>";
-      echo "<td>".__('Helpdesk mode', 'formcreator')."</td>";
-      echo "<td>";
-      Dropdown::showFromArray('replace_helpdesk', $elements, ['value' => $this->fields['replace_helpdesk']]);
-      if ($this->fields['replace_helpdesk'] == self::CONFIG_PARENT) {
-         $tid = self::getUsedConfig('replace_helpdesk', $ID);
-         echo '<br>';
-         Entity::inheritedValue($elements[$tid], true);
-      }
-      echo '</td></tr>';
-
-      $elements = self::getEnumSort();
+      $sortElements = self::getEnumSort();
       if ($ID == 0) {
-         unset($elements[self::CONFIG_PARENT]);
+         unset($sortElements[self::CONFIG_PARENT]);
       }
-
-      echo "<tr class='tab_bg_1'>";
-      echo "<td>".__('Sort order', 'formcreator')."</td>";
-      echo "<td>";
-      Dropdown::showFromArray('sort_order', $elements, ['value' => $this->fields['sort_order']]);
-      if ($this->fields['replace_helpdesk'] == self::CONFIG_PARENT) {
-         $tid = self::getUsedConfig('sort_order', $ID);
-         echo '<br>';
-         Entity::inheritedValue($elements[$tid], true);
-      }
-      echo '</td></tr>';
-
-      // Knowledge base settiing : merged with forms (legacy) separated menu on the left
-      $elements = self::getEnumKbMode();
+      $kbElements = self::getEnumKbMode();
       if ($ID == 0) {
-         unset($elements[self::CONFIG_PARENT]);
+         unset($kbElements[self::CONFIG_PARENT]);
       }
-      echo "<tr class='tab_bg_1'>";
-      echo "<td>".__('Knowledge base', 'formcreator')."</td>";
-      echo "<td>";
-      Dropdown::showFromArray('is_kb_separated', $elements, ['value' => $this->fields['is_kb_separated']]);
-      if ($this->fields['is_kb_separated'] == self::CONFIG_PARENT) {
-         $tid = self::getUsedConfig('is_kb_separated', $ID);
-         echo '<br>';
-         Entity::inheritedValue($elements[$tid], true);
-      }
-      echo '</td></tr>';
-
-      $elements = self::getEnumSearchVisibility();
+      $searchVisibilityElements = self::getEnumSearchVisibility();
       if ($ID == 0) {
-         unset($elements[self::CONFIG_PARENT]);
+         unset($searchVisibilityElements[self::CONFIG_PARENT]);
       }
-      echo "<tr class='tab_bg_1'>";
-      echo "<td>".__('Search', 'formcreator')."</td>";
-      echo "<td>";
-      Dropdown::showFromArray('is_search_visible', $elements, ['value' => $this->fields['is_search_visible']]);
-      if ($this->fields['is_search_visible'] == self::CONFIG_PARENT) {
-         $tid = self::getUsedConfig('is_search_visible', $ID);
-         echo '<br>';
-         Entity::inheritedValue($elements[$tid], true);
-      }
-      echo '</td></tr>';
-
-      // header visibility
-      $elements = self::getEnumHeaderVisibility();
+      $headerVisibilityElements = self::getEnumheaderVisibility();
       if ($ID == 0) {
-         unset($elements[self::CONFIG_PARENT]);
+         unset($headerVisibilityElements[self::CONFIG_PARENT]);
       }
-      echo "<tr class='tab_bg_1'>";
-      echo "<td>".__('Header message', 'formcreator')."</td>";
-      echo "<td>";
-      Dropdown::showFromArray('is_header_visible', $elements, ['value' => $this->fields['is_header_visible']]);
-      if ($this->fields['is_header_visible'] == self::CONFIG_PARENT) {
-         $tid = self::getUsedConfig('is_header_visible', $ID);
-         echo '<br>';
-         Entity::inheritedValue($elements[$tid], true);
-      }
-      echo '</td></tr>';
 
-      // header
-      echo "<tr class='tab_bg_1'>";
-      echo "<td>".__('Header', 'formcreator')."</td>";
-      echo "<td>";
-      echo Html::textarea([
-         'name'            => 'header',
-         'value'           => $this->fields['header'],
-         'enable_richtext' => true,
-         'display'         => false
-      ]);
-      echo '</td></tr>';
-
-      if ($canedit) {
-         echo "<tr>";
-         echo "<td class='tab_bg_2 center' colspan='4'>";
-         echo "<input type='hidden' name='id' value='".$entity->fields["id"]."'>";
-         echo "<input type='submit' name='update' value=\""._sx('button', 'Save')."\" class='submit'>";
-         echo "</td></tr>";
-         Html::closeForm();
-      }
-      echo "</table>";
-      echo "</div>";
+      $form = [
+         'action' => $canedit ? Toolbox::getItemTypeFormURL(__CLASS__) : '',
+         'buttons' => [
+            $canedit ? [
+               'name' => 'update',
+               'value' => _sx('button', 'Save'),
+               'class' => 'btn btn-secondary'
+            ] : []
+         ],
+         'content' => [
+            __('Helpdesk', 'formcreator') => [
+               'visible' => true,
+               'inputs' => [
+                  [
+                     'type' => 'hidden',
+                     'name' => 'id',
+                     'value' => $ID,
+                  ],
+                  __('Helpdesk mode', 'formcreator') => [
+                     'type' => 'select',
+                     'name' => 'replace_helpdesk',
+                     'value' => $this->fields['replace_helpdesk'],
+                     'values' => $helpdeskElements,
+                  ],
+                  __('Sort order', 'formcreator') => [
+                     'type' => 'select',
+                     'name' => 'sort_order',
+                     'value' => $this->fields['sort_order'],
+                     'values' => $sortElements,
+                  ],
+                  __('Knowledge base', 'formcreator') => [
+                     'type' => 'select',
+                     'name' => 'is_kb_separated',
+                     'value' => $this->fields['is_kb_separated'],
+                     'values' => $kbElements,
+                  ],
+                  __('Search', 'formcreator') => [
+                     'type' => 'select',
+                     'name' => 'is_search_visible',
+                     'value' => $this->fields['is_search_visible'],
+                     'values' => $searchVisibilityElements,
+                  ],
+                  __('Header message', 'formcreator') => [
+                     'type' => 'select',
+                     'name' => 'is_header_visible',
+                     'value' => $this->fields['is_header_visible'],
+                     'values' => $headerVisibilityElements,
+                  ],
+                  __('Header', 'formcreator') => [
+                     'type' => 'richtextarea',
+                     'name' => 'header',
+                     'value' => $this->fields['header'],
+                     'display' => false,
+                     'col_lg' => 12,
+                     'col_md' => 12,
+                  ],
+               ]
+            ]
+         ]
+      ];
+      renderTwigForm($form);
    }
 
    public function rawSearchOptions() {
