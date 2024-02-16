@@ -59,82 +59,54 @@
     public function showConfigForm() {
         $config = $this->getConfig();
 
-        $headerGeneral = __('General setup');
-        $headerSimplified = __('Simplified view', 'formcreator');
-
-        $profileLabel = __('Enable profile infos', 'formcreator');
-        $pofileChecked = $config['enable_profile_info'] == 1 ? 'checked' : '';
-
-        $collapseLabel = __('Collapse menu by default', 'formcreator');
-        $collapseChecked = $config['collapse_menu'] == 1 ? 'checked' : '';
-
-        $defaultCategoryLabel = __('Default category', 'formcreator');
-        $defaultCategory = $config['default_categories_id'];
-
-        ob_start();
-        PluginFormcreatorCategory::dropdown([
-            'name' => 'default_categories_id',
-            'value' => $defaultCategory,
-            'condition' => ['level' => 1]
-        ]);
-        $defaultCategoryDropdown = ob_get_clean();
-
-        $seeAllLabel = __('Enable See all tab', 'formcreator');
-        $seeAll = $config['see_all'] == 1 ? 'checked' : '';
-
-        $savedSearchLabel = __('Saved searches');
-        $savedSearch = $config['enable_saved_search'] == 1 ? 'checked' : '';
-
-        $action = Plugin::getWebDir('formcreator') . '/front/config.form.php';
-
-        $updateLabel = __('Update');
-
-        echo <<<HTML
-        <div class="center vertical ui-tabs">
-            <form action="$action" method="post">
-            <table class="tab_cadre_fixe">
-                <tbody>
-                    <tr>
-                        <th colspan="4">$headerGeneral</th>
-                    </tr>
-                    <tr>
-                        <td>$seeAllLabel</td>
-                        <td>
-                            <input type="hidden" name="see_all" value="0">
-                            <input type="checkbox" name="see_all" value="1" {$seeAll}/>
-                        </td>
-                        <td>$defaultCategoryLabel</td>
-                        <td>$defaultCategoryDropdown</td>
-                    </tr>
-                    <tr>
-                        <th colspan="4">$headerSimplified</th>
-                    </tr>
-                    <tr>
-                        <td>$profileLabel</td>
-                        <td>
-                            <input type="hidden" name="enable_profile_info" value="0">
-                            <input type="checkbox" name="enable_profile_info" value="1" {$pofileChecked}/>
-                        </td>
-                        <td>$savedSearchLabel</td>
-                        <td>
-                            <input type="hidden" name="enable_saved_search" value="0">
-                            <input type="checkbox" name="enable_saved_search" value="1" {$savedSearch}/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>$collapseLabel</td>
-                        <td>
-                            <input type="hidden" name="collapse_menu" value="0">
-                            <input type="checkbox" name="collapse_menu" value="1" {$collapseChecked}/>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="center">
-                <input type="submit" name="update" value="$updateLabel" class="submit">
-            </div>
-        HTML;
-        Html::closeForm();
-        echo '</div>';
+        $form = [
+            'action' => Plugin::getWebDir('formcreator') . '/front/config.form.php',
+            'buttons' => [
+                'update' => [
+                    'name' => 'update',
+                    'value' => __('Update'),
+                    'class' => 'btn btn-secondary'
+                ]
+            ],
+            'content' => [
+                __('General setup') => [
+                    'visible' => true,
+                    'inputs' => [
+                        __('Enable See all tab', 'formcreator') => [
+                            'type' => 'checkbox',
+                            'name' => 'see_all',
+                            'value' => $config['see_all'],
+                        ],
+                        __('Default category', 'formcreator') => [
+                            'type' => 'select',
+                            'name' => 'default_categories_id',
+                            'values' => getOptionForItems(PluginFormcreatorCategory::class, ['level' => 1]),
+                            'value' => $config['default_categories_id'],
+                        ],
+                    ]
+                ],
+                __('Simplified view', 'formcreator') => [
+                    'visible' => true,
+                    'inputs' => [
+                        __('Enable profile infos', 'formcreator') => [
+                            'type' => 'checkbox',
+                            'name' => 'enable_profile_info',
+                            'value' => $config['enable_profile_info'],
+                        ],
+                        __('Saved searches') => [
+                            'type' => 'checkbox',
+                            'name' => 'enable_saved_search',
+                            'value' => $config['enable_saved_search'],
+                        ],
+                        __('Collapse menu by default', 'formcreator') => [
+                            'type' => 'checkbox',
+                            'name' => 'collapse_menu',
+                            'value' => $config['collapse_menu'],
+                        ]
+                    ]
+                ]
+            ]
+        ];
+        renderTwigForm($form);
      }
  }
