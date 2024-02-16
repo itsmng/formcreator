@@ -541,7 +541,8 @@ PluginFormcreatorTranslatableInterface
                   __('Form image', 'formcreator') => [
                      'type' => 'file',
                      'id' => 'FilePickForForm',
-                     'name' => 'icon',
+                     'accept' => 'image/*',
+                     'name' => '_icon',
                      'value' => $this->fields['icon'],
                      'col_lg' => 6,
                      $this->fields['icon_type'] == 0 ? 'disabled' : '' => true,
@@ -1439,31 +1440,19 @@ PluginFormcreatorTranslatableInterface
       }
 
       if ($input['icon_type'] == 1 && isset($input['_icon'])) {
-         $fullpath = GLPI_TMP_DIR . '/' . $input['_icon'][0];
+         $files = json_decode(stripslashes($_POST['_icon']), true);
+         $doc = ItsmngUploadHandler::addFileToDb($files[0]);
+         $fullpath = $doc->fields['filepath'];
          if (Document::isImage($fullpath)) {
-            // move the file to the right directory
-            $filename     = uniqid(rand().'_');
-            $sub          = substr($filename, -2); /* 2 hex digit */
-            
-            // output images with possible transparency to png, other to jpg
-            $extension = strtolower(pathinfo($fullpath, PATHINFO_EXTENSION));
-            $extension = in_array($extension, ['png', 'gif'])
-            ? 'png'
-            : 'jpg';
-            
-            @mkdir(GLPI_PICTURE_DIR . "/$sub");
-            $picture_path = GLPI_PICTURE_DIR  . "/$sub/{$filename}.$extension";
-            if (Document::renameForce($fullpath, $picture_path)) {
-               $input['icon'] = "$sub/{$filename}.$extension";
-               if (isset($input['id'])) {
-                  $form = new self();
-                  $form->getFromDB($input['id']);
-                  if ($form->fields['icon_type'] == 1) {
-                     User::dropPictureFiles($form->fields['icon']);
-                  }
+            if (isset($input['id'])) {
+               $form = new self();
+               $form->getFromDB($input['id']);
+               if ($form->fields['icon_type'] == 1) {
+                  User::dropPictureFiles($form->fields['icon']);
                }
             }
          };
+         $input['icon'] = $fullpath;
       } else if (isset($input['id'])) {
          $form = new self();
          $form->getFromDB($input['id']);
