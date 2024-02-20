@@ -202,39 +202,60 @@ implements PluginFormcreatorExportableInterface
          $this->fields[PluginFormcreatorForm::getForeignKeyField()] = $options['parent']->getID();
          $item = $options['parent'];
       }
-
-      $this->initForm($ID, $options);
-      $this->showFormHeader($options);
-
-      echo '<tr class="tab_bg_1">';
-      echo '<td><strong>' . __('Name') . ' <span class="red">*</span></strong></td>';
-      $used = [];
+      $languages = Language::getLanguages();
       $rows = $this->find([PluginFormcreatorForm::getForeignKeyField() => $item->getID()]);
       foreach ($rows as $row) {
-         $used[$row['name']] = $row['name'];
+         if ($row['name'] != $this->fields['name']) {
+            unset($languages[$row['name']]);
+         }
       }
-      echo '<td>' . Dropdown::showLanguages('name', [
-         'required' => true,
-         'display'  => false,
-         'value'    => $this->isNewID($ID) ? $_SESSION['glpilanguage'] : $this->fields['name'],
-         'used'     => $this->isNewID($ID) ? $used : [],
-         'disabled' => !$this->isNewID($ID)
-      ]) . '</td>';
-      echo "</tr></tr>";
-      echo '<td><strong>' . __('Comment') . '</strong></td>';
-      echo '<td>';
-      Html::textarea([
-         'name' => 'comment',
-         'value' => $this->fields['comment'],
-      ]);
-      echo '</td>';
-      echo "</tr></tr>";
-      echo '<td>';
-      echo Html::hidden(PluginFormcreatorForm::getForeignKeyField(), ['value' => $item->getID()]);
-      echo '</td>';
-      echo '</tr>';
 
-      $this->showFormButtons($options);
+      $form = [
+         'action' => $this->getFormUrl(),
+         'buttons' => [
+            $this->canUpdateItem() ? [
+               'type' => 'submit',
+               'name' => $this->isNewID($ID) ? 'add' : 'update',
+               'value' => $this->isNewID($ID) ? __('Add') : __('Update'),
+               'class' => 'btn btn-secondary'
+            ] : [],
+            !$this->isNewID($ID) && self::canPurge() ? [
+               'type' => 'submit',
+               'name' => 'purge',
+               'value' => __('Delete permanently'),
+               'class' => 'btn btn-danger'
+            ] : [],
+         ],
+         'content' => [
+            $this->getTypeName() => [
+               'visible' => true,
+               'inputs' => [
+                  __('Name') => [
+                     'type' => 'select',
+                     'name' => 'name',
+                     'values' => $languages,
+                     'value' => $this->fields['name'],
+                     !$this->isNewID($ID) ? "disabled" : "" => true,
+                     'col_lg' => 12,
+                     'col_md' => 12,
+                  ],
+                  __('Comment') => [
+                     'type' => 'textarea',
+                     'name' => 'comment',
+                     'value' => $this->fields['comment'],
+                     'col_lg' => 12,
+                     'col_md' => 12,
+                  ],
+                  [
+                     'type' => 'hidden',
+                     'name' => PluginFormcreatorForm::getForeignKeyField(),
+                     'value' => $item->getID(),
+                  ],
+               ]
+            ]
+         ]
+      ];
+      renderTwigForm($form, '', $this->fields);
       return true;
    }
 
@@ -393,7 +414,7 @@ implements PluginFormcreatorExportableInterface
          $formId = $item->getID();
          $url = self::getFormURL();
          echo "<div class='center'>" .
-            "<a class='vsubmit' href='#' onclick='plugin_formcreator.createLanguage($formId);'>" . __('Add a new language', 'formcreator') .
+            "<a class='btn btn-secondary' href='#' onclick='plugin_formcreator.createLanguage($formId);'>" . __('Add a new language', 'formcreator') .
             "</a></div><br>";
          echo '<div id="plugin_formcreator_formLanguage"></div>';
       }
@@ -412,62 +433,30 @@ implements PluginFormcreatorExportableInterface
          return true;
       }
 
+      $massContainerId = 'mass' . __CLASS__ . $rand;
       if ($canedit) {
-         Html::openMassiveActionsForm('mass' . __CLASS__ . $rand);
-         $massiveactionparams = ['container' => 'mass' . __CLASS__ . $rand];
+         $massiveactionparams = [
+            'container' => $massContainerId,
+            'is_deleted' => false,
+            'display_arrow' => false,
+         ];
          Html::showMassiveActions($massiveactionparams);
       }
-      echo "<div class='center'>";
-      echo "<table class='tab_cadre_fixehov translation_list'><tr class='tab_bg_2'>";
-      // table header
-      echo "<tr>";
-      if ($canedit) {
-         echo "<th width='10'>";
-         echo Html::getCheckAllAsCheckbox('mass' . __CLASS__ . $rand);
-         echo "</th>";
-      }
-      echo "<th>" . __("Language") . "</th>";
-      echo "</tr>";
-
+      $values = [];
+      $massive_action = [];
       while ($data = $iterator->next()) {
          $id = $data['id'];
-         $onhover = '';
-         if ($canedit) {
-            $onhover = "style='cursor:pointer'";
-         }
-         echo "<tr class='tab_bg_1'>";
-         if ($canedit) {
-            echo "<td class='center'>";
-            Html::showMassiveActionCheckBox(__CLASS__, $data["id"]);
-            echo "</td>";
-         }
-
          $url = PluginFormcreatorForm_Language::getFormURLWithID($id);
-         echo "<td $onhover>";
-         echo '<a href="' . $url . '">';
-         echo Dropdown::getLanguageName($data['name']);
-         echo '</a>';
-         echo "</td>";
-         echo "</tr>";
+         $values[] = ['<a href="' . $url . '">' . Dropdown::getLanguageName($data['name']) . '</a>'];
+         $massive_action[] = sprintf('item[%s][%s]', __CLASS__, $id);
       }
-      echo "<tr>";
 
-      // table footer
-      if ($canedit) {
-         echo "<th width='10'>";
-         echo Html::getCheckAllAsCheckbox('mass' . __CLASS__ . $rand);
-         echo "</th>";
-      }
-      echo "<th>" . __("Language") . "</th>";
-      echo "</tr>";
-      echo "</table>";
-      if ($canedit) {
-         echo '<div id="plugin_formcreator_viewtranslation" style="display: none"><img class="plugin_formcreator_spinner" src="../../../pics/spinner.48.gif"></div>';
-
-         $massiveactionparams['ontop'] = false;
-         Html::showMassiveActions($massiveactionparams);
-         Html::closeForm();
-      }
+      renderTwigTemplate('table.twig', [
+         'id' => $massContainerId,
+         'fields' => [__('Language')],
+         'values' => $values,
+         'massive_action' => $massive_action,
+      ]);
       return true;
    }
 

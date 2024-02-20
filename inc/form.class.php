@@ -2480,39 +2480,48 @@ PluginFormcreatorTranslatableInterface
    }
 
    public function showAddTargetForm() {
-      echo '<form name="form_target" method="post" action="'.static::getFormURL().'">';
-      echo '<table class="tab_cadre_fixe">';
-
-      echo '<tr><th colspan="4">'.__('Add a target', 'formcreator').'</th></tr>';
-
-      echo '<tr>';
-      echo '<td width="15%"><strong>'.__('Name').' <span style="color:red;">*</span></strong></td>';
-      echo '<td width="40%"><input type="text" name="name" style="width:100%;" value="" required="required"/></td>';
-      echo '<td width="15%"><strong>'._n('Type', 'Types', 1).' <span style="color:red;">*</span></strong></td>';
-      echo '<td width="30%">';
       $targetTypes = [];
       foreach (PluginFormcreatorForm::getTargetTypes() as $targetType) {
          $targetTypes[$targetType] = $targetType::getTypeName(1);
       }
-      Dropdown::showFromArray(
-         'itemtype',
-         $targetTypes,
-         [
-            'display_emptychoice' => true
+
+      $form = [
+         'action' => static::getFormURL(),
+         'buttons' => [
+            [
+               'name' => 'add_target',
+               'type' => 'submit',
+               'value' => __('Add'),
+               'class' => 'btn btn-secondary'
+            ]
+         ],
+         'content' => [
+            __('Add a target', 'formcreator') => [
+               'visible' => true,
+               'inputs' => [
+                  __('Name') => [
+                     'type' => 'text',
+                     'name' => 'name',
+                     'required' => true,
+                     'col_lg'=> 6,
+                  ],
+                  _n('Type', 'Types', 1) => [
+                     'type' => 'select',
+                     'name' => 'itemtype',
+                     'values' => [Dropdown::EMPTY_VALUE] + $targetTypes,
+                     'required' => true,
+                     'col_lg'=> 6,
+                  ],
+                  [
+                     'type' => 'hidden',
+                     'name' => 'plugin_formcreator_forms_id',
+                     'value' => $this->getID()
+                  ],
+               ]
+            ]
          ]
-      );
-      echo '</td>';
-      echo '</tr>';
-
-      echo '<tr>';
-      echo '<td colspan="4" class="center">';
-      echo Html::hidden('plugin_formcreator_forms_id', ['value' => $this->getID()]);
-      echo Html::submit(__('Add'), ['name' => 'add_target']);
-      echo '</td>';
-      echo '</tr>';
-
-      echo '</table>';
-      Html::closeForm();
+      ];
+      renderTwigForm($form);
    }
 
    /**
