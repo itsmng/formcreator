@@ -285,12 +285,26 @@ class PluginFormcreatorCondition extends CommonDBChild implements PluginFormcrea
          'inputs' => [
             '' => [
                'type' => 'select',
+               'id' => 'show_rule',
                'name' => 'show_rule',
                'values' => $this->getEnumShowRule(),
                'value' => $item->fields['show_rule'],
+               'hooks' => [
+                  'change' => <<<JS
+                  const val = this.value;
+                  console.log(val);
+                  if (val == 1) {
+                     $('#multiSelectConditions').attr('style', 'display: none !important');
+                  } else {
+                     $('#multiSelectConditions').attr('style', 'display: flex !important');
+                  }
+                  JS,
+               ]
             ],
             __('Conditions') => [
                'type' => 'multiSelect',
+               'id' => 'multiSelectConditions',
+               'style' => $item->fields['show_rule'] == self::SHOW_RULE_ALWAYS ? 'display: none !important' : '',
                'inputs' => [
                   [
                      'type' => 'select',
