@@ -154,8 +154,6 @@ class PluginFormcreatorTargetTicket extends PluginFormcreatorAbstractTarget
       } else {
          $title =  __('Edit a target', 'formcreator');
       }
-      $rand = mt_rand();
-      $assocForm = $this->getForm();
 
       $form = [
          'action' => self::getFormURL(),
@@ -250,92 +248,20 @@ class PluginFormcreatorTargetTicket extends PluginFormcreatorAbstractTarget
    protected function showCompositeTicketSettings($rand = '') {
       global $DB;
 
-      $block = [
-         'visible' => true,
-         'inputs' => [
-            __('Link to an other ticket', 'formcreator') => [
-               'content' => '<h3>AAAAAAAAAH</h3>'
-            ]
-         ],
-      ];
-      return $block;
-      echo '<tr>';
-      echo '<td colspan="3">';
-      echo '<div style="display: none" id="plugin_formcreator_linked_items' . $rand . '">';
-      Ticket_Ticket::dropdownLinks('_linktype');
+      $question = new PluginFormcreatorQuestion();
       $elements = [
          PluginFormcreatorTargetTicket::class => __('An other destination of this form', 'formcreator'),
          Ticket::class                        => __('An existing ticket', 'formcreator'),
          PluginFormcreatorQuestion::class     => __('A ticket from an answer to a question'),
       ];
-      Dropdown::showFromArray('_link_itemtype', $elements, [
-         'on_change' => "plugin_formcreator_updateCompositePeerType(this)",
-         'rand'      => $rand,
-      ]);
-      // get already linked items
-      $targetTicketId = $this->getID();
+
+      $ticketList = '';
       $rows = $DB->request([
          'FROM'   => PluginFormcreatorItem_TargetTicket::getTable(),
          'WHERE'  => [
-            'plugin_formcreator_targettickets_id' => $targetTicketId
+            'plugin_formcreator_targettickets_id' => $this->getID()
          ]
       ]);
-      $excludedTargetTicketsIds = [$this->getID()];
-      $excludedTicketIds = [];
-      foreach ($rows as $row) {
-         switch ($row['itemtype']) {
-            case PluginFormcreatorTargetTicket::getType():
-               $excludedTargetTicketsIds[] = $row['items_id'];
-               break;
-
-            case Ticket::getType():
-               $excludedTicketIds[] = $row['items_id'];
-               break;
-         }
-      }
-
-      echo '<span id="plugin_formcreator_link_ticket" style="display: none">';
-      $linkparam = [
-         'name'        => '_link_tickets_id',
-         'rand'        => $rand,
-         'used'        => $excludedTicketIds,
-         'displaywith' => ['id'],
-         'display'     => false
-      ];
-      echo Ticket::dropdown($linkparam);
-      echo '</span>';
-
-      // dropdown of target tickets
-      echo '<span id="plugin_formcreator_link_target">';
-      $condition = [
-         'plugin_formcreator_forms_id' => $this->fields['plugin_formcreator_forms_id']
-      ];
-      echo PluginFormcreatorTargetTicket::dropdown([
-         'name'        => '_link_targettickets_id',
-         'rand'        => $rand,
-         'display'     => false,
-         'used'        => $excludedTargetTicketsIds,
-         'displaywith' => ['id'],
-         'condition'   => $condition,
-      ]);
-      echo '</span>';
-
-      // dropdown of questions of type GLPI Object / Ticket
-      echo '<span id="plugin_formcreator_link_question" style="display: none">';
-      PluginFormcreatorQuestion::dropdownForForm(
-         $this->getForm()->getID(),
-         [
-            'fieldtype' => ['glpiselect'],
-            'values'    => ['LIKE', '%"itemtype":"' . Ticket::class . '"%'],
-         ],
-         '_link_plugin_formcreator_questions_id',
-         $this->fields['destination_entity_value']
-      );
-      echo '</span>';
-
-      echo '</div>';
-
-      // show already linked items
       foreach ($rows as $row) {
          $icons = '&nbsp;'.Html::getSimpleForm(
             PluginFormcreatorItem_TargetTicket::getFormURL(),
@@ -349,37 +275,91 @@ class PluginFormcreatorTargetTicket extends PluginFormcreatorAbstractTarget
          $item->getFromDB($row['items_id']);
          switch ($itemtype) {
             case Ticket::getType():
-               echo Ticket_Ticket::getLinkName($row['link']);
-               echo ' ';
-               echo $itemtype::getTypeName();
-               echo ' ';
-               echo '<span style="font-weight:bold">' . $item->getField('name') . '</span>';
-               echo ' ';
-               echo $icons;
+               $ticketList .= Ticket_Ticket::getLinkName($row['link']) . ' '
+                  . $itemtype::getTypeName() . ' '
+                  . '<span style="font-weight:bold">' . $item->getField('name') . '</span> '
+                  . $icons . '<br>';
                break;
 
             case PluginFormcreatorTargetTicket::getType():
-               echo Ticket_Ticket::getLinkName($row['link']);
-               echo ' ';
-               echo $itemtype::getTypeName();
-               echo ' ';
-               echo '<span style="font-weight:bold">' . $item->getField('name') . '</span>';
-               echo ' ';
-               echo $icons;
+               $ticketList .= Ticket_Ticket::getLinkName($row['link']) . ' '
+                  . $itemtype::getTypeName() . ' '
+                  . '<span style="font-weight:bold">' . $item->getField('name') . '</span> '
+                  . $icons . '<br>';
                break;
 
             case PluginFormcreatorQuestion::getType():
-               echo Ticket_Ticket::getLinkName($row['link']);
-               echo ' ';
-               echo $itemtype::getTypeName();
-               echo ' ';
-               echo '<span style="font-weight:bold">' . $item->getField('name') . '</span>';
-               echo ' ';
-               echo $icons;
+               $ticketList .= Ticket_Ticket::getLinkName($row['link']) . ' '
+                  . $itemtype::getTypeName() . ' '
+                  . '<span style="font-weight:bold">' . $item->getField('name') . '</span> '
+                  . $icons . '<br>';
                break;
          }
-         echo '<br>';
       }
+
+      $block = [
+         'visible' => true,
+         'inputs' => [
+            __('Link type') => [
+               'type' => 'select',
+               'type' => 'select',
+               'name' => '_linktype',
+               'values' => [
+                  Ticket_Ticket::LINK_TO     => __('Linked to', 'formcreator'),
+                  Ticket_Ticket::PARENT_OF   => __('Parent of', 'formcreator'),
+                  Ticket_Ticket::SON_OF    => __('Child of', 'formcreator'),
+                  Ticket_Ticket::DUPLICATE_WITH => __('Duplicate of', 'formcreator'),
+               ],
+               'value' => Ticket_Ticket::LINK_TO,
+               'col_lg' => 6,
+            ],
+            __('Link item type') => [
+               'type' => 'select',
+               'id' => 'selectForLinkItemtypeTargetTicket',
+               'name' => '_link_itemtype',
+               'values' => $elements,
+               'col_lg' => 6,
+               'hooks' => [
+                  'change' => <<<JS
+                  const val = this.value;
+                  $('#selectForLinkTargetTicket').attr('disabled', val != 'PluginFormcreatorTargetTicket');
+                  $('#selectForLinkTicket').attr('disabled', val != 'Ticket');
+                  $('#selectForLinkQuestion').attr('disabled', val != 'PluginFormcreatorQuestion');
+                  JS,
+               ]
+
+            ],
+            __('Target Ticket') => [
+               'type' => 'select',
+               'id' => 'selectForLinkTargetTicket',
+               'name' => '_link_targettickets_id',
+               'values' => getOptionForItems(PluginFormcreatorTargetTicket::class, [], true, false, ['id' => $this->getID()]),
+            ],
+            __('Ticket') => [
+               'type' => 'select',
+               'id' => 'selectForLinkTicket',
+               'name' => '_link_tickets_id',
+               'values' => getOptionForItems(Ticket::class),
+               'disabled' => ''
+            ],
+            __('Question') => [
+               'type' => 'select',
+               'id' => 'selectForLinkQuestion',
+               'name' => '_link_plugin_formcreator_questions_id',
+               'values' => $question->getQuestionsFromFormBySection(
+                  $this->getForm()->getID(),
+                  ['fieldtype' => ['glpiselect']],
+                  $this->fields['destination_entity_value']
+               ),
+               'disabled' => ''
+            ],
+            '' => [
+               'content' => $ticketList,
+            ]
+         ],
+      ];
+      return $block;
+      // show already linked items
 
       echo '</td>';
       echo '</tr>';
