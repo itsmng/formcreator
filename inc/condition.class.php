@@ -256,6 +256,97 @@ class PluginFormcreatorCondition extends CommonDBChild implements PluginFormcrea
     * @return void
     */
    public function showConditionsForItem(CommonDBTM $item) {
+      $question = new PluginFormcreatorQuestion();
+      $conditions = $this->getConditionsFromItem($item);
+      $values = [];
+      foreach ($conditions as $condition) {
+         $question->getFromDB($condition->fields['plugin_formcreator_questions_id']);
+         $values[] = [
+            '_conditions[show_logic]' => [
+               'value' => $condition->fields['show_logic'],
+               'title' => $condition->fields['show_logic'] == self::SHOW_LOGIC_AND ? 'AND' : 'OR',
+            ],
+            '_conditions[plugin_formcreator_questions_id]' => [
+               'value' => $condition->fields['plugin_formcreator_questions_id'],
+               'title' => $question->fields['name'],
+            ],
+            '_conditions[show_condition]' => [
+               'value' => $condition->fields['show_condition'],
+               'title' => self::getEnumShowCondition()[$condition->fields['show_condition']],
+            ],
+            '_conditions[show_value]' => [
+               'value' => $condition->fields['show_value'],
+               'title' => $condition->fields['show_value'],
+            ],
+         ];
+      }
+      return [
+         'visible' => 'true',
+         'inputs' => [
+            '' => [
+               'type' => 'select',
+               'name' => 'show_rule',
+               'values' => $this->getEnumShowRule(),
+               'value' => $item->fields['show_rule'],
+            ],
+            __('Conditions') => [
+               'type' => 'multiSelect',
+               'inputs' => [
+                  [
+                     'type' => 'select',
+                     'name' => 'show_logic',
+                     'values' => [
+                        self::SHOW_LOGIC_AND => __('AND', 'formcreator'),
+                        self::SHOW_LOGIC_OR => __('OR', 'formcreator'),
+                     ],
+                  ],
+                  [
+                     'type' => 'select',
+                     'name' => 'plugin_formcreator_questions_id',
+                     'values' => $question->getQuestionsFromFormBySection($item->getID()),
+                  ],
+                  [
+                     'type' => 'select',
+                     'name' => 'show_condition',
+                     'values' => [
+                        self::SHOW_CONDITION_EQ => '=',
+                        self::SHOW_CONDITION_NE => '≠',
+                        self::SHOW_CONDITION_LT => '<',
+                        self::SHOW_CONDITION_GT => '>',
+                        self::SHOW_CONDITION_LE => '≤',
+                        self::SHOW_CONDITION_GE => '≥',
+                        self::SHOW_CONDITION_QUESTION_VISIBLE => __('is visible', 'formcreator'),
+                        self::SHOW_CONDITION_QUESTION_INVISIBLE => __('is not visible', 'formcreator'),
+                        self::SHOW_CONDITION_REGEX => __('regular expression matches', 'formcreator'),
+                     ],
+                  ],
+                  [
+                     'type' => 'text',
+                     'name' => 'show_value',
+                  ],
+               ],
+               'isList' => true,
+               'getInputAdd' => <<<JS
+               function () {
+                  const values = {
+                     "_conditions[show_logic]": $('select[name="show_logic"]').val(),
+                     "_conditions[plugin_formcreator_questions_id]": $('select[name="plugin_formcreator_questions_id"]').val(),
+                     "_conditions[show_condition]": $('select[name="show_condition"]').val(),
+                     "_conditions[show_value]": $('input[name="show_value"]').val(),
+                  };
+                  const title =  $('select[name="show_logic"] option:selected').text() + ' '
+                     + $('select[name="plugin_formcreator_questions_id"] option:selected').text() + ' '
+                     + $('select[name="show_condition"] option:selected').text() + ' '
+                     + $('input[name="show_value"]').val();
+                  return {values, title};
+               }
+               JS,
+               'values' => $values,
+               'col_lg' => 12,
+               'col_md' => 12,
+            ]
+         ]
+      ];
       $rand = mt_rand();
 
       echo '<tr>';
