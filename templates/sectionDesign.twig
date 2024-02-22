@@ -2,27 +2,29 @@
     <div class="px-3 d-flex justify-content-between align-items-center bg-secondary text-light">
         <a class="link-light" href="#" onclick="plugin_formcreator.showSectionForm({{formId}}, {{id}})">
             {{name}}
-            <sup class="plugin_formcreator_count" title="{{"Count of conditions"|trans}}">{{conditionCount}}</sup>
+            <sup class="plugin_formcreator_count" title="{{"Count of conditions" | transd('formcreator')}}">{{conditionCount}}</sup>
         </a>
         <div>
-            <span class='form_control pointer'>
+            <span class='form_control pointer btn btn-sm btn-outline-light m-1'>
                 <i class="far fa-trash-alt" onclick="plugin_formcreator.deleteSection(this)"></i>
             </span>
-            <span class='form_control pointer'>
+            <span class='form_control pointer btn btn-sm btn-outline-light m-1'>
                 <i class="far fa-clone" onclick="plugin_formcreator.duplicateSection(this)"></i>
             </span>
-            <span class='form_control pointer'>
-                <i class="fas fa-sort-down" onclick="plugin_formcreator.moveSection(this, 'down')"></i>
+            <span class='form_control pointer btn btn-sm btn-outline-light m-1'>
+                <i class="fas fa-arrow-up" onclick="plugin_formcreator.moveSection(this, 'up')"></i>
             </span>
-            <span class='form_control pointer'>
-                <i class="fas fa-sort-up" onclick="plugin_formcreator.moveSection(this, 'up')"></i>
+            <span class='form_control pointer btn btn-sm btn-outline-light m-1'>
+                <i class="fas fa-arrow-down" onclick="plugin_formcreator.moveSection(this, 'down')"></i>
             </span>
         </div>
     </div>
-    <div class="plugin_formcreator_sectionContent" data-id="{{id}}"></div>
+    <div class="plugin_formcreator_sectionContent" data-id="{{id}}">
+        {{questionList|raw}}
+    </div>
     <div>
         <a href="#" onclick="plugin_formcreator.showQuestionForm({{id}});">
-        <i class="fas fa-plus"></i>&nbsp;{{"Add a question"|trans}}
+        <i class="fas fa-plus"></i>&nbsp;{{"Add a question" | transd('formcreator')}}
         </a>
     </div>
 </li>

@@ -224,51 +224,32 @@ PluginFormcreatorTranslatableInterface
       $sectionId = $this->fields[PluginFormcreatorSection::getForeignKeyField()];
       $fieldType = PluginFormcreatorFields::getFieldClassname($this->fields['fieldtype']);
       $field = new $fieldType($this);
-
-      $html .= '<div class="grid-stack-item"'
-      . ' data-itemtype="' . self::class . '"'
-      . ' data-id="'.$questionId.'"'
-      . '>';
-
-      $html .= '<div class="grid-stack-item-content">';
-
-      // Question name
-      $html .= $field->getHtmlIcon() . '&nbsp;';
-      $onclick = 'plugin_formcreator.showQuestionForm(' . $sectionId . ', ' . $questionId . ');';
-      $html .= '<a href="javascript:' . $onclick . '" data-field="name">';
-      // Show count of conditions
+      $required = ($this->fields['required'] == '0') ? 'far fa-circle' : 'far fa-check-circle';
       $nb = (new DBUtils())->countElementsInTable(PluginFormcreatorCondition::getTable(), [
          'itemtype' => PluginFormcreatorQuestion::getType(),
          'items_id' => $this->getID(),
       ]);
-      $html .= "<sup class='plugin_formcreator_conditions_count' title='" . __('Count of conditions', 'formcreator') ."'>$nb</sup>";
-      $html .= empty($this->fields['name']) ? '(' . $questionId . ')' : $this->fields['name'];
-      $html .= '</a>';
 
-      // Delete the question
-      $html .= "<span class='form_control pointer'>";
-      $html .= '<i class="far fa-trash-alt"
-               onclick="plugin_formcreator.deleteQuestion(this)"></i> ';
-      $html .= "</span>";
+      $lastQuestionOrder = PluginFormcreatorCommon::getMax(
+         new PluginFormcreatorQuestion(),
+         [PluginFormcreatorSection::getForeignKeyField() => $sectionId],
+         'row'
+      );
 
-      // Clone the question
-      $html .= "<span class='form_control pointer'>";
-      $html .= '<i class="far fa-clone"
-               onclick="plugin_formcreator.duplicateQuestion(this)"></i> ';
-      $html .= "</span>";
 
-      // Toggle mandatory for the question
-      $html .= "<span class='form_control pointer'>";
-      $required = ($this->fields['required'] == '0') ? 'far fa-circle' : 'far fa-check-circle';
-      $html .= '<i class="' . $required .'"
-               onclick="plugin_formcreator.toggleRequired(this)"></i> ';
-      $html .= "</span>";
-
-      $html .= '</div>'; // grid stack item content
-
-      $html .= '</div>'; // grid stack item
-
-      return $html;
+      ob_start();
+      renderTwigTemplate('questionDesign.twig', [
+         'id' => $questionId,
+         'sectionId' => $sectionId,
+         'name' => $this->fields['name'] == '' ? '(' . $questionId . ')' : $this->fields['name'],
+         'count' => $nb,
+         'icon' => $field->getHTmlIcon(),
+         'requiredIcon' => $required,
+         'first' => $this->fields['row'] == 0,
+         'last' => $this->fields['row'] == $lastQuestionOrder,
+         'order' => $this->fields['row'],
+      ], '/plugins/formcreator/templates/');
+      return ob_get_clean();
    }
 
    /**

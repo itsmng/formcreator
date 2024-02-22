@@ -1,0 +1,35 @@
+<div class="d-flex justify-content-between p-2 formcreator-question"
+    data-itemtype="PluginFormcreatorQuestion" data-id="{{id}}" data-order="{{order}}">
+    <div>
+        {{icon|raw}}&nbsp;
+        <a href="javascript:plugin_formcreator.showQuestionForm({{sectionId}}, {{id}})"
+            data-field="name">
+            <sup class='plugin_formcreator_conditions_count' title='{{'Count of conditions' | transd('formcreator')}}'>
+                {{count}}
+            </sup>
+            {{name}}
+        </a>
+    </div>
+    <div>
+        <span class='form_control pointer btn btn-sm btn-secondary m-1'>
+            <i class="far fa-trash-alt"
+                onclick="plugin_formcreator.deleteQuestion(this)"></i>
+        </span>
+        <span class='form_control pointer btn btn-sm btn-secondary m-1'>
+            <i class="far fa-clone"
+                onclick="plugin_formcreator.duplicateQuestion(this)"></i>
+        </span>
+        <span class='form_control pointer btn btn-sm btn-secondary m-1'>
+            <i class="{{requiredIcon}}"
+                onclick="plugin_formcreator.toggleRequired(this)"></i>
+        </span>
+        <span class='form_control pointer btn btn-sm btn-secondary m-1 moveUp'
+            {% if first %} style='display: none' {% endif %}>
+            <i class="fas fa-arrow-up" onclick="plugin_formcreator.moveQuestion(this, 'up')"></i>
+        </span>
+        <span class='form_control pointer btn btn-sm btn-secondary m-1 moveDown'
+        {% if last %} style='display: none' {% endif %}>
+            <i class="fas fa-arrow-down" onclick="plugin_formcreator.moveQuestion(this, 'down')"></i>
+        </span>
+    </div>
+</div>

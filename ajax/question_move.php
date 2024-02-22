@@ -57,8 +57,6 @@ $error = false;
 foreach ($questions as $id => $item) {
    $question = $questions[$id];
    $question->fields['row'] = (int) $_REQUEST['move'][$id]['y'];
-   $question->fields['col'] = (int) $_REQUEST['move'][$id]['x'];
-   $question->fields['width'] = (int) $_REQUEST['move'][$id]['width'];
    if (isset($_REQUEST['move'][$id]['plugin_formcreator_sections_id'])) {
       $question->fields['plugin_formcreator_sections_id'] = (int) $_REQUEST['move'][$id]['plugin_formcreator_sections_id'];
    }

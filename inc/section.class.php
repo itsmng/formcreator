@@ -555,6 +555,18 @@ PluginFormcreatorTranslatableInterface
         'itemtype' => PluginFormcreatorSection::getType(),
         'items_id' => $this->getID(),
       ]);
+      $question = new PluginFormcreatorQuestion();
+      $questions = $question->getQuestionsFromSection($sectionId);
+      $questionList = '';
+      foreach ($questions as $question) {
+         $questionList .= $question->getDesignHtml();
+      }
+
+      $lastSectionOrder = PluginFormcreatorCommon::getMax(
+         new PluginFormcreatorSection(),
+         [PluginFormcreatorForm::getForeignKeyField() => $formId],
+         'order'
+      );
 
       ob_start();
       renderTwigTemplate('sectionDesign.twig', [
@@ -562,6 +574,9 @@ PluginFormcreatorTranslatableInterface
          'formId' => $formId,
          'name' => $this->fields['name'],
          'conditionCount' => $nb,
+         'questionList' => $questionList,
+         'first' => ($this->fields['order'] == 1),
+         'last' => ($this->fields['order'] == $lastSectionOrder),
       ], '/plugins/formcreator/templates/');
 
       return ob_get_clean();

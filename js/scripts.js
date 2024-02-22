@@ -666,51 +666,6 @@ var plugin_formcreator = new function() {
       });
    };
 
-   this.initGridStack = function (sectionId) {
-      var that = this;
-      var group = $('#plugin_formcreator_form.plugin_formcreator_form_design [data-itemtype="PluginFormcreatorSection"][data-id="' + sectionId + '"] .grid-stack');
-      group.gridstack({
-         width:          this.questionsColumns,
-         column:         this.questionsColumns,
-         cellHeight:     '32px',
-         verticalMargin: '5px',
-         float:          true,
-         acceptWidgets:  true,
-         resizeable:     {
-            handles: 'e, w'
-         }
-      });
-      $.get({
-         url: formcreatorRootDoc + '/ajax/question_get.php',
-         dataType: 'json',
-         data: {
-            id: sectionId,
-            design: true
-         }
-      }).success(function(data, httpCode) {
-         var grid = group.data('gridstack');
-         that.dirty = true;
-         $.each(data, function(index, question) {
-            grid.addWidget(
-               question.html,
-               Number(question.x),
-               Number(question.y),
-               Number(question.width),
-               Number(question.height),
-               false,
-               1,
-               this.questionColumns,
-               1,
-               1
-            );
-         });
-         that.dirty = false;
-      }).complete(function () {
-         that.setupGridStack(group);
-         group.data('gridstack').float(false);
-      });
-   };
-
    /**
    * Event handler : when an item is about to move or resize
    */
@@ -794,7 +749,7 @@ var plugin_formcreator = new function() {
    // === QUESTIONS ===
 
    this.deleteQuestion = function (target) {
-      var item = $(target).closest('.grid-stack-item');
+      var item = $(target).closest('.formcreator-question');
       var id = item.attr('data-id');
       if (typeof(id) === 'undefined') {
          return;
@@ -809,36 +764,13 @@ var plugin_formcreator = new function() {
          }).fail(function(data) {
             alert(data.responseText);
          }).done(function() {
-            var container = item.closest('.grid-stack');
-            var gridstack = container.data('gridstack');
-            var row = $(item).attr('data-gs-y');
-            gridstack.removeWidget(item);
-            //plugin_formcreator.moveUpItems(container);
+            item.remove();
          });
       }
    };
 
-   /**
-    * Move up items in a grid when row is empty
-    * @param grid stack container
-    * @param row  row to fill with items after it
-    */
-   this.moveUpItems = function (grid) {
-      return;
-      // Disabled cause it does not fully works with dropped elements
-      var lastRow = grid.find('.grid-stack-item:not(.grid-stack-placeholder)').last().attr('data-gs-y');
-      for (let y = 0; y < lastRow; y++) {
-         var movable = grid.find('.grid-stack-item:not(.grid-stack-placeholder)').filter(function(index, element) {
-            return ($(element).attr('data-gs-y') > y);
-         }).first();
-         if (movable.length > 0) {
-            grid.data('gridstack').move(movable, Number(movable.attr('data-gs-x')), y)
-         }
-      }
-   };
-
    this.toggleRequired = function (target) {
-      var item = $(target).closest('.grid-stack-item');
+      var item = $(target).closest('.formcreator-question');
       var id = item.attr('data-id');
       if (typeof(id) === 'undefined') {
          return;
@@ -865,6 +797,58 @@ var plugin_formcreator = new function() {
         scrollTop: $(modalWindow).closest('.ui-dialog').offset().top
     }, 300);
 }
+
+   this.moveQuestion = function (target, action) {
+      var item = $(target).closest('.formcreator-question');
+      var id = item.attr('data-id');
+      if (typeof(id) === 'undefined') {
+         return;
+      }
+      switch (action) {
+         case 'up':
+            var otherItem = item.prev('.formcreator-question');
+            break;
+         case 'down':
+            var otherItem = item.next('.formcreator-question');
+            break;
+      }
+      if (otherItem.length < 1) {
+         return;
+      }
+      const otherId = otherItem.attr('data-id');
+      const data = {move: {}};
+      data.move[otherId] = {
+         y: item.attr('data-order'),
+      };
+      data.move[id] = {
+         y: otherItem.attr('data-order'),
+      };
+      $.ajax({
+         url: formcreatorRootDoc + '/ajax/question_move.php',
+         type: "POST",
+         data,
+         success: function() {
+            if (action == 'up') {
+               otherItem.before(item);
+            }
+            if (action == 'down') {
+               otherItem.after(item);
+            }
+            $.each([item, otherItem], function(index, item) {
+               if (item.prev('.formcreator-question').length < 1) {
+                  item.find('.moveUp').hide();
+               } else {
+                  item.find('.moveUp').show();
+               }
+               if (item.next('.formcreator-question').length < 1) {
+                  item.find('.moveDown').hide();
+               } else {
+                  item.find('.moveDown').show();
+               }
+            });
+         }
+      });
+   };
 
    this.addQuestion = function () {
       var form = $('form[data-itemtype="PluginFormcreatorQuestion"]');
@@ -917,9 +901,8 @@ var plugin_formcreator = new function() {
    }
 
    this.duplicateQuestion = function (target) {
-      var item = $(target).closest('.grid-stack-item');
+      var item = $(target).closest('.formcreator-question');
       var id = item.attr('data-id');
-      var that = this;
       if (typeof(id) === 'undefined') {
          return;
       }
@@ -934,21 +917,8 @@ var plugin_formcreator = new function() {
       }).fail(function(data) {
          alert(data.responseText);
       }).done(function(question) {
-         var container = item.closest('[data-itemtype="PluginFormcreatorSection"] .grid-stack');
-         var grid = container.data('gridstack');
-         grid.addWidget(
-            question.html,
-            Number(question.x),
-            Number(question.y),
-            Number(question.width),
-            Number(question.height),
-            false,
-            1,
-            this.questionColumns,
-            1,
-            1
-         );
-         that.resetTabs();
+         var sectionContent = item.closest('[data-itemtype="PluginFormcreatorSection"] .plugin_formcreator_sectionContent');
+         sectionContent.append(question.html);
       });
    };
 
@@ -1086,7 +1056,6 @@ var plugin_formcreator = new function() {
          var lastSection = $('.plugin_formcreator_form_design[data-itemtype="PluginFormcreatorForm"] [data-itemtype="PluginFormcreatorSection"]').last();
          lastSection.after(data);
          sectionId = $('.plugin_formcreator_form_design[data-itemtype="PluginFormcreatorForm"] [data-itemtype="PluginFormcreatorSection"]').last().attr('data-id');
-         plugin_formcreator.initGridStack(sectionId);
          plugin_formcreator.updateSectionControls();
          that.resetTabs();
       }).fail(function(data) {
@@ -1122,7 +1091,6 @@ var plugin_formcreator = new function() {
          var addSectionRow = $('[data-itemtype="PluginFormcreatorForm"] li').last();
          addSectionRow.before(data);
          var sectionId = $('.plugin_formcreator_form_design[data-itemtype="PluginFormcreatorForm"] [data-itemtype="PluginFormcreatorSection"]').last().attr('data-id');
-         plugin_formcreator.initGridStack(sectionId);
          plugin_formcreator.updateSectionControls();
          modalWindow.dialog('close');
          that.resetTabs();
