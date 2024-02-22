@@ -425,50 +425,71 @@ PluginFormcreatorTranslatableInterface
          $title =  __('Edit a section', 'formcreator');
          $action = 'plugin_formcreator.editSection()';
       }
-      echo '<form name="form"'
-      . ' method="post"'
-      . ' action="javascript:' . $action . '"'
-      . ' data-itemtype="' . self::class . '"'
-      . '>';
-      echo '<div>';
-      echo '<table class="tab_cadre_fixe">';
-
-      echo '<tr>';
-      echo '<th colspan="4">';
-      echo $title;
-      echo '</th>';
-      echo '</tr>';
-
-      echo '<tr>';
-      echo '<td width="20%">'.__('Title').' <span style="color:red;">*</span></td>';
-      echo '<td colspan="3">';
-      echo Html::input('name', ['style' => 'width: calc(100% - 20px)', 'required' => 'required', 'value' => $this->fields['name']]);
-      echo '</td>';
-      echo '</tr>';
-
-      // List of conditions
-      echo '<tr>';
-      echo '<th colspan="4">';
-      echo __('Condition to show the section', 'formcreator');
-      echo '</label>';
-      echo '</th>';
-      echo '</tr>';
       $condition = new PluginFormcreatorCondition();
-      $condition->showConditionsForItem($this);
-
-      echo '<tr>';
-      echo '<td colspan="4" class="center">';
-      $formFk = PluginFormcreatorForm::getForeignKeyField();
-      echo Html::hidden('id', ['value' => $ID]);
-      echo Html::hidden('uuid', ['value' => $this->fields['uuid']]);
-      echo Html::hidden($formFk, ['value' => $this->fields[$formFk]]);
-      echo '</td>';
-      echo '</tr>';
-
-      // table and div are closed here
-      $this->showFormButtons($options + [
-         'candel' => false,
-      ]);
+      $conditionInput = $condition->showConditionsForItem($this);
+      ob_start();
+      foreach ($conditionInput['inputs'] as $title => $input) {
+         renderTwigTemplate('macros/wrappedInput.twig', [
+            'title' => $title,
+            'input' => $input,
+         ]);
+      }
+      $conditionContent = ob_get_clean();
+      $form = [
+         'action' => $action,
+         'attributes' => [
+            'data-itemtype' => self::class,
+         ],
+         'buttons' => [
+            [
+               'value' => ($ID == 0) ? __('Add') : __('Save'),
+               'class' => 'btn btn-secondary',
+               'type' => 'button',
+               'icon' => ($ID == 0) ? 'fas fa-plus' : 'fas fa-save',
+               'onclick' => 'javascript:' . $action . ';'
+            ],
+         ],
+         'content' => [
+            $title => [
+               'visible' => true,
+               'inputs' => [
+                  __('Title') => [
+                     'name' => 'name',
+                     'type' => 'text',
+                     'size' => 50,
+                     'value' => $this->fields['name'],
+                     'required' => true,
+                  ],
+               ],
+            ],
+            __('Condition to show the section', 'formcreator') => [
+               'visible' => true,
+               'inputs' => [
+                  'conditions' => [
+                     'content' => $conditionContent,
+                     'col_lg' => 12,
+                     'col_md' => 12,
+                  ],
+                  [
+                     'type' => 'hidden',
+                     'name' => 'id',
+                     'value' => $ID,
+                  ],
+                  [
+                     'type' => 'hidden',
+                     'name' => 'uuid',
+                     'value' => $this->fields['uuid'],
+                  ],
+                  [
+                     'type' => 'hidden',
+                     'name' => PluginFormcreatorForm::getForeignKeyField(),
+                     'value' => $this->fields['plugin_formcreator_forms_id'],
+                  ],
+               ],
+            ],
+         ]
+      ];
+      renderTwigForm($form, '', $this->fields);
    }
 
    /**

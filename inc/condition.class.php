@@ -280,7 +280,10 @@ class PluginFormcreatorCondition extends CommonDBChild implements PluginFormcrea
             ],
          ];
       }
-      return [
+      if ($item->fields['show_rule'] == '') {
+         $item->fields['show_rule'] = self::SHOW_RULE_ALWAYS;
+      }
+      $block = [
          'visible' => 'true',
          'inputs' => [
             '' => [
@@ -292,7 +295,6 @@ class PluginFormcreatorCondition extends CommonDBChild implements PluginFormcrea
                'hooks' => [
                   'change' => <<<JS
                   const val = this.value;
-                  console.log(val);
                   if (val == 1) {
                      $('#multiSelectConditions').attr('style', 'display: none !important');
                   } else {
@@ -361,31 +363,7 @@ class PluginFormcreatorCondition extends CommonDBChild implements PluginFormcrea
             ]
          ]
       ];
-      $rand = mt_rand();
-
-      echo '<tr>';
-      echo '<td colspan="4">';
-      Dropdown::showFromArray(
-         'show_rule',
-         $this->getEnumShowRule(),
-         [
-            'value'        => $item->fields['show_rule'],
-            'on_change'    => 'plugin_formcreator_toggleCondition(this);',
-            'rand'         => $rand,
-         ]
-      );
-      echo '</td>';
-      echo '</tr>';
-
-      if ($item->fields['show_rule'] == PluginFormcreatorCondition::SHOW_RULE_ALWAYS) {
-         return;
-      }
-
-      // Get existing conditions for the item
-      $conditions = $this->getConditionsFromItem($item);
-      foreach ($conditions as $condition) {
-         echo $condition->getConditionHtml($item->fields);
-      }
+      return $block;
    }
 
    /**
