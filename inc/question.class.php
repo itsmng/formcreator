@@ -192,7 +192,13 @@ PluginFormcreatorTranslatableInterface
       echo '</th>';
       echo '</tr>';
       $condition = new PluginFormcreatorCondition();
-      $condition->showConditionsForItem($item);
+      $conditionInputs = $condition->showConditionsForItem($item);
+      foreach ($conditionInputs['inputs'] as $title => $input) {
+         renderTwigTemplate('macros/wrappedInput.twig', [
+            'title' => $title,
+            'input' => $input,
+         ]);
+      }
 
       echo '</table>';
 

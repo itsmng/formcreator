@@ -1031,28 +1031,29 @@ var plugin_formcreator = new function() {
          data: {
             id: sectionId,
             way: action
-         }
-      }).done(function() {
-         if (action == 'up') {
-            var otherSection = section.prev('#plugin_formcreator_form.plugin_formcreator_form_design [data-itemtype="PluginFormcreatorSection"]').detach();
-            section.after(otherSection);
-         }
-         if (action == 'down') {
-            var otherSection = section.next('#plugin_formcreator_form.plugin_formcreator_form_design [data-itemtype="PluginFormcreatorSection"]').detach();
-            section.before(otherSection);
-         }
-         $.each([section, otherSection], function(index, section) {
-            if (section.prev('#plugin_formcreator_form.plugin_formcreator_form_design [data-itemtype="PluginFormcreatorSection"]').length < 1) {
-               section.children('.moveUp').hide();
-            } else {
-               section.children('.moveUp').show();
+         },
+         success: function() {
+            if (action == 'up') {
+               var otherSection = section.prev('#plugin_formcreator_form.plugin_formcreator_form_design [data-itemtype="PluginFormcreatorSection"]').detach();
+               section.after(otherSection);
             }
-            if (section.next('#plugin_formcreator_form.plugin_formcreator_form_design [data-itemtype="PluginFormcreatorSection"]').length < 1) {
-               section.children('.moveDown').hide();
-            } else {
-               section.children('.moveDown').show();
+            if (action == 'down') {
+               var otherSection = section.next('#plugin_formcreator_form.plugin_formcreator_form_design [data-itemtype="PluginFormcreatorSection"]').detach();
+               section.before(otherSection);
             }
-         });
+            $.each([section, otherSection], function(index, section) {
+               if (section.prev('#plugin_formcreator_form.plugin_formcreator_form_design [data-itemtype="PluginFormcreatorSection"]').length < 1) {
+                  section.children('.moveUp').hide();
+               } else {
+                  section.children('.moveUp').show();
+               }
+               if (section.next('#plugin_formcreator_form.plugin_formcreator_form_design [data-itemtype="PluginFormcreatorSection"]').length < 1) {
+                  section.children('.moveDown').hide();
+               } else {
+                  section.children('.moveDown').show();
+               }
+            });
+         }
       });
    };
 
