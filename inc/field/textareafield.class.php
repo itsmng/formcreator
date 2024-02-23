@@ -48,7 +48,7 @@ class TextareaField extends TextField
    ];
 
    public function getDesignSpecializationField(): array {
-      $rand = mt_rand();
+      global $CFG_GLPI;
 
       $label = '';
       $field = '';
@@ -60,14 +60,14 @@ class TextareaField extends TextField
          'input' => [
             'type' => 'richtextarea',
             'name' => 'default_values',
-            'id' => 'default_values',
             'value' => $this->getValueForDesign(),
             'enable_richtext' => true,
             'filecontainer' => 'default_values_info',
             'display' => false,
             'col_lg' => 12,
             'col_md' => 12,
-         ]
+         ],
+         'root_doc' => $CFG_GLPI['root_doc'],
       ]);
       $additions .= ob_get_clean();
       $additions .= '</div>';

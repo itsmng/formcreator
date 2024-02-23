@@ -83,10 +83,6 @@ class DropdownField extends PluginFormcreatorAbstractField
    public function getDesignSpecializationField(): array {
       $rand = mt_rand();
 
-      $label = '<label for="dropdown_dropdown_values' . $rand . '" id="label_dropdown_values">';
-      $label .= _n('Dropdown', 'Dropdowns', 1);
-      $label .= '</label>';
-
       $decodedValues = json_decode($this->question->fields['values'], JSON_OBJECT_AS_ARRAY);
       if ($decodedValues === null) {
          $itemtype = $this->question->fields['values'];
@@ -176,7 +172,7 @@ class DropdownField extends PluginFormcreatorAbstractField
          ],
 
       ];
-      $additions = '<div class="plugin_formcreator_question_specific">';
+      $additions = '<div class="plugin_formcreator_question_specific row">';
       ob_start();
       foreach ($inputs as $title => $input) {
          renderTwigTemplate('macros/wrappedInput.twig', [
@@ -192,7 +188,6 @@ class DropdownField extends PluginFormcreatorAbstractField
       $additions .= '</div>';
 
       return [
-         'label' => $label,
          'additions' => $additions,
          'may_be_empty' => true,
          'may_be_required' => true,

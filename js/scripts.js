@@ -885,6 +885,11 @@ var plugin_formcreator = new function() {
       var form = $('form[data-itemtype="PluginFormcreatorQuestion"]');
       var questionId = form.find('[name="id"]').val();
       var that = this;
+
+      const editors = form.find('textarea[type="richtextarea"]');
+      editors.each(function(index, editor) {
+         eval(editor.id + '.updateSourceElement()');
+      });
       $.ajax({
          url: formcreatorRootDoc + '/ajax/question_update.php',
          type: "POST",

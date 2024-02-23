@@ -821,7 +821,7 @@ PluginFormcreatorTranslatableInterface
                   ],
                   '' => [
                      'content' => <<<HTML
-                     <div>
+                     <div class="w-100">
                         <div id="plugin_formcreator_subtype_label"></div>
                         <div id="plugin_formcreator_subtype_value"></div>
                         <div class="plugin_formcreator_question_specific row"></div>
