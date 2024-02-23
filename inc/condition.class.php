@@ -283,12 +283,13 @@ class PluginFormcreatorCondition extends CommonDBChild implements PluginFormcrea
       if ($item->fields['show_rule'] == '') {
          $item->fields['show_rule'] = self::SHOW_RULE_ALWAYS;
       }
+      $rand = mt_rand();
       $block = [
          'visible' => 'true',
          'inputs' => [
             '' => [
                'type' => 'select',
-               'id' => 'show_rule',
+               'id' => 'show_rule'. $rand,
                'name' => 'show_rule',
                'values' => $this->getEnumShowRule(),
                'value' => $item->fields['show_rule'],
@@ -296,16 +297,16 @@ class PluginFormcreatorCondition extends CommonDBChild implements PluginFormcrea
                   'change' => <<<JS
                   const val = this.value;
                   if (val == 1) {
-                     $('#multiSelectConditions').attr('style', 'display: none !important');
+                     $('#multiSelectConditions' + $rand).attr('style', 'display: none !important');
                   } else {
-                     $('#multiSelectConditions').attr('style', 'display: flex !important');
+                     $('#multiSelectConditions' + $rand).attr('style', 'display: flex !important');
                   }
                   JS,
                ]
             ],
             __('Conditions') => [
                'type' => 'multiSelect',
-               'id' => 'multiSelectConditions',
+               'id' => 'multiSelectConditions' . $rand,
                'style' => $item->fields['show_rule'] == self::SHOW_RULE_ALWAYS ? 'display: none !important' : '',
                'inputs' => [
                   [
@@ -345,15 +346,15 @@ class PluginFormcreatorCondition extends CommonDBChild implements PluginFormcrea
                'getInputAdd' => <<<JS
                function () {
                   const values = {
-                     "_conditions[show_logic]": $('select[name="show_logic"]').val(),
-                     "_conditions[plugin_formcreator_questions_id]": $('select[name="plugin_formcreator_questions_id"]').val(),
-                     "_conditions[show_condition]": $('select[name="show_condition"]').val(),
-                     "_conditions[show_value]": $('input[name="show_value"]').val(),
+                     "_conditions[show_logic]": $('#multiSelectConditions' + $rand + 'select[name="show_logic"]').val(),
+                     "_conditions[plugin_formcreator_questions_id]": $('#multiSelectConditions' + $rand + 'select[name="plugin_formcreator_questions_id"]').val(),
+                     "_conditions[show_condition]": $('#multiSelectConditions' + $rand + 'select[name="show_condition"]').val(),
+                     "_conditions[show_value]": $('#multiSelectConditions' + $rand + 'input[name="show_value"]').val(),
                   };
-                  const title =  $('select[name="show_logic"] option:selected').text() + ' '
-                     + $('select[name="plugin_formcreator_questions_id"] option:selected').text() + ' '
-                     + $('select[name="show_condition"] option:selected').text() + ' '
-                     + $('input[name="show_value"]').val();
+                  const title =  $('#multiSelectConditions' + $rand + 'select[name="show_logic"] option:selected').text() + ' '
+                     + $('#multiSelectConditions' + $rand + 'select[name="plugin_formcreator_questions_id"] option:selected').text() + ' '
+                     + $('#multiSelectConditions' + $rand + 'select[name="show_condition"] option:selected').text() + ' '
+                     + $('#multiSelectConditions' + $rand + 'input[name="show_value"]').val();
                   return {values, title};
                }
                JS,

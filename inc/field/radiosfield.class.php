@@ -44,52 +44,44 @@ class RadiosField extends PluginFormcreatorAbstractField
    }
 
    public function getDesignSpecializationField(): array {
-      $rand = mt_rand();
-
       $label = '';
       $field = '';
 
-      $additions = '<tr class="plugin_formcreator_question_specific">';
-      $additions .= '<td>';
-      $additions .= '<label for="dropdown_default_values' . $rand . '">';
-      $additions .= __('Default values');
-      $additions .= '<small>(' . __('One per line', 'formcreator') . ')</small>';
-      $additions .= '</label>';
-      $additions .= '</td>';
-      $additions .= '<td>';
-      $additions .= Html::input(
-         'default_values',
-         [
-            'id'               => 'default_values',
-            'value'            => Html::entities_deep($this->getValueForDesign()),
-            'cols'             => '50',
-            'display'          => false,
-         ]
-      );
-      $additions .= '</td>';
-      $additions .= '<td>';
-      $additions .= '<label for="dropdown_default_values' . $rand . '">';
-      $additions .= __('Values');
-      $additions .= '<small>(' . __('One per line', 'formcreator') . ')</small>';
-      $additions .= '</label>';
-      $additions .= '</td>';
-      $additions .= '<td>';
-      $value = json_decode($this->question->fields['values']);
+      $value = json_decode($this->question->fields['values'] ?? '[]');
       if ($value === null || is_array($value)) {
          $value = [];
       }
-      $additions .= Html::textarea([
-         'name'             => 'values',
-         'id'               => 'values',
-         'value'            => implode("\r\n", $value),
-         'cols'             => '50',
-         'display'          => false,
-      ]);
-      $additions .= '</td>';
-      $additions .= '</tr>';
 
+      $additions = '<div class="plugin_formcreator_question_specific row">';
+      $inputs = [
+         __('Default values') . '<small>(' . __('One per line', 'formcreator') . ')</small>' => [
+            'type' => 'textarea',
+            'name' => 'default_values',
+            'id' => 'default_values',
+            'cols' => '50',
+            'col_lg' => 6,
+         ],
+         __('Values') . '<small>(' . __('One per line', 'formcreator') . ')</small>' => [
+            'type' => 'textarea',
+            'name' => 'values',
+            'id' => 'values',
+            'value' => implode("\r\n", $value),
+            'cols' => '50',
+            'value' => Html::entities_deep($this->getValueForDesign()),
+            'col_lg' => 6,
+         ],
+      ];
+      ob_start();
+      foreach ($inputs as $title => $input) {
+         renderTwigTemplate('macros/wrappedInput.twig', [
+            'title' => $title,
+            'input' => $input,
+         ]);
+      }
+      $additions .= ob_get_clean();
       $common = parent::getDesignSpecializationField();
       $additions .= $common['additions'];
+      $additions .= '</div>';
 
       return [
          'label' => $label,

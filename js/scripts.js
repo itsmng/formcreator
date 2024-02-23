@@ -984,7 +984,6 @@ var plugin_formcreator = new function() {
             }
          }).done(function() {
             section.remove();
-            plugin_formcreator.updateSectionControls();
             that.resetTabs();
          }).fail(function(data) {
             alert(data.responseText);
@@ -1013,14 +1012,14 @@ var plugin_formcreator = new function() {
             }
             $.each([section, otherSection], function(index, section) {
                if (section.prev('#plugin_formcreator_form.plugin_formcreator_form_design [data-itemtype="PluginFormcreatorSection"]').length < 1) {
-                  section.children('.moveUp').hide();
+                  section.children('.moveUpSection').hide();
                } else {
-                  section.children('.moveUp').show();
+                  section.children('.moveUpSection').show();
                }
                if (section.next('#plugin_formcreator_form.plugin_formcreator_form_design [data-itemtype="PluginFormcreatorSection"]').length < 1) {
-                  section.children('.moveDown').hide();
+                  section.children('.moveDownSection').hide();
                } else {
-                  section.children('.moveDown').show();
+                  section.children('.moveDownSection').show();
                }
             });
          }
@@ -1056,7 +1055,6 @@ var plugin_formcreator = new function() {
          var lastSection = $('.plugin_formcreator_form_design[data-itemtype="PluginFormcreatorForm"] [data-itemtype="PluginFormcreatorSection"]').last();
          lastSection.after(data);
          sectionId = $('.plugin_formcreator_form_design[data-itemtype="PluginFormcreatorForm"] [data-itemtype="PluginFormcreatorSection"]').last().attr('data-id');
-         plugin_formcreator.updateSectionControls();
          that.resetTabs();
       }).fail(function(data) {
          alert(data.responseText);
@@ -1090,8 +1088,6 @@ var plugin_formcreator = new function() {
       }).done(function(data) {
          var addSectionRow = $('[data-itemtype="PluginFormcreatorForm"] li').last();
          addSectionRow.before(data);
-         var sectionId = $('.plugin_formcreator_form_design[data-itemtype="PluginFormcreatorForm"] [data-itemtype="PluginFormcreatorSection"]').last().attr('data-id');
-         plugin_formcreator.updateSectionControls();
          modalWindow.dialog('close');
          that.resetTabs();
       });
@@ -1114,17 +1110,6 @@ var plugin_formcreator = new function() {
          modalWindow.dialog('close');
          that.resetTabs();
       });
-   }
-
-   /**
-    * Show / hide controls for sections
-    */
-   this.updateSectionControls = function () {
-      var sections = $('.plugin_formcreator_form_design[data-itemtype="PluginFormcreatorForm"] [data-itemtype="PluginFormcreatorSection"]');
-      sections.find('.moveUp').show();
-      sections.first().find('.moveUp').hide();
-      sections.find('.moveDown').show();
-      sections.last().find('.moveDown').hide();
    }
 
    this.createLanguage = function (formId, id = -1) {
@@ -1893,17 +1878,15 @@ function plugin_formcreator_changeQuestionType(rand) {
       },
    }).done(function(response) {
       try {
-         var response = $.parseJSON(response);
+         var response = JSON.parse(response);
+         console.log(response);
       } catch (e) {
-         console.log('Plugin Formcreator: Failed to get subtype fields');
+         console.error('Plugin Formcreator: Failed to get subtype fields');
          return;
       }
 
-      $('#plugin_formcreator_subtype_label').html(response.label);
-      $('#plugin_formcreator_subtype_value').html(response.field);
-
-      $('.plugin_formcreator_required').toggle(response.may_be_required);
-      $('.plugin_formcreator_mayBeEmpty').toggle(response.may_be_empty);
+      $('.plugin_formcreator_required').attr('disabled', !response.may_be_required);
+      $('.plugin_formcreator_mayBeEmpty').attr('disabled', !response.may_be_empty);
       $('#plugin_formcreator_subtype_label').html(response.label);
       $('#plugin_formcreator_subtype_value').html(response.field);
       plugin_formcreator_updateQuestionSpecific(response.additions);

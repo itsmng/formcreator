@@ -56,30 +56,30 @@ class ActorField extends PluginFormcreatorAbstractField
       $label = '';
       $field = '';
 
-      $additions = '<tr class="plugin_formcreator_question_specific">';
-      $additions .= '<td>';
-      $additions .= '<label for="dropdown_default_values' . $rand . '">';
-      $additions .= __('Default values');
-      $additions .= '<small>(' . __('One per line', 'formcreator') . ')</small>';
-      $additions .= '</label>';
-      $additions .= '</td>';
-      $additions .= '<td>';
-      $additions .= Html::textarea([
-         'name'             => 'default_values',
-         'id'               => 'default_values',
-         'value'            => Html::entities_deep($this->getValueForDesign()),
-         'cols'             => '50',
-         'display'          => false,
-      ]);
-      $additions .= '</td>';
-      $additions .= '<td>';
-      $additions .= '</td>';
-      $additions .= '<td>';
-      $additions .= '</td>';
-      $additions .= '</tr>';
+      $inputs = [
+         __('Default values') . '<small>(' . __('One per line', 'formcreator') . ')</small>' => [
+            'type' => 'textarea',
+            'name' => 'default_values',
+            'id' => 'default_values',
+            'value' => Html::entities_deep($this->getValueForDesign()),
+            'cols' => '50',
+            'col_lg' => 12,
+            'col_md' => 12,
+         ],
+      ];
+      ob_start();
+      foreach ($inputs as $title => $input) {
+         renderTwigTemplate('macros/wrappedInput.twig', [
+            'title' => $title,
+            'input' => $input,
+         ]);
+      }
+      $renderedInputs = ob_get_clean();
+      $additions = '<div class="plugin_formcreator_question_specific row">' . $renderedInputs;
 
       $common = parent::getDesignSpecializationField();
       $additions .= $common['additions'];
+      $additions .= '</div>';
 
       return [
          'label' => $label,

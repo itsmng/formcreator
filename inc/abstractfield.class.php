@@ -279,7 +279,7 @@ abstract class PluginFormcreatorAbstractField implements PluginFormcreatorFieldI
       $additions = '';
       foreach ($parameters as $parameter) {
          if ($column == 0) {
-            $additions .= '<tr class="plugin_formcreator_question_specific">';
+            $additions .= '<div class="plugin_formcreator_question_specific row">';
          }
          $parameterSize = 1 + $parameter->getParameterFormSize();
          if ($column + $parameterSize > $rowSize) {
@@ -288,7 +288,7 @@ abstract class PluginFormcreatorAbstractField implements PluginFormcreatorFieldI
                // fill the remaining of the row
                $additions .= str_repeat('<td></td><td></td>', $rowSize - $column);
                // Close current row and open an new one
-               $additions .= '</tr><tr class="plugin_formcreator_question_specific">';
+               $additions .= '</div><div class="plugin_formcreator_question_specific">';
                $column = 0;
             }
          }
@@ -296,7 +296,7 @@ abstract class PluginFormcreatorAbstractField implements PluginFormcreatorFieldI
          $column += $parameterSize;
          if ($column == $rowSize) {
             // Finish the row
-            $additions .= '</tr>';
+            $additions .= '</div>';
             $column = 0;
          }
       }

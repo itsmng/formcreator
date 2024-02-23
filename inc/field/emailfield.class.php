@@ -40,28 +40,24 @@ use PluginFormcreatorAbstractField;
 class EmailField extends TextField
 {
    public function getDesignSpecializationField(): array {
-      $rand = mt_rand();
-
       $label = '';
       $field = '';
 
-      $additions = '<tr class="plugin_formcreator_question_specific">';
-      $additions .= '<td>';
-      $additions .= '<label for="dropdown_default_values' . $rand . '">';
-      $additions .= __('Default value');
-      $additions .= '</label>';
-      $additions .= '</td>';
-      $additions .= '<td id="dropdown_default_value_field">';
-      $value = Html::entities_deep($this->question->fields['default_values']);
-      $additions .= Html::input('default_values', [
-         'type'  => 'email',
-         'id'    => 'default_values',
-         'value' => $value,
+      $additions = '<div class="plugin_formcreator_question_specific">';
+      ob_start();
+      renderTwigTemplate('macros/wrappedInput.twig', [
+         'title' => __('Default value'),
+         'input' => [
+            'type'  => 'email',
+            'id'    => 'default_values',
+            'name'    => 'default_values',
+            'value' => Html::entities_deep($this->question->fields['default_values']),
+            'col_lg' => '12',
+            'col_md' => '12',
+         ],
       ]);
-      $additions .= '</td>';
-      $additions .= '<td></td>';
-      $additions .= '<td></td>';
-      $additions .= '</tr>';
+      $additions .= ob_get_clean();
+      $additions .= '</div>';
 
       return [
          'label' => $label,

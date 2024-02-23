@@ -53,24 +53,21 @@ class TimeField extends PluginFormcreatorAbstractField
       $label = '';
       $field = '';
 
-      $additions = '<tr class="plugin_formcreator_question_specific">';
-      $additions .= '<td>';
-      $additions .= '<label for="dropdown_default_values' . $rand . '">';
-      $additions .= __('Default values');
-      $additions .= '</label>';
-      $additions .= '</td>';
-      $additions .= '<td>';
-      $value = Html::entities_deep($this->question->fields['default_values']);
-      $additions .= Html::showTimeField('default_values', [
-         'type'    => 'text',
-         'id'      => 'default_values',
-         'value'   => $value,
-         'display' => false,
+      $additions = '<div class="plugin_formcreator_question_specific row">';
+      ob_start();
+      renderTwigTemplate('macros/wrappedInput.twig', [
+         'title' => __('Default values'),
+         'input' => [
+            'type' => 'time',
+            'name' => 'default_values',
+            'id' => 'default_values' . $rand,
+            'value' => $this->question->fields['default_values'],
+            'col_lg' => 12,
+            'col_md' => 12,
+         ]
       ]);
-      $additions .= '</td>';
-      $additions .= '<td></td>';
-      $additions .= '<td></td>';
-      $additions .= '</tr>';
+      $additions .= ob_get_clean();
+      $additions .= '</div>';
 
       $common = parent::getDesignSpecializationField();
       $additions .= $common['additions'];

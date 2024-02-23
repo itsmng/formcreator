@@ -53,24 +53,24 @@ class TextareaField extends TextField
       $label = '';
       $field = '';
 
-      $additions = '<tr class="plugin_formcreator_question_specific">';
-      $additions .= '<td>';
-      $additions .= '<label for="dropdown_default_values' . $rand . '">';
-      $additions .= __('Default values');
-      $additions .= '</label>';
-      $additions .= '</td>';
-      $additions .= '<td width="80%" colspan="3">';
-      $additions .= Html::textarea([
-         'name'             => 'default_values',
-         'id'               => 'default_values',
-         'value'            => $this->getValueForDesign(),
-         'enable_richtext'  => true,
-         'filecontainer'   => 'default_values_info',
-         'display'          => false,
+      $additions = '<div class="plugin_formcreator_question_specific row">';
+      ob_start();
+      renderTwigTemplate('macros/wrappedInput.twig', [
+         'title' => __('Default values'),
+         'input' => [
+            'type' => 'richtextarea',
+            'name' => 'default_values',
+            'id' => 'default_values',
+            'value' => $this->getValueForDesign(),
+            'enable_richtext' => true,
+            'filecontainer' => 'default_values_info',
+            'display' => false,
+            'col_lg' => 12,
+            'col_md' => 12,
+         ]
       ]);
-      //$additions .= Html::initEditorSystem('default_values', '', false);
-      $additions .= '</td>';
-      $additions .= '</tr>';
+      $additions .= ob_get_clean();
+      $additions .= '</div>';
 
       $common = PluginFormcreatorAbstractField::getDesignSpecializationField();
       $additions .= $common['additions'];
