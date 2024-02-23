@@ -1879,7 +1879,6 @@ function plugin_formcreator_changeQuestionType(rand) {
    }).done(function(response) {
       try {
          var response = JSON.parse(response);
-         console.log(response);
       } catch (e) {
          console.error('Plugin Formcreator: Failed to get subtype fields');
          return;
