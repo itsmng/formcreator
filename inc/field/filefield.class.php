@@ -39,26 +39,26 @@ use Toolbox;
 use Session;
 use PluginFormcreatorForm;
 use GlpiPlugin\Formcreator\Exception\ComparisonException;
+use ItsmngUploadHandler;
 use PluginFormcreatorSection;
 use PluginFormcreatorQuestion;
 
 class FileField extends PluginFormcreatorAbstractField
 {
-   /**@var $uploadData array uploads saved as documents   */
    private $uploadData = [];
-
-   /** @var $uploads array uploaded files on form submit */
-   private $uploads = [
-      '_filename' => [],
-      '_prefix_filename' => [],
-      '_tag_filename' => [],
-   ];
+   private $uploads = [];
 
    public function isPrerequisites(): bool {
       return true;
    }
 
+   public function setUploads($uploads) {
+      $this->uploads = $uploads;
+   }
+
    public function getRenderedHtml($domain, $canEdit = true): string {
+      global $CFG_GLPI;
+
       if (!$canEdit) {
          $html = '';
          $doc = new Document();
@@ -73,13 +73,16 @@ class FileField extends PluginFormcreatorAbstractField
          }
          return $html;
       }
-
-      return Html::file([
-         'name'    => 'formcreator_field_' . $this->question->getID(),
-         'display' => false,
-         'multiple' => 'multiple',
-         'uploads' => $this->uploads,
+      ob_start();
+      renderTwigTemplate('macros/wrappedInput.twig', [
+         'input' => [
+            'type'    => 'file',
+            'name'    => 'formcreator_field_' . $this->question->getID(),
+            'multiple' => 'multiple',
+         ],
+         'root_doc' => $CFG_GLPI['root_doc'],
       ]);
+      return ob_get_clean();
    }
 
    public function serializeValue(): string {
@@ -87,7 +90,7 @@ class FileField extends PluginFormcreatorAbstractField
    }
 
    public function deserializeValue($value) {
-      $this->uploadData = json_decode($value, true);
+      $this->uploadData = json_decode($value ?? '[]', true);
       if ($this->uploadData === null) {
          $this->uploadData = [];
       }
@@ -106,21 +109,10 @@ class FileField extends PluginFormcreatorAbstractField
    }
 
    public function moveUploads() {
-      $key = 'formcreator_field_' . $this->question->getID();
-      if (!is_array($this->uploads) || !isset($this->uploads["_$key"])) {
-         return;
+      foreach ($this->uploads as $upload) {
+         $doc = ItsmngUploadHandler::addFileToDb($upload);
+         $this->uploadData[] = $doc->getID();
       }
-      $answer_value = [];
-      $index = 0;
-      foreach ($this->uploads["_$key"] as $document) {
-         $document = Toolbox::stripslashes_deep($document);
-         if (is_file(GLPI_TMP_DIR . '/' . $document)) {
-            $prefix = $this->uploads['_prefix_formcreator_field_' . $this->question->getID()][$index];
-            $answer_value[] = $this->saveDocument($document, $prefix);
-         }
-         $index++;
-      }
-      $this->uploadData = $answer_value;
    }
 
    public function getDocumentsForTarget(): array {

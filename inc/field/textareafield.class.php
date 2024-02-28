@@ -85,6 +85,7 @@ class TextareaField extends TextField
    }
 
    public function getRenderedHtml($domain, $canEdit = true): string {
+      global $CFG_GLPI;
       if (!$canEdit) {
          $value = Toolbox::convertTagToImage($this->value, $this->getQuestion());
          return Toolbox::getHtmlToDisplay($value);
@@ -95,26 +96,18 @@ class TextareaField extends TextField
       $fieldName    = 'formcreator_field_' . $id;
       $value        = nl2br(__($this->value, $domain));
       $html = '';
-      $html .= Html::textarea([
-         'name'              => $fieldName,
-         'editor_id'         => "$fieldName$rand",
-         'rand'              => $rand,
-         'value'             => $value,
-         'rows'              => 5,
-         'display'           => false,
-         'enable_richtext'   => true,
-         'enable_fileupload' => false,
-         'uploads'           => $this->uploads,
+      ob_start();
+      renderTwigTemplate('macros/wrappedInput.twig', [
+         'input' => [
+            'type' => 'richtextarea',
+            'name' => $fieldName,
+            'value' => $value,
+            'col_lg' => 12,
+            'col_md' => 12,
+         ],
+         'root_doc' => $CFG_GLPI['root_doc'],
       ]);
-      // The following file upload area is needed to allow embedded pics in the tetarea
-      $html .=  '<div style="display:none;">';
-      Html::file(['editor_id'    => "$fieldName$rand",
-                  'filecontainer' => "filecontainer$rand",
-                  'onlyimages'    => true,
-                  'showtitle'     => false,
-                  'multiple'      => true,
-                  'display'       => false]);
-      $html .=  '</div>';
+      $html .= ob_get_clean();
       $html .= Html::scriptBlock("$(function() {
          pluginFormcreatorInitializeTextarea('$fieldName', '$rand');
       });");

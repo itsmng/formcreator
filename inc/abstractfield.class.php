@@ -77,32 +77,13 @@ abstract class PluginFormcreatorAbstractField implements PluginFormcreatorFieldI
     * @param boolean $canEdit is the field editable ?
     */
    public function show($domain, $canEdit = true) {
-      $html = '';
-
-      if ($this->isVisibleField()) {
-         $html .= '<label for="formcreator_field_' . $this->question->getID() . '">';
-         $html .= __($this->getLabel(), $domain);
-         if ($canEdit && $this->question->fields['required']) {
-            $html .= ' <span class="red">*</span>';
-         }
-         $html .= '</label>';
-      }
-      if ($this->isEditableField() && !empty($this->question->fields['description'])) {
-         $description = $this->question->fields['description'];
-         foreach (PluginFormcreatorCommon::getDocumentsFromTag($description) as $document) {
-            $prefix = uniqid('', true);
-            $filename = $prefix . 'image_paste.' . pathinfo($document['filename'], PATHINFO_EXTENSION);
-            if (!copy(GLPI_DOC_DIR . '/' . $document['filepath'], GLPI_TMP_DIR . '/' . $filename)) {
-               continue;
-            }
-         }
-         $html .= '<div class="help-block">' . html_entity_decode(__($description, $domain)) . '</div>';
-      }
-      $html .= '<div class="form_field">';
-      $html .= $this->getRenderedHtml($domain, $canEdit);
-      $html .= '</div>';
-
-      return $html;
+      $input = [__($this->getLabel()) => [
+         'description' => ($this->isEditableField() && !empty($this->question->fields['description'])) ? $this->question->fields['description'] : '',
+         'content' => $this->getRenderedHtml($domain, $canEdit),
+         'col_lg' => 12,
+         'col_md' => 12,
+      ]];
+      return $input;
    }
 
    public function getRenderedHtml($domain, $canEdit = true): string {
@@ -116,10 +97,15 @@ abstract class PluginFormcreatorAbstractField implements PluginFormcreatorFieldI
       $fieldName    = 'formcreator_field_' . $id;
       $domId        = $fieldName . '_' . $rand;
       $defaultValue = Html::cleanInputText($this->value);
-      $html .= Html::input($fieldName, [
+      ob_start();
+      renderTwigTemplate('macros/input.twig', [
          'id'    => $domId,
-         'value' => $defaultValue
+         'name'  => $fieldName,
+         'value' => $defaultValue,
+         'required' => $this->isRequired(),
+         $canEdit ? '' : 'disabled' => '',
       ]);
+      $html .= ob_get_clean();
       $html .= Html::scriptBlock("$(function() {
          pluginFormcreatorInitializeField('$fieldName', '$rand');
       });");

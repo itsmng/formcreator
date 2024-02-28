@@ -1278,80 +1278,83 @@ PluginFormcreatorTranslatableInterface
       $formName = 'plugin_formcreator_form';
       $formId = $this->getID();
       self::getFormURL();
-      echo '<form name="' . $formName . '" method="post" role="form" enctype="multipart/form-data"'
-      . ' class="plugin_formcreator_form"'
-      . ' action="' . self::getFormURL() . '"'
-      . ' id="plugin_formcreator_form"'
-      . ' data-itemtype="PluginFormcreatorForm"'
-      . ' data-id="' . $formId . '"'
-      . '>';
 
-      // load thanguage for the form, if any
       $domain = self::getTranslationDomain($formId);
       $phpfile = self::getTranslationFile($formId, $_SESSION['glpilanguage']);
       if (file_exists($phpfile)) {
          $TRANSLATE->addTranslationFile('phparray', $phpfile, $domain, $_SESSION['glpilanguage']);
       }
-      // form title
+      
       echo "<h1 class='form-title'>";
       echo __($this->fields['name'], $domain) . "&nbsp;";
       echo '<i class="fas fa-print" style="cursor: pointer;" onclick="window.print();"></i>';
       echo '</h1>';
 
-      // Form Header
-      if (!empty($this->fields['content'])) {
-         echo '<div class="form_header">';
-         echo html_entity_decode(__($this->fields['content'], $domain));
-         echo '</div>';
-      }
-
-      echo '<ol>';
-
       if (!isset($_SESSION['formcreator']['data'])) {
          $_SESSION['formcreator']['data'] = [];
       }
       $sections = (new PluginFormcreatorSection)->getSectionsFromForm($formId);
+
+      $form = [
+         'action' => self::getFormURL(),
+         'attributes' => [
+            'name' => $formName,
+            'role' => 'form',
+            'enctype' => 'multipart/form-data',
+            'class' => 'plugin_formcreator_form',
+            'id' => 'plugin_formcreator_form',
+            'data-itemtype' => PluginFormcreatorForm::class,
+            'data-id' => $formId,
+         ],
+         'buttons' => [
+            [
+               'type' => 'submit',
+               'name' => 'submit_formcreator',
+               'value' => __('Submit', $domain),
+               'class' => 'btn btn-secondary',
+            ]
+         ],
+         'content' => [
+            '' => [
+               'visible' => true,
+               'inputs' => [
+                  '' => [
+                     'content' => html_entity_decode(__($this->fields['content'], $domain)),
+                  ],
+                  [
+                     'type' => 'hidden',
+                     'name' => 'plugin_formcreator_forms_id',
+                     'value' => $this->getID(),
+                  ],
+                  [
+                     'type' => 'hidden',
+                     'name' => 'uuid',
+                     'value' => $this->fields['uuid'],
+                  ],
+               ]
+            ]
+         ]
+      ];
+
       foreach ($sections as $section) {
          $sectionId = $section->getID();
 
-         // Section header
-         echo '<li'
-         . ' class="plugin_formcreator_section"'
-         . ' data-itemtype="' . PluginFormcreatorSection::class . '"'
-         . ' data-id="' . $sectionId . '"'
-         . '">';
-
-         // section name
-         echo '<h2>';
-         echo empty($section->fields['name']) ? '(' . $sectionId . ')' : __($section->fields['name'], $domain);
-         echo '</h2>';
-
-         // Section content
-         echo '<div>';
+         $newSection = [
+            'visible' => true,
+            'attributes' => [
+               'data-itemtype' => PluginFormcreatorSection::class,
+               'data-id' => $sectionId,
+            ],
+            'inputs' => []
+         ];
          // Display all fields of the section
          $questions = (new PluginFormcreatorQuestion())->getQuestionsFromSection($section->getID());
-         $lastQuestion = null;
          foreach ($questions as $question) {
-            if ($lastQuestion !== null) {
-               if ($lastQuestion->fields['row'] < $question->fields['row']) {
-                  // the question begins a new line
-                  echo '<div class="plugin_formcreator_newRow"></div>';
-               } else {
-                  $x = $lastQuestion->fields['col'] + $lastQuestion->fields['width'];
-                  $width = $question->fields['col'] - $x;
-                  if ($x < $question->fields['col']) {
-                     // there is an horizontal gap between previous question and current one
-                     echo '<div class="plugin_formcreator_gap" data-gs-x="' . $x . '" data-gs-width="' . $width . '"></div>';
-                  }
-               }
-            }
-            echo $question->getRenderedHtml($domain, true, $_SESSION['formcreator']['data']);
-            $lastQuestion = $question;
+            $newSection['inputs'] = $newSection['inputs'] + $question->getRenderedHtml($domain, true, $_SESSION['formcreator']['data']);
          }
-         echo '</div>';
-
-         echo '</li>';
+         $form['content'][empty($section->fields['name']) ? '(' . $sectionId . ')' : __($section->fields['name'], $domain)] = $newSection;
       }
+      renderTwigForm($form);
 
       // Captcha for anonymous forms
       if ($this->fields['access_rights'] == PluginFormcreatorForm::ACCESS_PUBLIC
@@ -1414,14 +1417,6 @@ PluginFormcreatorTranslatableInterface
          plugin_formcreator.showFields($("form[name=\'' . $formName . '\']"));
       })');
 
-      // Display submit button
-      echo '<div class="center">';
-      echo Html::submit(__('Send'), ['name' => 'submit_formcreator']);
-      echo '</div>';
-
-      echo Html::hidden('plugin_formcreator_forms_id', ['value' => $this->getID()]);
-      echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
-      echo Html::hidden('uuid', ['value' => $this->fields['uuid']]);
       Html::closeForm();
    }
 

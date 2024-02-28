@@ -92,10 +92,18 @@ class FloatField extends PluginFormcreatorAbstractField
       $fieldName    = 'formcreator_field_' . $id;
       $domId        = $fieldName . '_' . $rand;
       $defaultValue = Html::cleanInputText($this->value);
-      $html .= Html::input($fieldName, [
-         'id'    => $domId,
-         'value' => $defaultValue
+      ob_start();
+      renderTwigTemplate('macros/wrappedInput.twig', [
+         'input' => [
+            'type'  => 'text',
+            'id'    => $domId,
+            'name'  => $fieldName,
+            'value' => $defaultValue,
+            'col_lg' => '12',
+            'col_md' => '12',
+         ],
       ]);
+      $html .= ob_get_clean();
       $html .= Html::scriptBlock("$(function() {
          pluginFormcreatorInitializeField('$fieldName', '$rand');
       });");

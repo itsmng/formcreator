@@ -69,10 +69,13 @@ class HostnameField extends PluginFormcreatorAbstractField
       $domId        = $fieldName . '_' . $rand;
       $hostname = gethostbyaddr(Toolbox::getRemoteIpAddress());
       $hostname = Html::cleanInputText($hostname);
-      return Html::hidden($fieldName, [
-         'id'    => $domId,
-         'value' => $hostname
-      ]);
+      return [mt_rand() => [
+         'notitle' => true,
+         'type' => 'hidden',
+         'name' => $fieldName,
+         'value' => $hostname,
+         'id' => $domId,
+      ]];
    }
 
    public function serializeValue(): string {

@@ -862,20 +862,8 @@ var plugin_formcreator = new function() {
          displayAjaxMessageAfterRedirect();
       }).done(function(data) {
          var sectionId = form.find('select[name="plugin_formcreator_sections_id"]').val();
-         var container = $('[data-itemtype="PluginFormcreatorSection"][data-id="' + sectionId + '"] .grid-stack');
-         var grid = container.data('gridstack');
-         grid.addWidget(
-            data.html,
-            Number(data.x),
-            Number(data.y),
-            Number(data.width),
-            Number(data.height),
-            false,
-            1,
-            this.questionColumns,
-            1,
-            1
-         );
+         var container = $('[data-itemtype="PluginFormcreatorSection"][data-id="' + sectionId + '"] .plugin_formcreator_sectionContent');
+         container.append(data.html);
          modalWindow.dialog('close');
          that.resetTabs();
       });
@@ -928,6 +916,7 @@ var plugin_formcreator = new function() {
    };
 
    this.showFields = function (form) {
+      console.log(form);
       $.ajax({
          url: formcreatorRootDoc + '/ajax/showfields.php',
          type: "POST",

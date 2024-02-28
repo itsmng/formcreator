@@ -83,10 +83,12 @@ class HiddenField extends PluginFormcreatorAbstractField
       $fieldName    = 'formcreator_field_' . $id;
       $domId        = $fieldName . '_' . $rand;
       $defaultValue = Html::cleanInputText($this->question->fields['default_values']);
-      return Html::hidden($fieldName, [
-         'id'    => $domId,
+      return [mt_rand() => [
+         'type' => 'hidden',
+         'name' => $fieldName,
          'value' => $defaultValue,
-      ]);
+         'id' => $domId,
+      ]];
    }
 
    public function serializeValue(): string {

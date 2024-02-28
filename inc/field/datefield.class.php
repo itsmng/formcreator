@@ -94,11 +94,18 @@ class DateField extends PluginFormcreatorAbstractField
       $rand      = mt_rand();
       $fieldName = 'formcreator_field_' . $id;
 
-      $html .= Html::showDateField($fieldName, [
-         'value'   => (strtotime($this->value) != '') ? $this->value : '',
-         'rand'    => $rand,
-         'display' => false,
+      ob_start();
+      renderTwigTemplate('macros/wrappedInput.twig', [
+         'input' => [
+            'type'  => 'date',
+            'id'    => $fieldName . '_' . $rand,
+            'name'  => $fieldName,
+            'value' => Html::cleanInputText($this->value),
+            'col_lg' => 12,
+            'col_md' => 12,
+         ],
       ]);
+      $html .= ob_get_clean();
       $html .= Html::scriptBlock("$(function() {
          pluginFormcreatorInitializeDate('$fieldName', '$rand');
       });");

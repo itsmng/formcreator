@@ -259,12 +259,10 @@ PluginFormcreatorTranslatableInterface
     * @param array   $value   Values all fields of the form
     * @param bool $isVisible is the question visible by default ?
     */
-   public function getRenderedHtml($domain, $canEdit = true, $value = [], $isVisible = true) : string {
+   public function getRenderedHtml($domain, $canEdit = true, $value = [], $isVisible = true) : array {
       if ($this->isNewItem()) {
          return '';
       }
-
-      $html = '';
 
       $field = PluginFormcreatorFields::getFieldInstance(
          $this->fields['fieldtype'],
@@ -282,23 +280,7 @@ PluginFormcreatorTranslatableInterface
          $field->deserializeValue($this->fields['default_values']);
       }
 
-      $required = ($this->fields['required']) ? ' required' : '';
-      $x = $this->fields['col'];
-      $width = $this->fields['width'];
-      $hiddenAttribute = $isVisible ? '' : 'hidden=""';
-      $html .= '<div'
-         . ' data-gs-x="' . $x . '"'
-         . ' data-gs-width="' . $width . '"'
-         . ' data-itemtype="' . self::class . '"'
-         . ' data-id="' . $this->getID() . '"'
-         . " $hiddenAttribute"
-         . ' >';
-      $html .= '<div class="grid-stack-item-content form-group ' . $required . '" id="form-group-field-' . $this->getID() . '">';
-      $html .= $field->show($domain, $canEdit);
-      $html .= '</div>';
-      $html .= '</div>';
-
-      return $html;
+      return $field->show($domain, $canEdit);
    }
 
    /**

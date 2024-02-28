@@ -48,6 +48,10 @@ class CheckboxesField extends PluginFormcreatorAbstractField
       $label = '';
       $field = '';
 
+      $values = $this->question->fields['values'];
+      if (!isset($values) || $values == "") {
+         $values = '[]';
+      }
       $inputs = [
          __('Default values') . '<small>(' . __('One per line', 'formcreator') . ')</small>' => [
             'type' => 'textarea',
@@ -62,7 +66,7 @@ class CheckboxesField extends PluginFormcreatorAbstractField
             'type' => 'textarea',
             'name' => 'values',
             'id' => 'values',
-            'value' => implode("\r\n", json_decode($this->question->fields['values'] ?? '[]')),
+            'value' => implode("\r\n", json_decode($values)),
             'cols' => '50',
             'col_lg' => 12,
             'col_md' => 12,
@@ -116,22 +120,22 @@ class CheckboxesField extends PluginFormcreatorAbstractField
          foreach ($values as $value) {
             if ((trim($value) != '')) {
                $i++;
-               $html .= "<div class='checkbox'>";
-               $html .= Html::getCheckbox([
-                  'title'         => htmlentities($value, ENT_QUOTES),
-                  'id'            => $domId . '_' . $i,
-                  'name'          => htmlentities($fieldName, ENT_QUOTES) . '[]',
-                  'value'         => htmlentities($value, ENT_QUOTES),
-                  'zero_on_empty' => false,
-                  'checked'       => in_array($value, $this->value)
+               ob_start();
+               renderTwigTemplate('macros/wrappedInput.twig', [
+                  'title' => __($value, $domain),
+                  'input' => [
+                     'type' => 'checkbox',
+                     'no_zero' => true,
+                     'name' => htmlentities($fieldName, ENT_QUOTES) . '[]',
+                     'id' => $domId . '_' . $i,
+                     'content' => htmlentities($value, ENT_QUOTES),
+                     'value' => htmlentities($value, ENT_QUOTES),
+                     'title' => htmlentities($value, ENT_QUOTES),
+                  ]
                ]);
-               $html .= '<label for="' . $domId . '_' . $i . '">';
-               $html .= '&nbsp;' . __($value, $domain);
-               $html .= '</label>';
-               $html .= "</div>";
+               $html .= ob_get_clean();
             }
          }
-         $html .= '</div>';
       }
       $html .= Html::scriptBlock("$(function() {
          pluginFormcreatorInitializeCheckboxes('$fieldName', '$rand');

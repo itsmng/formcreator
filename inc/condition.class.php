@@ -346,15 +346,15 @@ class PluginFormcreatorCondition extends CommonDBChild implements PluginFormcrea
                'getInputAdd' => <<<JS
                function () {
                   const values = {
-                     "_conditions[show_logic]": $('#multiSelectConditions' + $rand + 'select[name="show_logic"]').val(),
-                     "_conditions[plugin_formcreator_questions_id]": $('#multiSelectConditions' + $rand + 'select[name="plugin_formcreator_questions_id"]').val(),
-                     "_conditions[show_condition]": $('#multiSelectConditions' + $rand + 'select[name="show_condition"]').val(),
-                     "_conditions[show_value]": $('#multiSelectConditions' + $rand + 'input[name="show_value"]').val(),
+                     "_conditions[show_logic]": $('#multiSelectConditions' + $rand + ' select[name="show_logic"]').val(),
+                     "_conditions[plugin_formcreator_questions_id]": $('#multiSelectConditions' + $rand + ' select[name="plugin_formcreator_questions_id"]').val(),
+                     "_conditions[show_condition]": $('#multiSelectConditions' + $rand + ' select[name="show_condition"]').val(),
+                     "_conditions[show_value]": $('#multiSelectConditions' + $rand + ' input[name="show_value"]').val(),
                   };
-                  const title =  $('#multiSelectConditions' + $rand + 'select[name="show_logic"] option:selected').text() + ' '
-                     + $('#multiSelectConditions' + $rand + 'select[name="plugin_formcreator_questions_id"] option:selected').text() + ' '
-                     + $('#multiSelectConditions' + $rand + 'select[name="show_condition"] option:selected').text() + ' '
-                     + $('#multiSelectConditions' + $rand + 'input[name="show_value"]').val();
+                  const title =  $('#multiSelectConditions' + $rand + ' select[name="show_logic"] option:selected').text() + ' '
+                     + $('#multiSelectConditions' + $rand + ' select[name="plugin_formcreator_questions_id"] option:selected').text() + ' '
+                     + $('#multiSelectConditions' + $rand + ' select[name="show_condition"] option:selected').text() + ' '
+                     + $('#multiSelectConditions' + $rand + ' input[name="show_value"]').val();
                   return {values, title};
                }
                JS,

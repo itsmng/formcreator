@@ -96,11 +96,18 @@ class DatetimeField extends PluginFormcreatorAbstractField
       $rand      = mt_rand();
       $fieldName = 'formcreator_field_' . $id;
 
-      $html .= Html::showDateTimeField($fieldName, [
-         'value'   => strtotime($this->value) != '' ? $this->value : '',
-         'rand'    => $rand,
-         'display' => false,
+      ob_start();
+      renderTwigTemplate('macros/wrappedInput.twig', [
+         'input' => [
+            'type'  => 'datetime-local',
+            'id'    => $fieldName . '_' . $rand,
+            'name'  => $fieldName,
+            'value' => Html::entities_deep($this->value),
+            'col_lg' => 12,
+            'col_md' => 12,
+         ],
       ]);
+      $html .= ob_get_clean();
       $html .= Html::scriptBlock("$(function() {
          pluginFormcreatorInitializeDate('$fieldName', '$rand');
       });");
