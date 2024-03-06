@@ -700,62 +700,66 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
    margin-top: 10px;
 }
 
+.toggle_menu #formcreator_servicecatalogue_ticket_summary {
+   left: 100px;
+}
+
 #formcreator_servicecatalogue_ticket_summary {
-   margin: 5px 60px 0 5px;
    height: inherit;
    position: absolute;
+   display: flex;
+   align-items: center;
    z-index: 15;
    left: 150px;
    width: 260px;
    top: 10px;
    transition: .4s;
-   height: 1rem;
-}
+   height: 45px;
 
-.toggle_menu #formcreator_servicecatalogue_ticket_summary {
-   left: 100px;
-}
+   .status {
+      min-width: 2.3rem;
+      max-height: 45px;
+      display: inline-block;
+      margin-right: 5px;
+      padding: 5px;
+      text-align: center;
+      background-color: rgba(0, 0, 0, .15);
+      vertical-align: top;
+      box-sizing: border-box;
+   }
 
-#formcreator_servicecatalogue_ticket_summary .status {
-   min-width: 2.3rem;
-   display: inline-block;
-   margin-right: 5px;
-   margin-top: -5px;
-   padding: 5px;
-   text-align: center;
-   background-color: rgba(0, 0, 0, .15);
-   vertical-align: top;
-   box-sizing: border-box;
-}
-#formcreator_servicecatalogue_ticket_summary .status:hover {
-   background-color: rgba(0, 0, 0, .3);
-}
-#formcreator_servicecatalogue_ticket_summary .status_number {
-   font-size: 2em;
-}
-#formcreator_servicecatalogue_ticket_summary .status_label {
-   font-size: .7em;
-   display: none;
-}
-#formcreator_servicecatalogue_ticket_summary .status:hover .status_label {
-   display: block;
-   line-height: 0;
-}
-#formcreator_servicecatalogue_ticket_summary .status_incoming,
-#formcreator_servicecatalogue_ticket_summary .status_incoming a {
-   color: #c8ffc8;
-}
-#formcreator_servicecatalogue_ticket_summary .status_waiting,
-#formcreator_servicecatalogue_ticket_summary .status_waiting a {
-   color: #f7c976;
-}
-#formcreator_servicecatalogue_ticket_summary .status_validate,
-#formcreator_servicecatalogue_ticket_summary .status_validate a {
-   color: #9B9BE9;
-}
-#formcreator_servicecatalogue_ticket_summary .status_solved,
-#formcreator_servicecatalogue_ticket_summary .status_solved a {
-   color: #ffffff;
+   .status:hover {
+      background-color: rgba(0, 0, 0, .3);
+   }
+
+   .status_number {
+      font-size: 2em;
+   }
+   .status_label {
+      font-size: .7em;
+      display: none;
+   }
+
+   .status:hover .status_label {
+      display: block;
+      line-height: 0;
+   }
+
+   .status_incoming, .status_incoming a {
+      color: #c8ffc8;
+   }
+
+   .status_waiting, .status_waiting a {
+      color: #f7c976;
+   }
+
+   .status_validate, .status_validate a {
+      color: #9B9BE9;
+   }
+
+   .status_solved, .status_solved a {
+      color: #ffffff;
+   }
 }
 
 
@@ -1358,7 +1362,7 @@ a.plugin_formcreator_formTile_title {
 .plugin_formcreator_leftHeader a, .plugin_formcreator_myname {
    color: #FFF;
    height: 35px;
-   line-height: 35px;
+   // line-height: 35px;
 }
 
 
@@ -1651,6 +1655,10 @@ span.fc_list_icon {
    #formcreator_servicecatalogue_ticket_summary {
       width: 100%;
       display: block;
+
+      .status_label {
+         display: block;
+      }
    }
 
    .plugin_formcreator_container #footer {
