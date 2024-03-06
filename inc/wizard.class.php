@@ -258,7 +258,7 @@ class PluginFormcreatorWizard {
             <a href='".$link."?".
                      Toolbox::append_params(PluginFormcreatorIssue::getWaitingCriteria(), '&amp;')."'>
             <span class='status_number'><i class='fas fa-spinner fa-spin'></i></span>
-            <label class='status_label'>".__('Pending')."</label>
+            <label class='status_label'>".__('Pending', 'formcreator')."</label>
             </a>
             </span>";
 
