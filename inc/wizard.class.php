@@ -89,7 +89,9 @@ class PluginFormcreatorWizard {
       echo "<input type='checkbox' id='formcreator-toggle-nav-desktop'>";
       echo "<label for='formcreator-toggle-nav-desktop' class='formcreator-nav-button'></label>";
 
-      self::showTicketSummary();
+      if ($config['enable_ticket_status_counter'] == 1) {
+         self::showTicketSummary();
+      }
 
       echo '<div id="header_top">';
       echo '<div id="c_logo"></div>';
