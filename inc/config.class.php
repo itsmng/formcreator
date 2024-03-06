@@ -89,6 +89,9 @@
 
         $updateLabel = __('Update');
 
+        $counterLabel = __('Enable ticket status counter', 'formcreator');
+        $counterCheck = $config['enable_ticket_status_counter'] == 1 ? 'checked' : '';
+
         echo <<<HTML
         <div class="center vertical ui-tabs">
             <form action="$action" method="post">
@@ -126,6 +129,11 @@
                         <td>
                             <input type="hidden" name="collapse_menu" value="0">
                             <input type="checkbox" name="collapse_menu" value="1" {$collapseChecked}/>
+                        </td>
+                        <td>$counterLabel</td>
+                        <td>
+                            <input type="hidden" name="enable_ticket_status_counter" value="0">
+                            <input type="checkbox" name="enable_ticket_status_counter" value="1" {$counterCheck}/>
                         </td>
                     </tr>
                 </tbody>

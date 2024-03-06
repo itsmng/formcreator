@@ -331,4 +331,5 @@ INSERT IGNORE INTO `glpi_plugin_formcreator_configs` (`name`, `value`) VALUES
   ('collapse_menu', 0),
   ('default_categories_id', 0),
   ('enable_saved_search', 1),
-  ('see_all', 1);
+  ('see_all', 1),
+  ('enable_ticket_status_counter', 1);

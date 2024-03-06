@@ -1705,3 +1705,11 @@ msgstr ""
 #: inc/config.class.php:82
 msgid "Enable See all tab"
 msgstr ""
+
+#: inc/config.class.php:92
+msgid "Enable ticket status counter"
+msgstr ""
+
+#: inc/wizard.class.php:261
+msgid "Pending"
+msgstr ""
