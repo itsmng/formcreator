@@ -90,11 +90,18 @@ class TimeField extends PluginFormcreatorAbstractField
       $id        = $this->question->getID();
       $rand      = mt_rand();
       $fieldName = 'formcreator_field_' . $id;
-      $html .= Html::showTimeField($fieldName, [
-         'value'   => (strtotime($this->value) != '') ? $this->value : '',
-         'rand'    => $rand,
-         'display' => false,
+      ob_start();
+      renderTwigTemplate('macros/wrappedInput.twig', [
+         'input' => [
+            'type' => 'time',
+            'name' => $fieldName,
+            'id' => $fieldName . $rand,
+            'value' => (strtotime($this->value) != '') ? $this->value : '',
+            'col_lg' => 12,
+            'col_md' => 12,
+         ]
       ]);
+      $html .= ob_get_clean();
       $html .= Html::scriptBlock("$(function() {
          pluginFormcreatorInitializeTime('$fieldName', '$rand');
       });");

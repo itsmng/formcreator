@@ -470,10 +470,15 @@ class DropdownField extends PluginFormcreatorAbstractField
       $rand         = mt_rand();
       $fieldName    = 'formcreator_field_' . $id;
       if (!empty($this->question->fields['values'])) {
-         $dparams = $this->buildParams($rand);
-         $dparams['display'] = false;
-         $dparams['_idor_token'] = Session::getNewIDORToken($itemtype);
-         $html .= $itemtype::dropdown($dparams);
+         ob_start();
+         renderTwigTemplate('macros/input.twig', [
+            'id' => 'formcreator_field_' . $id,
+            'type' => 'select',
+            'name' => $fieldName,
+            'values' => getOptionForItems($itemtype),
+            'value' => $this->value,
+         ]);
+         $html .= ob_get_clean();
       }
       $html .= PHP_EOL;
       $html .= Html::scriptBlock("$(function() {
