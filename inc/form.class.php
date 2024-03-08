@@ -803,9 +803,9 @@ PluginFormcreatorTranslatableInterface
     * Show the list of forms to be displayed to the end-user
     */
    public function showList() : void {
-      echo '<div class="center" id="plugin_formcreator_wizard">';
+      echo '<div class="center" id="plugin_formcreator_wizard" class="plugin_formcreator_edit">';
 
-      echo '<div class="plugin_formcreator_marginRight plugin_formcreator_card">';
+      echo '<div class="plugin_formcreator_card">';
       $this->showWizard();
       echo '</div>';
 
