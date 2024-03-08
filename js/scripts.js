@@ -76,7 +76,6 @@ $(function() {
 
    // toggle menu in desktop mode
    $('#formcreator-toggle-nav-desktop').change(function() {
-      $('.plugin_formcreator_container').toggleClass('toggle_menu');
       $.ajax({
          url: formcreatorRootDoc + '/ajax/homepage_wizard.php',
          data: {wizard: 'toggle_menu'},

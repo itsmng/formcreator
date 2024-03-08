@@ -102,6 +102,10 @@
                             'type' => 'checkbox',
                             'name' => 'collapse_menu',
                             'value' => $config['collapse_menu'],
+                        ],
+                        __("Enable ticket status counter", 'formcreator') => [
+                            'type' => 'checkbox',
+                            'name' => 'enable_ticket_status_counter',
                         ]
                     ]
                 ]
