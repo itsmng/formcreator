@@ -67,90 +67,6 @@ class PluginFormcreatorWizard {
             $body_class = "";
          }
       }
-<<<<<<< HEAD
-      echo "<body class='$body_class' id='plugin_formcreator_serviceCatalog'>";
-
-      $toggle_menu = '';
-      if (!isset($_SESSION['plugin_formcreator_toggle_menu'])) {
-         $toggle_menu = $config['collapse_menu'] == 1 ? "toggle_menu" : "";
-      } else if ($_SESSION['plugin_formcreator_toggle_menu']) {
-         $toggle_menu = "toggle_menu";
-      }
-      echo '<div class="plugin_formcreator_container '.$toggle_menu.'">';
-
-      Html::displayImpersonateBanner();
-
-      // menu toggle (responsive mode)
-      echo "<input type='checkbox' id='formcreator-toggle-nav-responsive'>";
-      echo "<label for='formcreator-toggle-nav-responsive' class='formcreator-nav-button'></label>";
-
-      echo '<div id="header" class ="plugin_formcreator_leftHeader">';
-
-      // menu toggle (desktop mode)
-      echo "<input type='checkbox' id='formcreator-toggle-nav-desktop'>";
-      echo "<label for='formcreator-toggle-nav-desktop' class='formcreator-nav-button'></label>";
-
-      if ($config['enable_ticket_status_counter'] == 1) {
-         self::showTicketSummary();
-      }
-
-      echo '<div id="header_top">';
-      echo '<div id="c_logo"></div>';
-      echo '</div>';
-
-      // Left vertical menu
-      echo '<div id="c_menu" class="plugin_formcreator_leftMenu">';
-
-      $activeMenuItem = self::findActiveMenuItem();
-      echo '<ul class="plugin_formcreator_services">';
-      echo '<li class="' . ($activeMenuItem == self::MENU_CATALOG ? 'plugin_formcreator_selectedMenuItem' : '') . '">';
-      echo '<a href="' . FORMCREATOR_ROOTDOC.'/front/wizard.php' . '">';
-      echo '<span class="fa fa-paper-plane fc_list_icon" title="'.__('Seek assistance', 'formcreator').'"></span>';
-      echo '<span class="label">'.__('Seek assistance', 'formcreator').'</span>';
-      echo '</a></li>';
-
-      echo '<li class="' . ($activeMenuItem == self::MENU_LAST_FORMS ? 'plugin_formcreator_selectedMenuItem' : '') . '">';
-      echo '<a href="' . FORMCREATOR_ROOTDOC.'/front/issue.php?reset=reset' . '">';
-      echo '<span class="fa fa-list fc_list_icon" title="'.__('My requests for assistance', 'formcreator').'"></span>';
-      echo '<span class="label">'.__('My requests for assistance', 'formcreator').'</span>';
-      echo '</a></li>';
-
-      if (PluginFormcreatorEntityConfig::getUsedConfig('is_kb_separated', Session::getActiveEntity()) == PluginFormcreatorEntityConfig::CONFIG_KB_DISTINCT
-         && Session::haveRight('knowbase', KnowbaseItem::READFAQ)
-      ) {
-         echo '<li class="' . ($activeMenuItem == self::MENU_FAQ ? 'plugin_formcreator_selectedMenuItem' : '') . '">';
-         echo '<a href="' . FORMCREATOR_ROOTDOC.'/front/knowbaseitem.php' . '">';
-         echo '<span class="fc_list_icon fas fa-question" title="'.__('Knowledge Base', 'formcreator').'"></span>';
-         echo '<span class="label">'.__('Knowledge Base', 'formcreator').'</span>';
-         echo '</a></li>';
-      }
-
-      if (Session::haveRight("reservation", ReservationItem::RESERVEANITEM)) {
-         echo '<li class="' . ($activeMenuItem == self::MENU_RESERVATIONS ? 'plugin_formcreator_selectedMenuItem' : '') . '">';
-         echo '<a href="' . FORMCREATOR_ROOTDOC.'/front/reservationitem.php?reset=reset' . '">';
-         echo '<span class="fa fa-calendar-check fa-calendar-check-o fc_list_icon" title="'.__('Book an asset', 'formcreator').'"></span>';
-         echo '<span class="label">'.__('Book an asset', 'formcreator').'</span>';
-         echo '</a></li>';
-      }
-
-      if (RSSFeed::canView()) {
-         echo '<li class="' . ($activeMenuItem == self::MENU_FEEDS ? 'plugin_formcreator_selectedMenuItem' : '') . '">';
-         echo '<a href="' . FORMCREATOR_ROOTDOC.'/front/wizardfeeds.php' . '">';
-         echo '<span class="fa fa-rss fc_list_icon" title="'.__('Consult feeds', 'formcreator').'"></span>';
-         echo '<span class="label">'.__('Consult feeds', 'formcreator').'</span>';
-         echo '</a></li>';
-      }
-
-      if ($config['enable_saved_search'] == 1) {
-         Ajax::createSlidePanel(
-            'showSavedSearches',
-            [
-               'title'     => __('Saved searches'),
-               'url'       => $CFG_GLPI['root_doc'] . '/ajax/savedsearch.php?action=show',
-               'icon'      => '/pics/menu_config.png',
-               'icon_url'  => SavedSearch::getSearchURL(),
-               'icon_txt'  => __('Manage saved searches')
-=======
       ob_start();
       if (Session::getLoginUserID()) {
          Html::showProfileSelecter($CFG_GLPI["root_doc"] . "/front/helpdesk.public.php", false);
@@ -200,7 +116,6 @@ class PluginFormcreatorWizard {
                'href' => $CFG_GLPI["helpdesk_doc_url"],
                'target' => '_blank',
                'icon' => 'fa fa-question fc_list_icon',
->>>>>>> latest
             ]
          ],
          'toggle_menu' => !empty($_SESSION['plugin_formcreator_toggle_menu']) ? $_SESSION['plugin_formcreator_toggle_menu'] : $config['collapse_menu'] == 1,
