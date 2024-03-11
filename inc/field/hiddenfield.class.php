@@ -45,25 +45,24 @@ class HiddenField extends PluginFormcreatorAbstractField
    public function getDesignSpecializationField(): array {
       $rand = mt_rand();
 
-      $additions = '<tr class="plugin_formcreator_question_specific">';
-      $additions .= '<td>';
-      $additions .= '<label for="dropdown_default_values' . $rand . '">';
-      $additions .= __('Default value');
-      $additions .= '</label>';
-      $additions .= '</td>';
-      $additions .= '<td id="dropdown_default_value_field">';
-      $value = Html::entities_deep($this->question->fields['default_values']);
-      $additions .= Html::input('default_values', [
-         'id' => 'default_values',
-         'value' => $value,
+      $additions = '<div class="plugin_formcreator_question_specific row">';
+      ob_start();
+      renderTwigTemplate('macros/wrappedInput.twig', [
+         'title' => __('Default value'),
+         'input' => [
+            'type' => 'text',
+            'name' => 'default_values',
+            'value' => Html::entities_deep($this->question->fields['default_values']),
+            'id' => 'default_values' . $rand,
+            'col_lg' => 12,
+            'col_md' => 12,
+         ]
       ]);
-      $additions .= '</td>';
-      $additions .= '<td></td>';
-      $additions .= '<td></td>';
-      $additions .= '</tr>';
-
+      $additions .= ob_get_clean();
+      
       $common = parent::getDesignSpecializationField();
       $additions .= $common['additions'];
+      $additions .= '</div>';
 
       return [
          'label' => '',
@@ -84,10 +83,12 @@ class HiddenField extends PluginFormcreatorAbstractField
       $fieldName    = 'formcreator_field_' . $id;
       $domId        = $fieldName . '_' . $rand;
       $defaultValue = Html::cleanInputText($this->question->fields['default_values']);
-      return Html::hidden($fieldName, [
-         'id'    => $domId,
+      return [mt_rand() => [
+         'type' => 'hidden',
+         'name' => $fieldName,
          'value' => $defaultValue,
-      ]);
+         'id' => $domId,
+      ]];
    }
 
    public function serializeValue(): string {

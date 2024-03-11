@@ -79,26 +79,7 @@ class PluginFormcreatorForm_Profile extends CommonDBRelation implements PluginFo
    public static function showForForm(CommonDBTM $item, $withtemplate = '') {
       global $DB, $CFG_GLPI;
 
-      echo "<form name='form_profiles_form' id='form_profiles_form'
-             method='post' action=' ";
-      echo Toolbox::getItemTypeFormURL(__CLASS__)."'>";
-      echo '<table class="tab_cadre_fixe">';
-
-      echo '<tr><th colspan="2">'._n('Access type', 'Access types', 1, 'formcreator').'</th>';
-      echo '</tr>';
-
-      // Access type
-      echo '<tr>';
-      echo '<td>';
-      Dropdown::showFromArray(
-         'access_rights',
-         PluginFormcreatorForm::getEnumAccessType(),
-         [
-            'value' => (isset($item->fields['access_rights'])) ? $item->fields['access_rights'] : '1',
-         ]
-      );
-      echo '</td>';
-      echo '<td>'.__('Link to the form', 'formcreator').': ';
+      $linkContent = '';
       if ($item->fields['is_active']) {
          $parsedBaseUrl = parse_url($CFG_GLPI['url_base']);
          $baseUrl = $parsedBaseUrl['scheme'] . '://' . $parsedBaseUrl['host'];
@@ -106,29 +87,15 @@ class PluginFormcreatorForm_Profile extends CommonDBRelation implements PluginFo
             $baseUrl .= ':' . $parsedBaseUrl['port'];
          }
          $form_url = $baseUrl . FORMCREATOR_ROOTDOC . '/front/formdisplay.php?id='.$item->getID();
-         echo '<a href="'.$form_url.'">'.$form_url.'</a>&nbsp;';
-         echo '<a href="mailto:?subject='.$item->getName().'&body='.$form_url.'" target="_blank">';
-         echo '<i class="fas fa-envelope"><i/>';
-         echo '</a>';
+         $linkContent .= '<a href="'.$form_url.'">'.$form_url.'</a>';
+         $linkContent .= '<a href="mailto:?subject='.$item->getName().'&body='.$form_url.'" target="_blank">';
+         $linkContent .= '<i class="fas fa-envelope"></i>';
+         $linkContent .= '</a>';
       } else {
-         echo __('Please activate the form to view the link', 'formcreator');
-      }
-      echo '</td>';
-      echo '</tr>';
-
-      // Captcha
-      if ($item->fields["access_rights"] == PluginFormcreatorForm::ACCESS_PUBLIC) {
-         echo '<tr>';
-         echo '<td>' . __('Enable captcha', 'formcreator') . '</td>';
-         echo '<td>';
-         Dropdown::showYesNo('is_captcha_enabled', $item->fields['is_captcha_enabled']);
-         echo '</td>';
-         echo '</tr>';
+         $linkContent .= __('Please activate the form to view the link', 'formcreator');
       }
 
       if ($item->fields["access_rights"] == PluginFormcreatorForm::ACCESS_RESTRICTED) {
-         echo '<tr><th colspan="2">'.self::getTypeName(2).'</th></tr>';
-
          $formProfileTable = getTableForItemType(__CLASS__);
          $profileTable     = getTableForItemType(Profile::class);
          $formFk = PluginFormcreatorForm::getForeignKeyField();
@@ -153,26 +120,67 @@ class PluginFormcreatorForm_Profile extends CommonDBRelation implements PluginFo
                ]
             ],
          ]);
+         $options = [];
+         $values = [];
          foreach ($result as $row) {
-            $checked = $row['is_enabled'] != '0' ? ' checked' : '';
-            echo '<tr><td colspan="2">';
-            echo '<input type="checkbox" name="profiles_id[]" value="'.$row['id'].'" '.$checked.'> ';
-            echo '<label>' . $row['name']. '</label>';
-            echo '</td></tr>';
+            if ($row['is_enabled'] == '1') {
+               $values[] = $row['id'];
+            }
+            $options[$row['id']] = $row['name'];
          }
       }
-
-      $formFk = PluginFormcreatorForm::getForeignKeyField();
-      echo '<tr>';
-         echo '<td class="center" colspan="2">';
-            echo Html::hidden('profiles_id[]', ['value' => '0']);
-            echo Html::hidden($formFk, ['value' => $item->fields['id']]);
-            echo '<input type="submit" name="update" value="'.__('Save').'" class="submit" />';
-         echo "</td>";
-      echo "</tr>";
-
-      echo "</table>";
-      Html::closeForm();
+      $form = [
+         'action' => Toolbox::getItemTypeFormURL(__CLASS__),
+         'buttons' => [
+            [
+               'name'   => 'update',
+               'value'  => __('Save'),
+               'class' => 'btn btn-secondary'
+            ]
+         ],
+         'content' => [
+            _n('Access type', 'Access types', 1, 'formcreator') => [
+               'visible' => true,
+               'inputs' => [
+                  '' => [
+                     'type' => 'select',
+                     'name' => 'access_rights',
+                     'values' => PluginFormcreatorForm::getEnumAccessType(),
+                     'value' => (isset($item->fields['access_rights'])) ? $item->fields['access_rights'] : '1',
+                  ],
+                  __('Link to the form', 'formcreator') => [
+                     'content' => $linkContent,
+                     'col_lg' => 12,
+                     'col_md' => 12,
+                  ],
+                  __('Enable captcha', 'formcreator') => ($item->fields["access_rights"] == PluginFormcreatorForm::ACCESS_PUBLIC) ? [
+                     'type' => 'checkbox',
+                     'name' => 'is_captcha_enabled',
+                     'value' => $item->fields['is_captcha_enabled'],
+                  ] : [],
+                  self::getTypeName(2) => ($item->fields["access_rights"] == PluginFormcreatorForm::ACCESS_RESTRICTED) ? [
+                     'type' => 'checklist',
+                     'name' => 'profiles_id',
+                     'options' => $options,
+                     'values' => $values,
+                     'col_lg' => 12,
+                     'col_md' => 12,
+                  ] : [],
+                  [
+                     'type' => 'hidden',
+                     'name' => 'profiles_id[]',
+                     'value' => '0',
+                  ],
+                  [
+                     'type' => 'hidden',
+                     'name' => PluginFormcreatorForm::getForeignKeyField(),
+                     'value' => $item->fields['id']
+                  ],
+               ]
+            ]
+         ]
+      ];
+      renderTwigForm($form);
    }
 
    /**

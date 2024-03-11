@@ -1706,10 +1706,18 @@ msgstr ""
 msgid "Enable See all tab"
 msgstr ""
 
+<<<<<<< HEAD
 #: inc/config.class.php:92
 msgid "Enable ticket status counter"
 msgstr ""
 
 #: inc/wizard.class.php:261
+=======
+#: inc/config.class.php:106
+msgid "Enable ticket status counter"
+msgstr ""
+
+#: inc/wizard.class.php:259
+>>>>>>> latest
 msgid "Pending"
 msgstr ""

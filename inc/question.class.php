@@ -192,7 +192,13 @@ PluginFormcreatorTranslatableInterface
       echo '</th>';
       echo '</tr>';
       $condition = new PluginFormcreatorCondition();
-      $condition->showConditionsForItem($item);
+      $conditionInputs = $condition->showConditionsForItem($item);
+      foreach ($conditionInputs['inputs'] as $title => $input) {
+         renderTwigTemplate('macros/wrappedInput.twig', [
+            'title' => $title,
+            'input' => $input,
+         ]);
+      }
 
       echo '</table>';
 
@@ -218,51 +224,32 @@ PluginFormcreatorTranslatableInterface
       $sectionId = $this->fields[PluginFormcreatorSection::getForeignKeyField()];
       $fieldType = PluginFormcreatorFields::getFieldClassname($this->fields['fieldtype']);
       $field = new $fieldType($this);
-
-      $html .= '<div class="grid-stack-item"'
-      . ' data-itemtype="' . self::class . '"'
-      . ' data-id="'.$questionId.'"'
-      . '>';
-
-      $html .= '<div class="grid-stack-item-content">';
-
-      // Question name
-      $html .= $field->getHtmlIcon() . '&nbsp;';
-      $onclick = 'plugin_formcreator.showQuestionForm(' . $sectionId . ', ' . $questionId . ');';
-      $html .= '<a href="javascript:' . $onclick . '" data-field="name">';
-      // Show count of conditions
+      $required = ($this->fields['required'] == '0') ? 'far fa-circle' : 'far fa-check-circle';
       $nb = (new DBUtils())->countElementsInTable(PluginFormcreatorCondition::getTable(), [
          'itemtype' => PluginFormcreatorQuestion::getType(),
          'items_id' => $this->getID(),
       ]);
-      $html .= "<sup class='plugin_formcreator_conditions_count' title='" . __('Count of conditions', 'formcreator') ."'>$nb</sup>";
-      $html .= empty($this->fields['name']) ? '(' . $questionId . ')' : $this->fields['name'];
-      $html .= '</a>';
 
-      // Delete the question
-      $html .= "<span class='form_control pointer'>";
-      $html .= '<i class="far fa-trash-alt"
-               onclick="plugin_formcreator.deleteQuestion(this)"></i> ';
-      $html .= "</span>";
+      $lastQuestionOrder = PluginFormcreatorCommon::getMax(
+         new PluginFormcreatorQuestion(),
+         [PluginFormcreatorSection::getForeignKeyField() => $sectionId],
+         'row'
+      );
 
-      // Clone the question
-      $html .= "<span class='form_control pointer'>";
-      $html .= '<i class="far fa-clone"
-               onclick="plugin_formcreator.duplicateQuestion(this)"></i> ';
-      $html .= "</span>";
 
-      // Toggle mandatory for the question
-      $html .= "<span class='form_control pointer'>";
-      $required = ($this->fields['required'] == '0') ? 'far fa-circle' : 'far fa-check-circle';
-      $html .= '<i class="' . $required .'"
-               onclick="plugin_formcreator.toggleRequired(this)"></i> ';
-      $html .= "</span>";
-
-      $html .= '</div>'; // grid stack item content
-
-      $html .= '</div>'; // grid stack item
-
-      return $html;
+      ob_start();
+      renderTwigTemplate('questionDesign.twig', [
+         'id' => $questionId,
+         'sectionId' => $sectionId,
+         'name' => $this->fields['name'] == '' ? '(' . $questionId . ')' : $this->fields['name'],
+         'count' => $nb,
+         'icon' => $field->getHTmlIcon(),
+         'requiredIcon' => $required,
+         'first' => $this->fields['row'] == 0,
+         'last' => $this->fields['row'] == $lastQuestionOrder,
+         'order' => $this->fields['row'],
+      ], '/plugins/formcreator/templates/');
+      return ob_get_clean();
    }
 
    /**
@@ -272,12 +259,10 @@ PluginFormcreatorTranslatableInterface
     * @param array   $value   Values all fields of the form
     * @param bool $isVisible is the question visible by default ?
     */
-   public function getRenderedHtml($domain, $canEdit = true, $value = [], $isVisible = true) : string {
+   public function getRenderedHtml($domain, $canEdit = true, $value = [], $isVisible = true) : mixed {
       if ($this->isNewItem()) {
          return '';
       }
-
-      $html = '';
 
       $field = PluginFormcreatorFields::getFieldInstance(
          $this->fields['fieldtype'],
@@ -295,23 +280,7 @@ PluginFormcreatorTranslatableInterface
          $field->deserializeValue($this->fields['default_values']);
       }
 
-      $required = ($this->fields['required']) ? ' required' : '';
-      $x = $this->fields['col'];
-      $width = $this->fields['width'];
-      $hiddenAttribute = $isVisible ? '' : 'hidden=""';
-      $html .= '<div'
-         . ' data-gs-x="' . $x . '"'
-         . ' data-gs-width="' . $width . '"'
-         . ' data-itemtype="' . self::class . '"'
-         . ' data-id="' . $this->getID() . '"'
-         . " $hiddenAttribute"
-         . ' >';
-      $html .= '<div class="grid-stack-item-content form-group ' . $required . '" id="form-group-field-' . $this->getID() . '">';
-      $html .= $field->show($domain, $canEdit);
-      $html .= '</div>';
-      $html .= '</div>';
-
-      return $html;
+      return $field->show($domain, $canEdit);
    }
 
    /**
@@ -738,47 +707,6 @@ PluginFormcreatorTranslatableInterface
          $action = 'plugin_formcreator.editQuestion()';
       }
 
-      $rand = mt_rand();
-      echo '<form name="form"'
-      . ' method="post"'
-      . ' action="javascript:' . $action . '"'
-      . ' data-itemtype="' . self::class . '"'
-      . '>';
-      echo '<table class="tab_cadre_fixe">';
-
-      echo '<tr>';
-      echo '<th colspan="4">';
-      echo $title;
-      echo '</th>';
-      echo '</tr>';
-
-      echo '<tr>';
-
-      // name
-      echo '<td width="20%">';
-      echo '<label for="name" id="label_name">';
-      echo  __('Title');
-      echo '<span style="color:red;">*</span>';
-      echo '</label>';
-      echo '</td>';
-
-      echo '<td width="30%">';
-      echo Html::input('name', [
-         'id' => 'name',
-         'autofocus' => '',
-         'value' => $this->fields['name'],
-         'class' => 'required',
-      ]);
-      echo '</td>';
-
-      // Section
-      echo '<td width="20%">';
-      echo '<label for="dropdown_plugin_formcreator_sections_id'.$rand.'" id="label_name">';
-      echo  _n('Section', 'Sections', 1, 'formcreator');
-      echo '<span style="color:red;">*</span>';
-      echo '</label>';
-      echo '</td>';
-      echo '<td width="30%">';
       $section = new PluginFormcreatorSection();
       $section->getFromDB($this->fields['plugin_formcreator_sections_id']);
       $sections = [];
@@ -788,131 +716,123 @@ PluginFormcreatorTranslatableInterface
       $currentSectionId = ($this->fields['plugin_formcreator_sections_id'])
                         ? $this->fields['plugin_formcreator_sections_id']
                         : (int) $_REQUEST['section_id'];
-      Dropdown::showFromArray('plugin_formcreator_sections_id', $sections, [
-         'value' => $currentSectionId,
-         'rand'  => $rand,
-      ]);
-      echo '</td>';
-      echo '</tr>';
-
-      echo '<tr>';
-
-      // Field type
-      echo '<td>';
-      echo '<label for="dropdown_fieldtype'.$rand.'" id="label_fieldtype">';
-      echo _n('Type', 'Types', 1);
-      echo '<span style="color:red;">*</span>';
-      echo '</label>';
-      echo '</td>';
-
-      echo '<td>';
-      $fieldtypes = PluginFormcreatorFields::getNames();
-      Dropdown::showFromArray('fieldtype', $fieldtypes, [
-         'value'       => $this->fields['fieldtype'],
-         'on_change'   => "plugin_formcreator_changeQuestionType($rand)",
-         'rand'        => $rand,
-      ]);
-      echo '</td>';
-
-      // Dynamically filled for questions with a itemtype parameter (glpi select field)
-      echo '<td id="plugin_formcreator_subtype_label">';
-      echo '</td>';
-
-      echo '<td id="plugin_formcreator_subtype_value">';
-      echo '</td>';
-      echo '</tr>';
-
-      echo '<tr>';
-      // required
-      echo '<td>';
-      echo '<div class="plugin_formcreator_required">';
-      echo '<label for="dropdown_required'.$rand.'">';
-      echo __('Required', 'formcreator');
-      echo '</label>';
-      echo '</div>';
-      echo '</td>';
-
-      echo '<td>';
-      echo '<div class="plugin_formcreator_required">';
-      dropdown::showYesNo('required', $this->fields['required'], -1, [
-         'rand'  => $rand,
-      ]);
-      echo '</div>';
-      echo '</td>';
-
-      // show empty
-      echo '<td>';
-      echo '<div class="plugin_formcreator_mayBeEmpty">';
-      echo '<label for="dropdown_show_empty'.$rand.'">';
-      echo __('Show empty', 'formcreator');
-      echo '</label>';
-      echo '</div>';
-      echo '</td>';
-
-      echo '<td>';
-      echo '<div class="plugin_formcreator_mayBeEmpty">';
-      dropdown::showYesNo('show_empty', $this->fields['show_empty'], -1, [
-         'rand'  => $rand,
-      ]);
-      echo '</div>';
-      echo '</td>';
-      echo '</tr>';
-
-      // Empty row for question-specific settings
-      // To be replaced dynamically
-      echo '<tr class="plugin_formcreator_question_specific">';
-      echo '<td></td><td></td><td></td><td></td>';
-      echo '</tr>';
-
-      echo '<tr id="description_tr">';
-      // Description of the question
-      echo '<td>';
-      echo '<label for="description" id="label_description">';
-      echo __('Description');
-      echo '</label>';
-      echo '</td>';
-
-      echo '<td width="80%" colspan="3">';
-      echo Html::textarea([
-         'name'    => 'description',
-         'id'      => 'description',
-         'value'   => Toolbox::convertTagToImage($this->fields['description'], $this),
-         'enable_richtext' => true,
-         'filecontainer'   => 'description_info',
-         'display' => false,
-      ]);
-      echo '</td>';
-      echo '</tr>';
-
-      // Condiion to show the question
-      echo '<tr>';
-      echo '<th colspan="4">';
-      echo __('Condition to show the question', 'formcreator');
-      echo '</label>';
-      echo '</th>';
-      echo '</tr>';
       $condition = new PluginFormcreatorCondition();
-      $condition->showConditionsForItem($this);
-
-      echo '<tr>';
-      echo '<td colspan="4" class="center">';
-      echo Html::hidden('id', ['value' => $ID]);
-      echo Html::hidden('uuid', ['value' => $this->fields['uuid']]);
-      echo '</td>';
-      echo '</tr>';
-
-      // Area for errors
-      echo '<tr>';
-      echo '<td id="plugin_formcreator_error" colspan="4" class="center">';
-      echo '</td>';
-      echo '</tr>';
-
-      $this->showFormButtons($options + [
-         'candel' => false
-      ]);
-
-      echo Html::scriptBlock("plugin_formcreator_changeQuestionType($rand)");
-      Html::closeForm();
+      $conditionInput = $condition->showConditionsForItem($this);
+      ob_start();
+      foreach ($conditionInput['inputs'] as $title => $input) {
+         renderTwigTemplate('macros/wrappedInput.twig', [
+            'title' => $title,
+            'input' => $input,
+         ]);
+      }
+      $conditionContent = ob_get_clean();
+                  
+      $form = [
+         'action' => $action,
+         'attributes' => [
+            'name' => 'form',
+            'data-itemtype' => self::class,
+         ],
+         'buttons' => [
+            [
+               'name' => ($ID == 0) ? 'add' : 'update',
+               'type' => 'button',
+               'value' => ($ID == 0) ? __('Add') : __('Update'),
+               'onclick' => $action,
+               'class' => 'btn btn-secondary'
+            ]
+         ],
+         'content' => [
+            $title => [
+               'visible' => true,
+               'inputs' => [
+                  [
+                     'type' => 'hidden',
+                     'name' => 'id',
+                     'value' => $ID,
+                  ],
+                  __('Title') => [
+                     'type' => 'text',
+                     'name' => 'name',
+                     'value' => $this->fields['name'],
+                     'required' => true,
+                     'col_lg' => 6,
+                  ],
+                  __('Section') => [
+                     'type' => 'select',
+                     'name' => 'plugin_formcreator_sections_id',
+                     'values' => $sections,
+                     'value' => $currentSectionId,
+                     'required' => true,
+                     'col_lg' => 6,
+                  ],
+                  __('Type') => [
+                     'type' => 'select',
+                     'id' => 'selectFormcreatorQuestionType' . $ID,
+                     'name' => 'fieldtype',
+                     'values' => PluginFormcreatorFields::getNames(),
+                     'value' => $this->fields['fieldtype'],
+                     'on_change' => "plugin_formcreator_changeQuestionType()",
+                     'col_lg' => 12,
+                     'col_md' => 12,
+                     'required' => true,
+                     'hooks' => [
+                        'change' => 'plugin_formcreator_changeQuestionType()'
+                     ]
+                  ],
+                  __('Required', 'formcreator') => [
+                     'type' => 'checkbox',
+                     'class' => 'plugin_formcreator_required',
+                     'name' => 'required',
+                     'value' => $this->fields['required'],
+                     'col_lg' => 6,
+                  ],
+                  __('Show empty', 'formcreator') => [
+                     'type' => 'checkbox',
+                     'class' => 'plugin_formcreator_mayBeEmpty',
+                     'name' => 'show_empty',
+                     'value' => $this->fields['show_empty'],
+                     'col_lg' => 6,
+                  ],
+                  __('Description') => [
+                     'type' => 'richtextarea',
+                     'name' => 'description',
+                     'value' => Toolbox::convertTagToImage($this->fields['description'], $this),
+                     'col_lg' => 12,
+                     'col_md' => 12,
+                  ],
+                  '' => [
+                     'content' => <<<HTML
+                     <div class="w-100">
+                        <div id="plugin_formcreator_subtype_label"></div>
+                        <div id="plugin_formcreator_subtype_value"></div>
+                        <div class="plugin_formcreator_question_specific row"></div>
+                        <div id="plugin_formcreator_error"></div>
+                     </div>
+                     HTML,
+                     'col_lg' => 12,
+                     'col_md' => 12,
+                  ],
+                  __('Condition to show the question', 'formcreator') => [
+                     'content' => $conditionContent,
+                     'col_lg' => 12,
+                     'col_md' => 12,
+                  ],
+                  [
+                     'type' => 'hidden',
+                     'name' => 'id',
+                     'value' => $ID,
+                  ],
+                  [
+                     'type' => 'hidden',
+                     'name' => 'uuid',
+                     'value' => $this->fields['uuid'],
+                  ]
+               ]
+            ]
+         ]
+      ];
+      renderTwigForm($form, Html::scriptBlock("plugin_formcreator_changeQuestionType()"));
    }
 
    public function duplicate(array $options = []) {

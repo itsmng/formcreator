@@ -89,14 +89,18 @@ extends PluginFormcreatorAbstractQuestionParameter
 
       // build HTML code
       $selector = $this->domId;
-      $out = '';
-      $out.= '<td id="' . $selector . '">' . $this->label . '</td>';
-      $out.= '<td colspan="3"><input type="text" name="'. $name . '[regex]" id="regex" style="width:98%;" value="'.$selected.'" />';
-      $out.= '<em>';
-      $out.= __('Specify the additional validation conditions in the description of the question to help users.', 'formcreator');
-      $out.= '</em></td>';
-
-      return $out;
+      ob_start();
+      renderTwigTemplate('macros/wrappedInput.twig', [
+         'title' => __('Regular expression', 'formcreator'),
+         'input' => [
+            'type' => 'text',
+            'name' => $name . '[regex]',
+            'id' => $selector,
+            'value' => $selected,
+            'col_lg' => 12,
+         ]
+      ]);
+      return ob_get_clean();
    }
 
    public function post_getEmpty() {

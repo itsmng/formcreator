@@ -1751,7 +1751,7 @@ msgstr "Êtes-vous sûr de vouloir supprimer la destination suivante :"
 
 #: inc/config.class.php:62
 msgid "Simplified view"
-msgstr "Vue simplifée"
+msgstr "Vue simplifiée"
 
 #: inc/config.class.php:65
 msgid "Enable profile infos"
@@ -1769,10 +1769,18 @@ msgstr "Catégorie par défaut"
 msgid "Enable See all tab"
 msgstr "Activer l'onglet Voir tous"
 
+<<<<<<< HEAD
 #: inc/config.class.php:92
 msgid "Enable ticket status counter"
 msgstr "Activer le compteur de statut de ticket"
 
 #: inc/wizard.class.php:261
+=======
+#: inc/config.class.php:106
+msgid "Enable ticket status counter"
+msgstr "Activer le compteur de statut de ticket"
+
+#: inc/wizard.class.php:259
+>>>>>>> latest
 msgid "Pending"
 msgstr "En attente"

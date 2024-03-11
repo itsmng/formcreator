@@ -425,50 +425,71 @@ PluginFormcreatorTranslatableInterface
          $title =  __('Edit a section', 'formcreator');
          $action = 'plugin_formcreator.editSection()';
       }
-      echo '<form name="form"'
-      . ' method="post"'
-      . ' action="javascript:' . $action . '"'
-      . ' data-itemtype="' . self::class . '"'
-      . '>';
-      echo '<div>';
-      echo '<table class="tab_cadre_fixe">';
-
-      echo '<tr>';
-      echo '<th colspan="4">';
-      echo $title;
-      echo '</th>';
-      echo '</tr>';
-
-      echo '<tr>';
-      echo '<td width="20%">'.__('Title').' <span style="color:red;">*</span></td>';
-      echo '<td colspan="3">';
-      echo Html::input('name', ['style' => 'width: calc(100% - 20px)', 'required' => 'required', 'value' => $this->fields['name']]);
-      echo '</td>';
-      echo '</tr>';
-
-      // List of conditions
-      echo '<tr>';
-      echo '<th colspan="4">';
-      echo __('Condition to show the section', 'formcreator');
-      echo '</label>';
-      echo '</th>';
-      echo '</tr>';
       $condition = new PluginFormcreatorCondition();
-      $condition->showConditionsForItem($this);
-
-      echo '<tr>';
-      echo '<td colspan="4" class="center">';
-      $formFk = PluginFormcreatorForm::getForeignKeyField();
-      echo Html::hidden('id', ['value' => $ID]);
-      echo Html::hidden('uuid', ['value' => $this->fields['uuid']]);
-      echo Html::hidden($formFk, ['value' => $this->fields[$formFk]]);
-      echo '</td>';
-      echo '</tr>';
-
-      // table and div are closed here
-      $this->showFormButtons($options + [
-         'candel' => false,
-      ]);
+      $conditionInput = $condition->showConditionsForItem($this);
+      ob_start();
+      foreach ($conditionInput['inputs'] as $title => $input) {
+         renderTwigTemplate('macros/wrappedInput.twig', [
+            'title' => $title,
+            'input' => $input,
+         ]);
+      }
+      $conditionContent = ob_get_clean();
+      $form = [
+         'action' => $action,
+         'attributes' => [
+            'data-itemtype' => self::class,
+         ],
+         'buttons' => [
+            [
+               'value' => ($ID == 0) ? __('Add') : __('Save'),
+               'class' => 'btn btn-secondary',
+               'type' => 'button',
+               'icon' => ($ID == 0) ? 'fas fa-plus' : 'fas fa-save',
+               'onclick' => 'javascript:' . $action . ';'
+            ],
+         ],
+         'content' => [
+            $title => [
+               'visible' => true,
+               'inputs' => [
+                  __('Title') => [
+                     'name' => 'name',
+                     'type' => 'text',
+                     'size' => 50,
+                     'value' => $this->fields['name'],
+                     'required' => true,
+                  ],
+               ],
+            ],
+            __('Condition to show the section', 'formcreator') => [
+               'visible' => true,
+               'inputs' => [
+                  'conditions' => [
+                     'content' => $conditionContent,
+                     'col_lg' => 12,
+                     'col_md' => 12,
+                  ],
+                  [
+                     'type' => 'hidden',
+                     'name' => 'id',
+                     'value' => $ID,
+                  ],
+                  [
+                     'type' => 'hidden',
+                     'name' => 'uuid',
+                     'value' => $this->fields['uuid'],
+                  ],
+                  [
+                     'type' => 'hidden',
+                     'name' => PluginFormcreatorForm::getForeignKeyField(),
+                     'value' => $this->fields['plugin_formcreator_forms_id'],
+                  ],
+               ],
+            ],
+         ]
+      ];
+      renderTwigForm($form, '', $this->fields);
    }
 
    /**
@@ -529,79 +550,36 @@ PluginFormcreatorTranslatableInterface
       $formFk = PluginFormcreatorForm::getForeignKeyField();
       $formId = $this->fields[$formFk];
       $sectionId = $this->getID();
-      $lastSectionOrder = PluginFormcreatorCommon::getMax(
-        new PluginFormcreatorSection(),
-        [PluginFormcreatorForm::getForeignKeyField() => $formId],
-        'order'
-      );
 
-      $html = '';
-
-      // Section header
-      $onclick = 'onclick="plugin_formcreator.showSectionForm(' . $formId . ', ' . $sectionId . ')"';
-      $html .= '<li class="plugin_formcreator_section"'
-      . ' data-itemtype="' . PluginFormcreatorSection::class . '"'
-      . ' data-id="' . $sectionId . '"'
-      . '>';
-
-      // section name
-      $html .= '<a href="#" ' . $onclick . ' data-field="name">';
-      // Show count of conditions
       $nb = (new DBUtils())->countElementsInTable(PluginFormcreatorCondition::getTable(), [
         'itemtype' => PluginFormcreatorSection::getType(),
         'items_id' => $this->getID(),
       ]);
-      $html .= "<sup class='plugin_formcreator_conditions_count' title='" . __('Count of conditions', 'formcreator') ."'>$nb</sup>";
-      $html .= empty($this->fields['name']) ? '(' . $sectionId . ')' : $this->fields['name'];
-      $html .= '</a>';
+      $question = new PluginFormcreatorQuestion();
+      $questions = $question->getQuestionsFromSection($sectionId);
+      $questionList = '';
+      foreach ($questions as $question) {
+         $questionList .= $question->getDesignHtml();
+      }
 
-      // Delete a section
-      $html .= "<span class='form_control pointer'>";
-      $html .= '<i class="far fa-trash-alt" onclick="plugin_formcreator.deleteSection(this)"></i>';
-      $html .= "</span>";
-
-      // Clone a section
-      $html .= "<span class='form_control pointer'>";
-      $html .= '<i class="far fa-clone" onclick="plugin_formcreator.duplicateSection(this)"></i>';
-      $html .= "</span>";
-
-      // Move down a section
-      $display = ($this->fields['order'] < $lastSectionOrder) ? 'initial' : 'none';
-      $html .= '<span class="form_control pointer moveDown" style="display: ' . $display . '">';
-      $html .= '<i class="fas fa-sort-down" onclick="plugin_formcreator.moveSection(this, \'down\')"></i>';
-      $html .= "</span>";
-
-      // Move up a section
-      $display = ($this->fields['order'] > 1) ? 'initial' : 'none';
-      $html .= '<span class="form_control pointer moveUp" style="display: ' . $display . '">';
-      $html .= '<i class="fas fa-sort-up" onclick="plugin_formcreator.moveSection(this, \'up\')"></i>';
-      $html .= "</span>";
-
-      // Section content
-      $columns = PluginFormcreatorSection::COLUMNS;
-      $html .= '<div class="grid-stack grid-stack-'.$columns.'"'
-      . ' data-gs-animate="yes" '
-      . ' data-gs-width="'.$columns.'"'
-      . 'data-id="'.$sectionId.'"'
-      .'>';
-      $html .= '</div>';
-
-      // Add a question
-      $html .= '<div class="plugin_formcreator_question">';
-      $html .= '<a href="#" onclick="plugin_formcreator.showQuestionForm('. $sectionId . ');">';
-      $html .= '<i class="fas fa-plus"></i>&nbsp;';
-      $html .= __('Add a question', 'formcreator');
-      $html .= '</a>';
-      $html .= '</div>';
-
-      $html .= Html::scriptBlock("
-         $(function () {
-            plugin_formcreator.initGridStack($sectionId);
-         });"
+      $lastSectionOrder = PluginFormcreatorCommon::getMax(
+         new PluginFormcreatorSection(),
+         [PluginFormcreatorForm::getForeignKeyField() => $formId],
+         'order'
       );
-      $html .= '</li>';
 
-      return $html;
+      ob_start();
+      renderTwigTemplate('sectionDesign.twig', [
+         'id' => $sectionId,
+         'formId' => $formId,
+         'name' => $this->fields['name'],
+         'conditionCount' => $nb,
+         'questionList' => $questionList,
+         'first' => ($this->fields['order'] == 1),
+         'last' => ($this->fields['order'] == $lastSectionOrder),
+      ], '/plugins/formcreator/templates/');
+
+      return ob_get_clean();
    }
 
    /**

@@ -97,17 +97,28 @@ extends PluginFormcreatorAbstractQuestionParameter
          $rangeMax = $this->fields['range_max'];
       }
 
-      // build HTML code
-      $selector = $this->domId;
-      $out = '';
-      $out.= '<td id="' . $selector . '">' . $this->label . '</td>';
-      $out.= '<td>';
-      $out.= '<label for="' . $name . '[range_min]" id="label_range_min">' . __('Min', 'formcreator') . '</label>&nbsp;';
-      $out.= '<input type="text" name="'. $name . '[range_min]" id="range_min" class="small_text" style="width:90px;" value="'.$rangeMin.'" />';
-      $out.= '&nbsp;<label for="' . $name . '[range_max]" id="label_range_max">' . __('Max', 'formcreator') . '</label>&nbsp;';
-      $out.= '<input type="text" name="'. $name . '[range_max]" id="range_max" class="small_text" style="width:90px;" value="'.$rangeMax.'" />';
-      $out.= '</td>';
-
+      $inputs = [
+         __('Min', 'formcreator') => [
+            'type' => 'number',
+            'name' => $name . '[range_min]',
+            'value' => $rangeMin,
+            'col_lg' => 6,
+         ],
+         __('Max', 'formcreator') => [
+            'type' => 'number',
+            'name' => $name . '[range_max]',
+            'value' => $rangeMax,
+            'col_lg' => 6,
+         ],
+      ];
+      ob_start();
+      foreach ($inputs as $title => $input) {
+         renderTwigTemplate('macros/wrappedInput.twig', [
+            'title' => $title,
+            'input' => $input,
+         ]);
+      }
+      $out = ob_get_clean();
       return $out;
    }
 
