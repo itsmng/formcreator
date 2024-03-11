@@ -570,7 +570,12 @@ class PluginFormcreatorFormAnswer extends CommonDBTM
                   }
                }
             }
-            echo $question->getRenderedHtml($domain, $canEdit, $answers, $visibility[$question->getType()][$question->getID()]);
+            $input = $question->getRenderedHtml($domain, $canEdit, $answers, $visibility[$question->getType()][$question->getID()]);
+            if (gettype($input) == 'string') {
+               echo $input;
+            } else {
+               renderTwigTemplate('macros/wrappedInput.twig', ['title' => array_keys($input)[0], 'input' => array_values($input)[0]]);
+            }
             $lastQuestion = $question;
          }
          echo '</div>';
@@ -717,6 +722,15 @@ class PluginFormcreatorFormAnswer extends CommonDBTM
       $input['request_date']                = date('Y-m-d H:i:s');
       $input['comment']                     = '';
 
+      if (isset($input['plugin_formcreator_forms_id'])) {
+         foreach ($this->getQuestionFields($input['plugin_formcreator_forms_id']) as $questionId => $field) {
+            if ($field->getFieldTypeName() == 'file') {
+               $files = json_decode(stripslashes($input['formcreator_field_' . $questionId]), true);
+               $field->setUploads($files);
+            };
+         }
+      }
+      
       return $input;
    }
 
@@ -991,12 +1005,16 @@ class PluginFormcreatorFormAnswer extends CommonDBTM
             'answer'                             => $field->serializeValue(),
          ], [], 0);
          foreach ($field->getDocumentsForTarget() as $documentId) {
-            $docItem = new Document_Item();
-            $docItem->add([
-               'documents_id' => $documentId,
-               'itemtype'     => __CLASS__,
-               'items_id'     => $formAnswerId,
-            ]);
+            $doc = new Document();
+            $doc->getFromDB($documentId);
+            ItsmngUploadHandler::linkDocToItem(
+               $documentId,
+               $doc->fields['entities_id'],
+               $doc->fields['is_recursive'],
+               __CLASS__,
+               $formAnswerId,
+               $this->fields['requester_id']
+            );
          }
       }
       $this->sendNotification();

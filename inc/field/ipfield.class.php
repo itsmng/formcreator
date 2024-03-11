@@ -71,10 +71,12 @@ class IpField extends PluginFormcreatorAbstractField
       $domId        = $fieldName . '_' . $rand;
       $ip = Toolbox::getRemoteIpAddress();
       $ip = Html::cleanInputText($ip);
-      return Html::hidden($fieldName, [
-         'id'     => $domId,
-         'value'  => $ip,
-      ]);
+      return [mt_rand() => [
+         'type' => 'hidden',
+         'name' => $fieldName,
+         'value' => $ip,
+         'id' => $domId,
+      ]];
    }
 
    public function serializeValue(): string {

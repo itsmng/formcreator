@@ -1,0 +1,114 @@
+{# if ($config['enable_saved_search'] == 1) {
+    Ajax::createSlidePanel(
+    'showSavedSearches',
+    [
+        'title'     => __('Saved searches'),
+        'url'       => $CFG_GLPI['root_doc'] . '/ajax/savedsearch.php?action=show',
+        'icon'      => '/pics/menu_config.png',
+        'icon_url'  => SavedSearch::getSearchURL(),
+        'icon_txt'  => __('Manage saved searches')
+    ]
+    );
+    Ajax::createIframeModalWindow('loadbookmark',
+    $CFG_GLPI["root_doc"]."/front/savedsearch.php?action=load",
+    ['title'         => __('Saved searches'),
+    'reloadonclose' => true]);
+
+} #}
+<body>
+    <div
+        class="plugin_formcreator_container {{toggle_menu}}">
+        <input type='checkbox' id='formcreator-toggle-nav' {% if toggle_menu %} checked {% endif %}>
+
+        <div id="header" class="plugin_formcreator_leftHeader bg-primary">
+            <div class="formcreator_header_left">
+                <div id="header_top" class="formcreator_header_top">
+                    <div id="c_logo"></div>
+                </div>
+                <label for='formcreator-toggle-nav' class='formcreator-nav-button'></label>
+            </div>
+
+            {% if show_ticket_summary %}
+                <span id='formcreator_servicecatalogue_ticket_summary'>
+                    <span class='status status_incoming'>
+                        <a href='{{incoming_href}}'>
+                            <span class='status_number'>
+                                <i class='fas fa-spinner fa-spin'></i>
+                            </span>
+                            <label class='status_label'>{{'Processing'|trans}}</label>
+                        </a>
+                    </span>
+
+                    <span class='status status_waiting'>
+                        <a href='{{waiting_href}}'>
+                            <span class='status_number'>
+                                <i class='fas fa-spinner fa-spin'></i>
+                            </span>
+                            <label class='status_label'>{{'Pending'|trans('formcreator')}}</label>
+                        </a>
+                    </span>
+                    <span class='status status_validate'>
+                        <a href='{{validate_href}}'>
+                            <span class='status_number'>
+                                <i class='fas fa-spinner fa-spin'></i>
+                            </span>
+                            <label class='status_label'>{{'To validate'|trans('formcreator')}}</label>
+                        </a>
+                    </span>
+
+                    <span class='status status_solved'>
+                        <a href='{{solved_href}}'>
+                            <span class='status_number'>
+                                <i class='fas fa-spinner fa-spin'></i>
+                            </span>
+                            <label class='status_label'>{{'Closed'|trans('formcreator')}}</label>
+                        </a>
+                    </span>
+                </span>
+            {% endif %}
+            <div id="c_menu" class="bg-secondary">
+                <ul class="plugin_formcreator_services">
+                    {% for title, item in c_menu %}
+                        {% if not item.condition or item.condition == true %}
+                            <li class="{{item.selected ? 'plugin_formcreator_selectedMenuItem' : ''}}">
+                                <a href="{{item.href}}" {% if item.id %} id="{{item.id}}" {% endif %} {% if item.target %} target="{{item.target}}" {% endif %}>
+                                    <span class="{{item.icon}}" title="{{title}}"></span>
+                                    <span class="label">{{title}}</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div class="plugin_formcreator_userCard">
+                <ul class="plugin_formcreator_userMenu_icons">
+                    {% if profile_info %}
+                        <li id="plugin_formcreator_avatar">
+                            <a href="{{root_doc}}/front/preference.php"
+                                title="{{username}}">
+                                <img src="{{userPic}}"/>
+                            </a>
+                        </li>
+                        <li id="plugin_formcreator_preferences_icon">
+                            <a href="{{root_doc}}/front/preference.php" class="fa fa-cog" title="{{"My settings"|trans}}">
+                                <span id="preferences_icon" title="{{"My settings"|trans}}" alt="{{"My settings"|trans}}" class="button-icon"></span>
+                            </a>
+                        </li>
+                    {% endif %}
+                    <li id="plugin_formcreator_logoutIcon" >
+                        <a href="{{root_doc}}/front/logout.php{{extauth ? '?noAUTO=1' : ''}}"
+                            class="fa fa-sign-out fa-sign-out-alt" title="{{'Logout'|trans}}">
+                            <span id="logout_icon" title="{{'Logout'|trans}}" alt="{{'Logout'|trans}}" class="button-icon"></span>
+                        </a>
+                    </li>
+                </ul>
+
+
+                <ul class="plugin_formcreator_entityProfile">
+                    {{profileSelector|raw}}
+                </ul>
+            </div>
+        </div>
+        
+        <main id="page" class="plugin_formcreator_page">

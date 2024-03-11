@@ -169,7 +169,7 @@ class PluginFormcreatorCommon {
     * @return string
     */
    public static function getPictoFilename(string $version) : string {
-      return 'font-awesome.php';;
+      return 'font-awesome.php';
    }
 
    /**

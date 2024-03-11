@@ -44,52 +44,44 @@ class RadiosField extends PluginFormcreatorAbstractField
    }
 
    public function getDesignSpecializationField(): array {
-      $rand = mt_rand();
-
       $label = '';
       $field = '';
 
-      $additions = '<tr class="plugin_formcreator_question_specific">';
-      $additions .= '<td>';
-      $additions .= '<label for="dropdown_default_values' . $rand . '">';
-      $additions .= __('Default values');
-      $additions .= '<small>(' . __('One per line', 'formcreator') . ')</small>';
-      $additions .= '</label>';
-      $additions .= '</td>';
-      $additions .= '<td>';
-      $additions .= Html::input(
-         'default_values',
-         [
-            'id'               => 'default_values',
-            'value'            => Html::entities_deep($this->getValueForDesign()),
-            'cols'             => '50',
-            'display'          => false,
-         ]
-      );
-      $additions .= '</td>';
-      $additions .= '<td>';
-      $additions .= '<label for="dropdown_default_values' . $rand . '">';
-      $additions .= __('Values');
-      $additions .= '<small>(' . __('One per line', 'formcreator') . ')</small>';
-      $additions .= '</label>';
-      $additions .= '</td>';
-      $additions .= '<td>';
-      $value = json_decode($this->question->fields['values']);
+      $value = json_decode($this->question->fields['values'] ?? '[]');
       if ($value === null || is_array($value)) {
          $value = [];
       }
-      $additions .= Html::textarea([
-         'name'             => 'values',
-         'id'               => 'values',
-         'value'            => implode("\r\n", $value),
-         'cols'             => '50',
-         'display'          => false,
-      ]);
-      $additions .= '</td>';
-      $additions .= '</tr>';
 
+      $additions = '<div class="plugin_formcreator_question_specific row">';
+      $inputs = [
+         __('Default values') . '<small>(' . __('One per line', 'formcreator') . ')</small>' => [
+            'type' => 'textarea',
+            'name' => 'default_values',
+            'id' => 'default_values',
+            'cols' => '50',
+            'col_lg' => 6,
+         ],
+         __('Values') . '<small>(' . __('One per line', 'formcreator') . ')</small>' => [
+            'type' => 'textarea',
+            'name' => 'values',
+            'id' => 'values',
+            'value' => implode("\r\n", $value),
+            'cols' => '50',
+            'value' => Html::entities_deep($this->getValueForDesign()),
+            'col_lg' => 6,
+         ],
+      ];
+      ob_start();
+      foreach ($inputs as $title => $input) {
+         renderTwigTemplate('macros/wrappedInput.twig', [
+            'title' => $title,
+            'input' => $input,
+         ]);
+      }
+      $additions .= ob_get_clean();
       $common = parent::getDesignSpecializationField();
       $additions .= $common['additions'];
+      $additions .= '</div>';
 
       return [
          'label' => $label,
@@ -117,24 +109,18 @@ class RadiosField extends PluginFormcreatorAbstractField
          foreach ($values as $value) {
             if ((trim($value) != '')) {
                $i++;
-               $checked = ($this->value == $value) ? ['checked' => ''] : [];
-               $html .= '<div class="radio">';
-               $html .= '<span class="form-group-radio">';
-               $html .= Html::input($fieldName, [
-                  'type'    => 'radio',
-                  'class'   => 'form-check-input form-control',
-                  'id'      => $domId . '_' . $i,
-                  'value'   => $value
-               ] + $checked);
-               $html .= '<label class="label-radio" title="' . $value . '" for="' . $domId . '_' . $i . '">';
-               $html .= '<span class="box"></span>';
-               $html .= '<span class="check"></span>';
-               $html .= '</label>';
-               $html .= '</span>';
-               $html .= '<label for="' . $domId . '_' . $i . '">';
-               $html .= __($value, $domain);
-               $html .= '</label>';
-               $html .= '</div>';
+               ob_start();
+               renderTwigTemplate('macros/wrappedInput.twig', [
+                  'title' => __($value, $domain),
+                  'input' => [
+                     'type' => 'radio',
+                     'name' => $fieldName,
+                     'id' => $domId . '_' . $i,
+                     'value' => $value,
+                     'checked' => ($this->value == $value),
+                  ]
+               ]);
+               $html .= ob_get_clean();
             }
          }
          $html .= '</div>';

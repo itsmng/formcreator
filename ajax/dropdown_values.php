@@ -55,10 +55,15 @@ if (!isset($_REQUEST['dropdown_itemtype'])
       'rand'  => mt_rand(),
       'value' => $defaultValue,
    ];
-   if ($itemtype == Entity::class) {
-      $options['toadd'] = [
-         -1 => Dropdown::EMPTY_VALUE,
-      ];
-   }
-   Dropdown::show($itemtype, $options);
+   renderTwigTemplate('macros/wrappedInput.twig', [
+      'title' => $itemtype::getTypeName(),
+      'input' => [
+         'type' => 'select',
+         'name' => $options['name'],
+         'value' => $options['value'],
+         'values' => getOptionForItems($itemtype),
+         'col_lg' => 12,
+         'col_md' => 12,
+      ]
+   ]);
 }

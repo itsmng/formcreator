@@ -902,360 +902,380 @@ PluginFormcreatorTranslatableInterface
       $this->attachedDocuments[$documentId] = true;
    }
 
-   protected function showDestinationEntitySetings($rand) {
-      echo '<tr>';
-      echo '<td width="15%">' . __('Destination entity') . '</td>';
-      echo '<td width="25%">';
-      Dropdown::showFromArray(
-         'destination_entity',
-         self::getEnumDestinationEntity(),
-         [
-            'value'     => $this->fields['destination_entity'],
-            'on_change' => "plugin_formcreator_change_entity($rand)",
-            'rand'      => $rand,
+   protected function showDestinationEntitySetings($rand = '') {
+      $question = new PluginFormcreatorQuestion();
+      $block = [
+         'visible' => true,
+         'inputs' => [
+            '' => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorDestinationEntity',
+               'name' => 'destination_entity',
+               'values' => self::getEnumDestinationEntity(),
+               'value' => $this->fields['destination_entity'],
+               'hooks' => [
+                  'change' => <<<JS
+                     const val = this.value;
+                     // PluginFormcreatorAbstractTarget::DESTINATION_ENTITY_SPECIFIC
+                     $('#selectFormcreatorDestinationEntityValue').attr('disabled', val != 7);
+                     // PluginFormcreatorAbstractTarget::DESTINATION_ENTITY_USER
+                     $('#selectFormcreatorDestinationEntityValueUser').attr('disabled', val != 8);
+                     // PluginFormcreatorAbstractTarget::DESTINATION_ENTITY_ENTITY
+                     $('#selectFormcreatorDestinationEntityValueEntity').attr('disabled', val != 9);
+                  JS,
+               ],
+               'col_lg' => 12,
+               'col_md' => 12,
+            ],
+            _n('Entity', 'Entities', 1) => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorDestinationEntityValue',
+               'name' => '_destination_entity_value_specific',
+               'values' => getOptionForItems(Entity::class),
+               'value' => $this->fields['destination_entity_value'],
+               'actions' => getItemActionButtons(['info', 'add'], Entity::class),
+               PluginFormcreatorAbstractTarget::DESTINATION_ENTITY_SPECIFIC == $this->fields['destination_entity'] ? '' : 'disabled' => 'disabled',
+            ],
+            __('User type question', 'formcreator') => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorDestinationEntityValueUser',
+               'name' => '_destination_entity_value_user',
+               'values' => $question->getQuestionsFromFormBySection($this->getForm()->getID(),
+                  [ 'fieldtype' => ['glpiselect'], 'values'    => ['LIKE', '%"itemtype":"' . User::class . '"%'], ]),
+               PluginFormcreatorAbstractTarget::DESTINATION_ENTITY_USER == $this->fields['destination_entity'] ? '' : 'disabled' => 'disabled',
+            ],
+            __('Entity type question', 'formcreator') => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorDestinationEntityValueEntity',
+               'name' => '_destination_entity_value_entity',
+               'values' => $question->getQuestionsFromFormBySection($this->getForm()->getID(),
+                  [ 'fieldtype' => ['glpiselect'], 'values'    => ['LIKE', '%"itemtype":"' . Entity::class . '"%'], ]),
+               PluginFormcreatorAbstractTarget::DESTINATION_ENTITY_ENTITY == $this->fields['destination_entity'] ? '' : 'disabled' => 'disabled',
+            ]
+
          ]
-      );
-
-      echo Html::scriptBlock("plugin_formcreator_change_entity($rand)");
-      echo '</td>';
-      echo '<td width="15%">';
-      echo '<span id="entity_specific_title" style="display: none">' . _n('Entity', 'Entities', 1) . '</span>';
-      echo '<span id="entity_user_title" style="display: none">' . __('User type question', 'formcreator') . '</span>';
-      echo '<span id="entity_entity_title" style="display: none">' . __('Entity type question', 'formcreator') . '</span>';
-      echo '</td>';
-      echo '<td width="25%">';
-
-      echo '<div id="entity_specific_value" style="display: none">';
-      Entity::dropdown([
-         'name' => '_destination_entity_value_specific',
-         'value' => $this->fields['destination_entity_value'],
-      ]);
-      echo '</div>';
-
-      echo '<div id="entity_user_value" style="display: none">';
-      PluginFormcreatorQuestion::dropdownForForm(
-         $this->getForm()->getID(),
-         [
-            'fieldtype' => ['glpiselect'],
-            'values'    => ['LIKE', '%"itemtype":"' . User::class . '"%'],
-         ],
-         '_destination_entity_value_user',
-         $this->fields['destination_entity_value']
-      );
-      echo '</div>';
-
-      echo '<div id="entity_entity_value" style="display: none">';
-      PluginFormcreatorQuestion::dropdownForForm(
-         $this->getForm()->getID(),
-         [
-            'fieldtype' => ['glpiselect'],
-            'values'    => ['LIKE', '%"itemtype":"' . Entity::class . '"%'],
-         ],
-         '_destination_entity_value_entity',
-         $this->fields['destination_entity_value']
-      );
-      echo '</div>';
-      echo '</td>';
-      echo '</tr>';
+      ];
+      return $block;
    }
 
-   protected function showTemplateSettings($rand) {
+   protected function showTemplateSettings($rand = '') {
       $templateType = $this->getTemplateItemtypeName();
       $templateFk = $templateType::getForeignKeyField();
-
-      echo '<td width="15%">' . $templateType::getTypeName(1) . '</td>';
-      echo '<td width="25%">';
-      Dropdown::show($templateType, [
-         'name'  => $templateFk,
-         'value' => $this->fields[$templateFk]
-      ]);
-      echo '</td>';
+      $blocks = [
+         'visible' => true,
+         'inputs' => [
+            '' => [
+               'type' => 'select',
+               'name' => $templateFk,
+               'values' => getOptionForItems($templateType),
+               'value' => $this->fields[$templateFk],
+            ]
+         ]
+      ];
+      return $blocks;
    }
 
-   protected  function showDueDateSettings($rand) {
-      echo '<td width="15%">' . __('Time to resolve') . '</td>';
-      echo '<td width="45%">';
-
-      // Due date type selection
-      Dropdown::showFromArray('due_date_rule', self::getEnumDueDateRule(),
-         [
-            'value'     => $this->fields['due_date_rule'],
-            'on_change' => 'plugin_formcreator_formcreatorChangeDueDate(this.value)',
-            'display_emptychoice' => true
+   protected  function showDueDateSettings($rand = '') {
+      $question = new PluginFormcreatorQuestion();
+      $blocks = [
+         'visible' => true,
+         'inputs' => [
+            __('Time to resolve') => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorDueDateRule',
+               'name' => 'due_date_rule',
+               'values' => [Dropdown::EMPTY_VALUE] + self::getEnumDueDateRule(),
+               'value' => $this->fields['due_date_rule'],
+               'hooks' => [
+                  'change' => <<<JS
+                     const val = this.value;
+                     // PluginFormcreatorAbstractTarget::DUE_DATE_RULE_ANSWER
+                     $('#selectFormcreatorDueDateQuestion').attr('disabled', (val == 3 || val == 0));
+                     // PluginFormcreatorAbstractTarget::DUE_DATE_RULE_CALC
+                     $('#inputFormcreatorDueDateValue').attr('disabled', (val == 2 || val == 0));
+                     $('#selectFormcreatorDueDatePeriod').attr('disabled', (val == 2 || val == 0));
+                  JS,
+               ],
+               'col_lg' => 12,
+               'col_md' => 12,
+            ],
+            __('Due date question', 'formcreator') => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorDueDateQuestion',
+               'name' => 'due_date_question',
+               'values' => $question->getQuestionsFromFormBySection($this->getForm()->getID(),
+                  [ 'fieldtype' => ['date', 'datetime'], ],),
+               'value' => $this->fields['due_date_question'],
+               $this->fields['due_date_rule'] == PluginFormcreatorAbstractTarget::DUE_DATE_RULE_ANSWER ? '' : 'disabled' => 'disabled',
+            ],
+            __('Due date value', 'formcreator') => [
+               'type' => 'number',
+               'id' => 'inputFormcreatorDueDateValue',
+               'name' => 'due_date_value',
+               'value' => $this->fields['due_date_value'],
+               'min' => -30,
+               'max' => 30,
+               $this->fields['due_date_rule'] == PluginFormcreatorAbstractTarget::DUE_DATE_RULE_CALC ? '' : 'disabled' => 'disabled',
+            ],
+            __('Due date period', 'formcreator') => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorDueDatePeriod',
+               'name' => 'due_date_period',
+               'values' => [
+                  PluginFormcreatorAbstractTarget::DUE_DATE_PERIOD_MINUTE => _n('Minute', 'Minutes', 2),
+                  PluginFormcreatorAbstractTarget::DUE_DATE_PERIOD_HOUR   => _n('Hour', 'Hours', 2),
+                  PluginFormcreatorAbstractTarget::DUE_DATE_PERIOD_DAY    => _n('Day', 'Days', 2),
+                  PluginFormcreatorAbstractTarget::DUE_DATE_PERIOD_MONTH  => _n('Month', 'Months', 2),
+               ],
+               'value' => $this->fields['due_date_period'],
+               $this->fields['due_date_rule'] == PluginFormcreatorAbstractTarget::DUE_DATE_RULE_CALC ? '' : 'disabled' => 'disabled',
+            ],
          ]
-      );
-
-      $questionTable = PluginFormcreatorQuestion::getTable();
-      $questions = (new PluginFormcreatorQuestion)->getQuestionsFromForm(
-         $this->getForm()->getID(),
-         [
-            "$questionTable.fieldtype" => ['date', 'datetime'],
-         ]
-      );
-      $questions_list = [];
-      foreach ($questions as $question) {
-         $questions_list[$question->getID()] = $question->fields['name'];
-      }
-      // List questions
-      if ($this->fields['due_date_rule'] != PluginFormcreatorAbstractTarget::DUE_DATE_RULE_ANSWER
-            && $this->fields['due_date_rule'] != PluginFormcreatorAbstractTarget::DUE_DATE_RULE_CALC) {
-         echo '<div id="due_date_questions" style="display:none">';
-      } else {
-         echo '<div id="due_date_questions">';
-      }
-      PluginFormcreatorQuestion::dropdownForForm(
-         $this->getForm()->getID(),
-         [
-            'fieldtype' => ['date', 'datetime'],
-         ],
-         'due_date_question',
-         $this->fields['due_date_question']
-      );
-      echo '</div>';
-
-      // time shift in minutes
-      if ($this->fields['due_date_rule'] != PluginFormcreatorAbstractTarget::DUE_DATE_RULE_TICKET
-            && $this->fields['due_date_rule'] != PluginFormcreatorAbstractTarget::DUE_DATE_RULE_CALC) {
-         echo '<div id="due_date_time" style="display:none">';
-      } else {
-         echo '<div id="due_date_time">';
-      }
-      Dropdown::showNumber("due_date_value", [
-         'value' => $this->fields['due_date_value'],
-         'min'   => -30,
-         'max'   => 30
-      ]);
-      Dropdown::showFromArray('due_date_period', [
-         PluginFormcreatorAbstractTarget::DUE_DATE_PERIOD_MINUTE => _n('Minute', 'Minutes', 2),
-         PluginFormcreatorAbstractTarget::DUE_DATE_PERIOD_HOUR   => _n('Hour', 'Hours', 2),
-         PluginFormcreatorAbstractTarget::DUE_DATE_PERIOD_DAY    => _n('Day', 'Days', 2),
-         PluginFormcreatorAbstractTarget::DUE_DATE_PERIOD_MONTH  => _n('Month', 'Months', 2),
-      ], [
-         'value' => $this->fields['due_date_period']
-      ]);
-      echo '</div>';
-      echo '</td>';
+      ];
+      return $blocks;
    }
 
    protected function showSLASettings() {
-      $label = __("SLA");
-
-      echo '<tr>';
-      echo "<td width='15%'>$label</td>";
-      echo '<td width="25%">';
-
-      // Due date type selection
-      Dropdown::showFromArray("sla_rule", self::getEnumSlaRule(),
-         [
-            'value'     => $this->fields["sla_rule"],
-            'on_change' => "plugin_formcreator_formcreatorChangeSla(this.value)",
-            'display_emptychoice' => true
+      $question = new PluginFormcreatorQuestion();
+      $blocks = [
+         'visible' => true,
+         'inputs' => [
+            __("SLA") => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorSlaRule',
+               'name' => 'sla_rule',
+               'values' => [Dropdown::EMPTY_VALUE] + self::getEnumSlaRule(),
+               'value' => $this->fields["sla_rule"],
+               'hooks' => [
+                  'change' => <<<JS
+                     const val = this.value;
+                     // PluginFormcreatorAbstractTarget::SLA_RULE_SPECIFIC
+                     $('#selectFormcreatorSlaSpecificTto').attr('disabled', val != 2);
+                     $('#selectFormcreatorSlaSpecificTtr').attr('disabled', val != 2);
+                     // PluginFormcreatorAbstractTarget::SLA_RULE_FROM_ANWSER
+                     $('#selectFormcreatorSlaQuestionsTto').attr('disabled', val != 3);
+                     $('#selectFormcreatorSlaQuestionsTtr').attr('disabled', val != 3);
+                  JS,
+               ],
+               'col_lg' => 12,
+               'col_md' => 12,
+            ],
+            __('SLA (TTO)', 'formcreator') => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorSlaSpecificTto',
+               'name' => '_sla_specific_tto',
+               'values' => getOptionForItems(SLA::class, ['condition' => ['type' => SLM::TTO]]),
+               'value' => $this->fields["sla_question_tto"],
+               'col_lg' => 6,
+               $this->fields["sla_rule"] == PluginFormcreatorAbstractTarget::SLA_RULE_SPECIFIC ? '' : 'disabled' => 'disabled',
+            ],
+            __('SLA (TTR)', 'formcreator') => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorSlaSpecificTtr',
+               'name' => '_sla_question_ttr',
+               'values' => getOptionForItems(SLA::class, ['condition' => ['type' => SLM::TTR]]),
+               'value' => $this->fields["sla_question_ttr"],
+               'col_lg' => 6,
+               $this->fields["sla_rule"] == PluginFormcreatorAbstractTarget::SLA_RULE_SPECIFIC ? '' : 'disabled' => 'disabled',
+            ],
+            __('Question (TTO)', 'formcreator') => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorSlaQuestionsTto',
+               'name' => '_sla_questions_tto',
+               'values' => $question->getQuestionsFromFormBySection($this->getForm()->getID(),
+               [
+                  'fieldtype' => 'dropdown',
+                  new QueryExpression("`values` LIKE '%\"itemtype\":\"" . SLA::getType() . "\"%' AND `values` LIKE '%\"show_service_level_types\":\"1\"%'"),
+               ]),
+               'value' => $this->fields["sla_question_tto"],
+               'col_lg' => 6,
+               $this->fields["sla_rule"] == PluginFormcreatorAbstractTarget::SLA_RULE_FROM_ANWSER ? '' : 'disabled' => 'disabled',
+            ],
+            __('Question (TTR)', 'formcreator') => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorSlaQuestionsTtr',
+               'name' => '_sla_questions_ttr',
+               'values' => $question->getQuestionsFromFormBySection($this->getForm()->getID(),
+               [
+                  'fieldtype' => 'dropdown',
+                  new QueryExpression("`values` LIKE '%\"itemtype\":\"" . SLA::getType() . "\"%' AND `values` LIKE '%\"show_service_level_types\":\"0\"%'"),
+               ]),
+               'value' => $this->fields["sla_question_ttr"],
+               'col_lg' => 6,
+               $this->fields["sla_rule"] == PluginFormcreatorAbstractTarget::SLA_RULE_FROM_ANWSER ? '' : 'disabled' => 'disabled',
+            ],
          ]
-      );
-      echo '</td>';
-
-      $display_specific = $this->fields["sla_rule"] == self::SLA_RULE_SPECIFIC;
-      $display_questions = $this->fields["sla_rule"] == self::SLA_RULE_FROM_ANWSER;
-      $style_specific = !$display_specific ? "style='display: none'" : "";
-      $style_questions = !$display_questions ? "style='display: none'" : "";
-
-      echo '<td width="15%">';
-
-      echo "<span id='sla_specific_title' $style_specific>" . __('SLA (TTO/TTR)', 'formcreator') . '</span>';
-      echo "<span id='sla_question_title' $style_questions>" . __('Question (TTO/TTR)', 'formcreator') . '</span>';
-
-      echo '</td>';
-      echo '<td width="25%">';
-
-      echo "<div id='sla_specific_value' $style_specific>";
-      SLA::dropdown([
-         'name'      => '_sla_specific_tto',
-         'value'     => $this->fields["sla_question_tto"],
-         'condition' => ['type' => SLM::TTO],
-      ]);
-      echo "&nbsp;&nbsp;";
-      SLA::dropdown([
-         'name'      => '_sla_specific_ttr',
-         'value'     => $this->fields["sla_question_ttr"],
-         'condition' => ['type' => SLM::TTR],
-      ]);
-      echo '</div>';
-
-      echo "<div id='sla_questions' $style_questions>";
-
-      PluginFormcreatorQuestion::dropdownForForm(
-         $this->getForm()->getID(),
-         [
-            'fieldtype' => 'dropdown',
-            new QueryExpression("`values` LIKE '%\"itemtype\":\"" . SLA::getType() . "\"%' AND `values` LIKE '%\"show_service_level_types\":\"1\"%'"),
-         ],
-         "_sla_questions_tto",
-         $this->fields["sla_question_tto"]
-      );
-      PluginFormcreatorQuestion::dropdownForForm(
-         $this->getForm()->getID(),
-         [
-            'fieldtype' => 'dropdown',
-            new QueryExpression("`values` LIKE '%\"itemtype\":\"" . SLA::getType() . "\"%' AND `values` LIKE '%\"show_service_level_types\":\"0\"%'"),
-         ],
-         "_sla_questions_ttr",
-         $this->fields["sla_question_ttr"]
-      );
-
-      echo '</div>';
-
-      echo '</td>';
-      echo '</tr>';
+      ];
+      return $blocks;
    }
 
    protected function showOLASettings() {
-      $label = __("OLA");
-
-      echo '<tr>';
-      echo "<td width='15%'>$label</td>";
-      echo '<td width="25%">';
-
-      // Due date type selection
-      Dropdown::showFromArray("ola_rule", self::getEnumOlaRule(),
-         [
-            'value'     => $this->fields["ola_rule"],
-            'on_change' => "plugin_formcreator_formcreatorChangeOla(this.value)",
-            'display_emptychoice' => true
+      $question = new PluginFormcreatorQuestion();
+      $blocks = [
+         'visible' => true,
+         'inputs' => [
+            __("OLA") => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorOlaRule',
+               'name' => 'ola_rule',
+               'values' => [Dropdown::EMPTY_VALUE] + self::getEnumOlaRule(),
+               'value' => $this->fields["ola_rule"],
+               'hooks' => [
+                  'change' => <<<JS
+                     const val = this.value;
+                     // PluginFormcreatorAbstractTarget::OLA_RULE_SPECIFIC
+                     $('#selectFormcreatorOlaSpecificTto').attr('disabled', val != 2);
+                     $('#selectFormcreatorOlaSpecificTtr').attr('disabled', val != 2);
+                     // PluginFormcreatorAbstractTarget::OLA_RULE_FROM_ANWSER
+                     $('#selectFormcreatorOlaQuestionsTto').attr('disabled', val != 3);
+                     $('#selectFormcreatorOlaQuestionsTtr').attr('disabled', val != 3);
+                  JS,
+               ],
+               'col_lg' => 12,
+               'col_md' => 12,
+            ],
+            __('OLA (TTO)', 'formcreator') => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorOlaSpecificTto',
+               'name' => '_ola_specific_tto',
+               'values' => getOptionForItems(OLA::class, ['condition' => ['type' => SLM::TTO]]),
+               'value' => $this->fields["ola_question_tto"],
+               'col_lg' => 6,
+               $this->fields["ola_rule"] == PluginFormcreatorAbstractTarget::OLA_RULE_SPECIFIC ? '' : 'disabled' => 'disabled',
+            ],
+            __('OLA (TTR)', 'formcreator') => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorOlaSpecificTtr',
+               'name' => '_ola_question_ttr',
+               'values' => getOptionForItems(OLA::class, ['condition' => ['type' => SLM::TTR]]),
+               'value' => $this->fields["ola_question_ttr"],
+               'col_lg' => 6,
+               $this->fields["ola_rule"] == PluginFormcreatorAbstractTarget::OLA_RULE_SPECIFIC ? '' : 'disabled' => 'disabled',
+            ],
+            __('Question (TTO)', 'formcreator') => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorOlaQuestionsTto',
+               'name' => '_ola_questions_tto',
+               'values' => $question->getQuestionsFromFormBySection($this->getForm()->getID(),
+               [
+                  'fieldtype' => 'dropdown',
+                  new QueryExpression("`values` LIKE '%\"itemtype\":\"" . OLA::getType() . "\"%' AND `values` LIKE '%\"show_service_level_types\":\"1\"%'"),
+               ]),
+               'value' => $this->fields["ola_question_tto"],
+               'col_lg' => 6,
+               $this->fields["ola_rule"] == PluginFormcreatorAbstractTarget::OLA_RULE_FROM_ANWSER ? '' : 'disabled' => 'disabled',
+            ],
+            __('Question (TTR)', 'formcreator') => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorOlaQuestionsTtr',
+               'name' => '_ola_questions_ttr',
+               'values' => $question->getQuestionsFromFormBySection($this->getForm()->getID(),
+               [
+                  'fieldtype' => 'dropdown',
+                  new QueryExpression("`values` LIKE '%\"itemtype\":\"" . OLA::getType() . "\"%' AND `values` LIKE '%\"show_service_level_types\":\"0\"%'"),
+               ]),
+               'value' => $this->fields["ola_question_ttr"],
+               'col_lg' => 6,
+               $this->fields["ola_rule"] == PluginFormcreatorAbstractTarget::OLA_RULE_FROM_ANWSER ? '' : 'disabled' => 'disabled',
+            ],
          ]
-      );
-      echo '</td>';
-
-      $display_specific = $this->fields["ola_rule"] == self::OLA_RULE_SPECIFIC;
-      $display_questions = $this->fields["ola_rule"] == self::OLA_RULE_FROM_ANWSER;
-      $style_specific = !$display_specific ? "style='display: none'" : "";
-      $style_questions = !$display_questions ? "style='display: none'" : "";
-
-      echo '<td width="15%">';
-
-      echo "<span id='ola_specific_title' $style_specific>" . __('OLA (TTO/TTR)', 'formcreator') . '</span>';
-      echo "<span id='ola_question_title' $style_questions>" . __('Question (TTO/TTR)', 'formcreator') . '</span>';
-
-      echo '</td>';
-      echo '<td width="25%">';
-
-      echo "<div id='ola_specific_value' $style_specific>";
-      OLA::dropdown([
-         'name'      => '_ola_specific_tto',
-         'value'     => $this->fields["ola_question_tto"],
-         'condition' => ['type' => SLM::TTO],
-      ]);
-      echo "&nbsp;&nbsp;";
-      OLA::dropdown([
-         'name'      => '_ola_specific_ttr',
-         'value'     => $this->fields["ola_question_ttr"],
-         'condition' => ['type' => SLM::TTR],
-      ]);
-      echo '</div>';
-
-      echo "<div id='ola_questions' $style_questions>";
-
-      PluginFormcreatorQuestion::dropdownForForm(
-         $this->getForm()->getID(),
-         [
-            'fieldtype' => 'dropdown',
-            new QueryExpression("`values` LIKE '%\"itemtype\":\"" . OLA::getType() . "\"%' AND `values` LIKE '%\"show_service_level_types\":\"1\"%'"),
-         ],
-         "_ola_questions_tto",
-         $this->fields["ola_question_tto"]
-      );
-      PluginFormcreatorQuestion::dropdownForForm(
-         $this->getForm()->getID(),
-         [
-            'fieldtype' => 'dropdown',
-            new QueryExpression("`values` LIKE '%\"itemtype\":\"" . OLA::getType() . "\"%' AND `values` LIKE '%\"show_service_level_types\":\"0\"%'"),
-         ],
-         "_ola_questions_ttr",
-         $this->fields["ola_question_ttr"]
-      );
-
-      echo '</div>';
-
-      echo '</td>';
-      echo '</tr>';
+      ];
+      return $blocks;
    }
 
-   protected function showCategorySettings($rand) {
-      echo '<tr>';
-      echo '<td width="15%">' . __('Category', 'formcreator') . '</td>';
-      echo '<td width="25%">';
-      Dropdown::showFromArray(
-         'category_rule',
-         static::getEnumCategoryRule(),
-         [
-            'value'     => $this->fields['category_rule'],
-            'on_change' => "plugin_formcreator_changeCategory($rand)",
-            'rand'      => $rand,
+   protected function showCategorySettings($rand = '') {
+      $question = new PluginFormcreatorQuestion();
+      $blocks = [
+         'visible' => true,
+         'inputs' => [
+            '' => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorCategoryRule',
+               'name' => 'category_rule',
+               'values' => self::getEnumCategoryRule(),
+               'value' => $this->fields['category_rule'],
+               'hooks' => [
+                  'change' => <<<JS
+                     const val = this.value;
+                     // PluginFormcreatorAbstractTarget::CATEGORY_RULE_ANSWER
+                     $('#selectFormcreatorCategoryQuestion').attr('disabled', val != 2);
+                     // PluginFormcreatorAbstractTarget::CATEGORY_RULE_SPECIFIC
+                     $('#selectFormcreatorCategorySpecific').attr('disabled', val != 3);
+                  JS,
+               ]
+            ],
+            __('Category', 'formcreator') => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorCategorySpecific',
+               'name' => '_category_specific',
+               'values' => getOptionForItems(ITILCategory::class, [$this->getCategoryFilter()]),
+               'value' => $this->fields["category_question"],
+               $this->fields["category_rule"] == PluginFormcreatorAbstractTarget::CATEGORY_RULE_SPECIFIC ? '' : 'disabled' => 'disabled',
+            ],
+            __('Question', 'formcreator') => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorCategoryQuestion',
+               'name' => '_category_question',
+               'values' => $question->getQuestionsFromFormBySection($this->getForm()->getID(),
+                  ['fieldtype' => ['dropdown'], 'values' => ['LIKE', '%"itemtype":"' . ITILCategory::class . '"%'], ]),
+               'value' => $this->fields["category_question"],
+               $this->fields["category_rule"] == PluginFormcreatorAbstractTarget::CATEGORY_RULE_ANSWER ? '' : 'disabled' => 'disabled',
+            ],
          ]
-      );
-      echo Html::scriptBlock("plugin_formcreator_changeCategory($rand);");
-      echo '</td>';
-      echo '<td width="15%">';
-      echo '<span id="category_specific_title" style="display: none">' . __('Category', 'formcreator') . '</span>';
-      echo '<span id="category_question_title" style="display: none">' . __('Question', 'formcreator') . '</span>';
-      echo '</td>';
-      echo '<td width="25%">';
-      echo '<div id="category_question_value" style="display: none">';
-      PluginFormcreatorQuestion::dropdownForForm(
-         $this->getForm()->getID(),
-         [
-            'fieldtype' => ['dropdown'],
-            'values'    => ['LIKE', '%"itemtype":"' . ITILCategory::class . '"%'],
-         ],
-         '_category_question',
-         $this->fields['category_question']
-      );
-      echo '</div>';
-      echo '<div id="category_specific_value" style="display: none">';
-      ITILCategory::dropdown([
-         'name'      => '_category_specific',
-         'value'     => $this->fields["category_question"],
-         'condition' => $this->getCategoryFilter(),
-      ]);
-      echo '</div>';
-      echo '</td>';
-      echo '</tr>';
+      ];
+      return $blocks;
    }
 
-   protected function showUrgencySettings($rand) {
-      echo '<tr>';
-      echo '<td width="15%">' . __('Urgency') . '</td>';
-      echo '<td width="45%">';
-      Dropdown::showFromArray('urgency_rule', static::getEnumUrgencyRule(), [
-         'value'                 => $this->fields['urgency_rule'],
-         'on_change'             => "plugin_formcreator_changeUrgency($rand)",
-         'rand'                  => $rand
-      ]);
-      echo Html::scriptBlock("plugin_formcreator_changeUrgency($rand);");
-      echo '</td>';
-      echo '<td width="15%">';
-      echo '<span id="urgency_question_title" style="display: none">' . __('Question', 'formcreator') . '</span>';
-      echo '<span id="urgency_specific_title" style="display: none">' . __('Urgency ', 'formcreator') . '</span>';
-      echo '</td>';
-      echo '<td width="25%">';
-
-      echo '<div id="urgency_specific_value" style="display: none">';
-      Ticket::dropdownUrgency([
-         'name' => '_urgency_specific',
-         'value' => $this->fields["urgency_question"],
-      ]);
-      echo '</div>';
-      echo '<div id="urgency_question_value" style="display: none">';
-      PluginFormcreatorQuestion::dropdownForForm(
-         $this->getForm()->getID(),
-         [
-            'fieldtype' => ['urgency'],
-         ],
-         '_urgency_question',
-         $this->fields['urgency_question']
-      );
-      echo '</div>';
-      echo '</td>';
-      echo '</tr>';
+   protected function showUrgencySettings($rand = '') {
+      $question = new PluginFormcreatorQuestion();
+      ob_start();
+      Ticket::dropdownUrgency();
+      $urgencies = ob_get_clean();
+      $blocks = [
+         'visible' => true,
+         'inputs' => [
+            __('Urgency') => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorUrgencyRule',
+               'name' => 'urgency_rule',
+               'values' => self::getEnumUrgencyRule(),
+               'value' => $this->fields['urgency_rule'],
+               'hooks' => [
+                  'change' => <<<JS
+                     const val = this.value;
+                     // PluginFormcreatorAbstractTarget::URGENCY_RULE_ANSWER
+                     $('#selectFormcreatorUrgencyQuestion').attr('disabled', val != 3);
+                     // PluginFormcreatorAbstractTarget::URGENCY_RULE_SPECIFIC
+                     $('#selectFormcreatorUrgencySpecific').attr('disabled', val != 2);
+                  JS,
+               ]
+            ],
+            __('Urgency', 'formcreator') => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorUrgencySpecific',
+               'name' => '_urgency_specific',
+               'values' => [
+                  5 => CommonITILObject::getUrgencyName(5),
+                  4 => CommonITILObject::getUrgencyName(4),
+                  3 => CommonITILObject::getUrgencyName(3),
+                  2 => CommonITILObject::getUrgencyName(2),
+                  1 => CommonITILObject::getUrgencyName(1),
+               ],
+               'value' => $this->fields['urgency_question'],
+               $this->fields['urgency_rule'] == PluginFormcreatorAbstractTarget::URGENCY_RULE_SPECIFIC ? '' : 'disabled' => 'disabled',
+            ],
+            __('Question', 'formcreator') => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorUrgencyQuestion',
+               'name' => '_urgency_question',
+               'values' => $question->getQuestionsFromFormBySection($this->getForm()->getID(),
+                  ['fieldtype' => ['urgency'], ]),
+               'value' => $this->fields['urgency_question'],
+               $this->fields['urgency_rule'] == PluginFormcreatorAbstractTarget::URGENCY_RULE_ANSWER ? '' : 'disabled' => 'disabled',
+            ],
+         ]
+      ];
+      return $blocks;
    }
 
    protected function showPluginTagsSettings($rand) {
@@ -1424,33 +1444,9 @@ SCRIPT;
       echo '</table>';
    }
 
-   protected function showLocationSettings($rand) {
+   protected function showLocationSettings($rand = '') {
       global $DB;
 
-      echo '<tr>';
-      echo '<td width="15%">' . __('Location') . '</td>';
-      echo '<td width="45%">';
-      Dropdown::showFromArray('location_rule', static::getEnumLocationRule(), [
-         'value'                 => $this->fields['location_rule'],
-         'on_change'             => "plugin_formcreator_change_location($rand)",
-         'rand'                  => $rand
-      ]);
-
-      echo Html::scriptBlock("plugin_formcreator_change_location($rand)");
-      echo '</td>';
-      echo '<td width="15%">';
-      echo '<span id="location_question_title" style="display: none">' . __('Question', 'formcreator') . '</span>';
-      echo '<span id="location_specific_title" style="display: none">' . __('Location ', 'formcreator') . '</span>';
-      echo '</td>';
-      echo '<td width="25%">';
-
-      echo '<div id="location_specific_value" style="display: none">';
-      Location::dropdown([
-         'name' => '_location_specific',
-         'value' => $this->fields["location_question"],
-      ]);
-      echo '</div>';
-      echo '<div id="location_question_value" style="display: none">';
       // select all user questions (GLPI Object)
       $questionTable = PluginFormcreatorQuestion::getTable();
       $sectionTable = PluginFormcreatorSection::getTable();
@@ -1482,6 +1478,67 @@ SCRIPT;
             $users_questions[$question['sname']][$question['id']] = $question['name'];
          }
       }
+
+      $question = new PluginFormcreatorQuestion();
+      $blocks = [
+         'visible' => true,
+         'inputs' => [
+            __('Location') => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorLocationRule',
+               'name' => 'location_rule',
+               'values' => self::getEnumLocationRule(),
+               'value' => $this->fields['location_rule'],
+               'hooks' => [
+                  'change' => <<<JS
+                     const val = this.value;
+                     // PluginFormcreatorAbstractTarget::LOCATION_RULE_ANSWER
+                     $('#selectFormcreatorLocationQuestion').attr('disabled', val != 3);
+                     // PluginFormcreatorAbstractTarget::LOCATION_RULE_SPECIFIC
+                     $('#selectFormcreatorLocationSpecific').attr('disabled', val != 2);
+                  JS,
+               ],
+               'col_lg' => 12,
+               'col_md' => 12,
+            ],
+            __('Location ', 'formcreator') => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorLocationSpecific',
+               'name' => '_location_specific',
+               'values' => getOptionForItems(Location::class),
+               'value' => $this->fields['location_question'],
+               'col_lg' => 6,
+               $this->fields['location_rule'] == PluginFormcreatorAbstractTarget::LOCATION_RULE_SPECIFIC ? '' : 'disabled' => 'disabled',
+               'actions' => getItemActionButtons(['info', 'add'], Location::class),
+            ],
+            __('Question', 'formcreator') => [
+               'type' => 'select',
+               'id' => 'selectFormcreatorLocationQuestion',
+               'name' => '_location_question',
+               'values' => $users_questions,
+               'value' => $this->fields['location_question'],
+               'col_lg' => 6,
+               $this->fields['location_rule'] == PluginFormcreatorAbstractTarget::LOCATION_RULE_ANSWER ? '' : 'disabled' => 'disabled',
+            ],
+         ]
+      ];
+      return $blocks;
+
+      echo '<tr>';
+      echo '</td>';
+      echo '<td width="15%">';
+      echo '<span id="location_question_title" style="display: none">' . __('Question', 'formcreator') . '</span>';
+      echo '<span id="location_specific_title" style="display: none">' . __('Location ', 'formcreator') . '</span>';
+      echo '</td>';
+      echo '<td width="25%">';
+
+      echo '<div id="location_specific_value" style="display: none">';
+      Location::dropdown([
+         'name' => '_location_specific',
+         'value' => $this->fields["location_question"],
+      ]);
+      echo '</div>';
+      echo '<div id="location_question_value" style="display: none">';
       Dropdown::showFromArray('_location_question', $users_questions, [
          'value' => $this->fields['location_question'],
       ]);
@@ -1691,23 +1748,14 @@ SCRIPT;
    }
 
    public function showTagsList() {
-      echo '<table class="tab_cadre_fixe">';
-
-      echo '<tr><th colspan="5">' . __('List of available tags') . '</th></tr>';
-      echo '<tr>';
-      echo '<th width="40%" colspan="2">' . _n('Question', 'Questions', 1, 'formcreator') . '</th>';
-      echo '<th width="20%" align="center">' . __('Title') . '</th>';
-      echo '<th width="20%" align="center">' . _n('Answer', 'Answers', 1, 'formcreator') . '</th>';
-      echo '<th width="20%" align="center">' . _n('Section', 'Sections', 1, 'formcreator') . '</th>';
-      echo '</tr>';
-
-      echo '<tr>';
-      echo '<td colspan="2"><strong>' . __('Full form', 'formcreator') . '</strong></td>';
-      echo '<td align="center">-</td>';
-      echo '<td align="center"><strong>##FULLFORM##</strong></td>';
-      echo '<td align="center">-</td>';
-      echo '</tr>';
-
+      echo '<h3>'.__('List of available tags').'</h3>';
+      $fields = [
+         _n('Question', 'Questions', 1, 'formcreator'),
+         __('Title'),
+         _n('Answer', 'Answers', 1, 'formcreator'),
+         _n('Section', 'Sections', 1, 'formcreator'),
+      ];
+      $values = [[__('Full form', 'formcreator'), '-', '<strong>##FULLFORM##</strong>', '-']];
       $question = new PluginFormcreatorQuestion();
       $formFk   = PluginFormcreatorForm::getForeignKeyField();
       $result = $question->getQuestionsFromFormBySection($this->fields[$formFk]);
@@ -1715,16 +1763,18 @@ SCRIPT;
       foreach ($result as $sectionName => $questions) {
          foreach ($questions as $questionId => $questionName) {
             $i++;
-            echo '<tr>';
-            echo '<td colspan="2">' . $questionName . '</td>';
-            echo '<td align="center">##question_' . $questionId . '##</td>';
-            echo '<td align="center">##answer_' . $questionId . '##</td>';
-            echo '<td align="center">' . $sectionName . '</td>';
-            echo '</tr>';
+            $values[] = [
+               $questionName,
+               $sectionName,
+               '##question_' . $questionId . '##',
+               '##answer_' . $questionId . '##',
+            ];
          }
       }
-
-      echo '</table>';
+      renderTwigTemplate('table.twig', [
+         'fields' => $fields,
+         'values' => $values,
+      ]);
    }
 
    /**
@@ -1835,12 +1885,12 @@ SCRIPT;
       return $input;
    }
 
-   protected function showConditionsSettings($rand) {
+   protected function showConditionsSettings($rand = '') {
       $formFk = PluginFormcreatorForm::getForeignKeyField();
       $form = new PluginFormcreatorForm();
       $form->getFromDB($this->fields[$formFk]);
       $condition = new PluginFormcreatorCondition();
-      $condition->showConditionsForItem($this);
+      return $condition->showConditionsForItem($this);
    }
 
    /**

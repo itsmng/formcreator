@@ -256,31 +256,115 @@ class PluginFormcreatorCondition extends CommonDBChild implements PluginFormcrea
     * @return void
     */
    public function showConditionsForItem(CommonDBTM $item) {
-      $rand = mt_rand();
-
-      echo '<tr>';
-      echo '<td colspan="4">';
-      Dropdown::showFromArray(
-         'show_rule',
-         $this->getEnumShowRule(),
-         [
-            'value'        => $item->fields['show_rule'],
-            'on_change'    => 'plugin_formcreator_toggleCondition(this);',
-            'rand'         => $rand,
-         ]
-      );
-      echo '</td>';
-      echo '</tr>';
-
-      if ($item->fields['show_rule'] == PluginFormcreatorCondition::SHOW_RULE_ALWAYS) {
-         return;
-      }
-
-      // Get existing conditions for the item
+      $question = new PluginFormcreatorQuestion();
       $conditions = $this->getConditionsFromItem($item);
+      $values = [];
       foreach ($conditions as $condition) {
-         echo $condition->getConditionHtml($item->fields);
+         $question->getFromDB($condition->fields['plugin_formcreator_questions_id']);
+         $values[] = [
+            '_conditions[show_logic]' => [
+               'value' => $condition->fields['show_logic'],
+               'title' => $condition->fields['show_logic'] == self::SHOW_LOGIC_AND ? 'AND' : 'OR',
+            ],
+            '_conditions[plugin_formcreator_questions_id]' => [
+               'value' => $condition->fields['plugin_formcreator_questions_id'],
+               'title' => $question->fields['name'],
+            ],
+            '_conditions[show_condition]' => [
+               'value' => $condition->fields['show_condition'],
+               'title' => self::getEnumShowCondition()[$condition->fields['show_condition']],
+            ],
+            '_conditions[show_value]' => [
+               'value' => $condition->fields['show_value'],
+               'title' => $condition->fields['show_value'],
+            ],
+         ];
       }
+      if ($item->fields['show_rule'] == '') {
+         $item->fields['show_rule'] = self::SHOW_RULE_ALWAYS;
+      }
+      $rand = mt_rand();
+      $block = [
+         'visible' => 'true',
+         'inputs' => [
+            '' => [
+               'type' => 'select',
+               'id' => 'show_rule'. $rand,
+               'name' => 'show_rule',
+               'values' => $this->getEnumShowRule(),
+               'value' => $item->fields['show_rule'],
+               'hooks' => [
+                  'change' => <<<JS
+                  const val = this.value;
+                  if (val == 1) {
+                     $('#multiSelectConditions' + $rand).attr('style', 'display: none !important');
+                  } else {
+                     $('#multiSelectConditions' + $rand).attr('style', 'display: flex !important');
+                  }
+                  JS,
+               ]
+            ],
+            __('Conditions') => [
+               'type' => 'multiSelect',
+               'id' => 'multiSelectConditions' . $rand,
+               'style' => $item->fields['show_rule'] == self::SHOW_RULE_ALWAYS ? 'display: none !important' : '',
+               'inputs' => [
+                  [
+                     'type' => 'select',
+                     'name' => 'show_logic',
+                     'values' => [
+                        self::SHOW_LOGIC_AND => __('AND', 'formcreator'),
+                        self::SHOW_LOGIC_OR => __('OR', 'formcreator'),
+                     ],
+                  ],
+                  [
+                     'type' => 'select',
+                     'name' => 'plugin_formcreator_questions_id',
+                     'values' => $question->getQuestionsFromFormBySection($item->getID()),
+                  ],
+                  [
+                     'type' => 'select',
+                     'name' => 'show_condition',
+                     'values' => [
+                        self::SHOW_CONDITION_EQ => '=',
+                        self::SHOW_CONDITION_NE => '≠',
+                        self::SHOW_CONDITION_LT => '<',
+                        self::SHOW_CONDITION_GT => '>',
+                        self::SHOW_CONDITION_LE => '≤',
+                        self::SHOW_CONDITION_GE => '≥',
+                        self::SHOW_CONDITION_QUESTION_VISIBLE => __('is visible', 'formcreator'),
+                        self::SHOW_CONDITION_QUESTION_INVISIBLE => __('is not visible', 'formcreator'),
+                        self::SHOW_CONDITION_REGEX => __('regular expression matches', 'formcreator'),
+                     ],
+                  ],
+                  [
+                     'type' => 'text',
+                     'name' => 'show_value',
+                  ],
+               ],
+               'isList' => true,
+               'getInputAdd' => <<<JS
+               function () {
+                  const values = {
+                     "_conditions[show_logic]": $('#multiSelectConditions' + $rand + ' select[name="show_logic"]').val(),
+                     "_conditions[plugin_formcreator_questions_id]": $('#multiSelectConditions' + $rand + ' select[name="plugin_formcreator_questions_id"]').val(),
+                     "_conditions[show_condition]": $('#multiSelectConditions' + $rand + ' select[name="show_condition"]').val(),
+                     "_conditions[show_value]": $('#multiSelectConditions' + $rand + ' input[name="show_value"]').val(),
+                  };
+                  const title =  $('#multiSelectConditions' + $rand + ' select[name="show_logic"] option:selected').text() + ' '
+                     + $('#multiSelectConditions' + $rand + ' select[name="plugin_formcreator_questions_id"] option:selected').text() + ' '
+                     + $('#multiSelectConditions' + $rand + ' select[name="show_condition"] option:selected').text() + ' '
+                     + $('#multiSelectConditions' + $rand + ' input[name="show_value"]').val();
+                  return {values, title};
+               }
+               JS,
+               'values' => $values,
+               'col_lg' => 12,
+               'col_md' => 12,
+            ]
+         ]
+      ];
+      return $block;
    }
 
    /**

@@ -47,12 +47,6 @@ use PluginFormcreatorLdapDropdown;
 class LdapselectField extends SelectField
 {
    public function getDesignSpecializationField(): array {
-      $rand = mt_rand();
-
-      $label = '<label for="dropdown_ldap_auth' . $rand . '">';
-      $label .= _n('LDAP directory', 'LDAP directories', 1);
-      $label .= '</label>';
-
       $ldap_values = json_decode(plugin_formcreator_decode($this->question->fields['values']), JSON_OBJECT_AS_ARRAY);
       if ($ldap_values === null) {
          $ldap_values = [];
@@ -70,56 +64,45 @@ class LdapselectField extends SelectField
             ])
          ];
       }
-      $field = Dropdown::show(AuthLDAP::class, [
-         'name'      => 'ldap_auth',
-         'condition' => $auth_ldap_condition,
-         'rand'      => $rand,
-         'value'     => (isset($ldap_values['ldap_auth'])) ? $ldap_values['ldap_auth'] : '',
-         'on_change' => 'plugin_formcreator_changeLDAP(this)',
-         'display'   => false,
-      ]);
+      $field = '';
 
-      $additions = '<tr class="plugin_formcreator_question_specific">';
-      $additions .= '<td>';
-      $additions .= '<label for="ldap_filter">';
-      $additions .= __('Filter', 'formcreator');
-      $additions .= '</label>';
-      $additions .= '</td>';
-      $additions .= '<td>';
-      $additions .= Html::input('ldap_filter', [
-         'id'     => 'ldap_filter',
-         'value'  => (isset($ldap_values['ldap_filter'])) ? $ldap_values['ldap_filter'] : '',
-      ]);
-      $additions .= '</td>';
+      $inputs = [
+         AuthLDAP::getTypeName() => [
+            'type' => 'select',
+            'name' => 'ldap_auth',
+            'values' => getOptionForItems(AuthLDAP::class, $auth_ldap_condition),
+            'value' => (isset($ldap_values['ldap_auth'])) ? $ldap_values['ldap_auth'] : '',
+            'hooks' => [ 'change' => 'plugin_formcreator_changeLDAP(this)' ],
+         ],
+         __('Filter', 'formcreator') => [
+            'type' => 'text',
+            'name'  => 'ldap_filter',
+            'value' => (isset($ldap_values['ldap_filter'])) ? $ldap_values['ldap_filter'] : '',
+         ],
+         __('Attribute', 'formcreator') => [
+            'type' => 'select',
+            'name' => 'ldap_attribute',
+            'values' => getOptionForItems(RuleRightParameter::class),
+            'value' => (isset($ldap_values['ldap_attribute'])) ? $ldap_values['ldap_attribute'] : '',
+         ],
+         
+      ];
 
-      $additions .= '<td>';
-      $additions .= '<label for="ldap_attribute">';
-      $additions .= __('Attribute', 'formcreator');
-      $additions .= '</label>';
-      $additions .= '</td>';
-
-      $additions .= '<td>';
-      $additions .= Dropdown::show('RuleRightParameter', [
-         'name'    => 'ldap_attribute',
-         'rand'    => $rand,
-         'value'   => (isset($ldap_values['ldap_attribute'])) ? $ldap_values['ldap_attribute'] : '',
-         'display' => false,
-      ]);
-      $additions .= '</td>';
-      $additions .= '</tr>';
-      $additions .= '<tr class="plugin_formcreator_question_specific">';
-      $additions .= '<td>';
-      $additions .= '</td>';
-      $additions .= '<td>';
-      $additions .= '</td>';
-      $additions .= '<td colspan="2">&nbsp;</td>';
-      $additions .= '</tr>';
+      $additions = '<div class="plugin_formcreator_question_specific row">';
+      ob_start();
+      foreach ($inputs as $title => $input) {
+         renderTwigTemplate('macros/wrappedInput.twig', [
+            'title' => $title,
+            'input' => $input,
+         ]);
+      };
+      $additions .= ob_get_clean();
+      $additions .= '</div>';
 
       $common = PluginFormcreatorAbstractField::getDesignSpecializationField();
       $additions .= $common['additions'];
 
       return [
-         'label' => $label,
          'field' => $field,
          'additions' => $additions,
          'may_be_empty' => true,

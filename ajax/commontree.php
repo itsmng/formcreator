@@ -49,42 +49,40 @@ if (!is_a($itemtype, CommonTreeDropdown::class, true)) {
 }
 
 // Build the row content
-$rand = mt_rand();
-$additions = '<td>';
-$additions .= '<label for="dropdown_show_tree_root'.$rand.'" id="label_show_tree_root">';
-$additions .= __('Subtree root', 'formcreator');
-$additions .= '</label>';
-$additions .= '<br>';
-$additions .= '<label for="dropdown_selectable_tree_root'.$rand.'" id="label_selectable_tree_root">';
-$additions .= __('Selectable', 'formcreator');
-$additions .= '</label>';
-$additions .= '</td>';
-$additions .= '<td>';
-$additions .= Dropdown::show($itemtype, [
-   'name'  => 'show_tree_root',
-   'value' => $root,
-   'rand'  => $rand,
-   'display' => false,
-]);
-$additions .= '<br>';
-$additions .= Dropdown::showYesNo('selectable_tree_root', $selectableRoot, -1, ['display' => false]);
-$additions .= '</td>';
-$additions .= '<td>';
-$additions .= '<label for="dropdown_show_tree_depth'.$rand.'" id="label_show_tree_depth">';
-$additions .= __('Limit subtree depth', 'formcreator');
-$additions .= '</label>';
-$additions .= '</td>';
-$additions .= '<td>';
-$additions .= dropdown::showNumber(
-   'show_tree_depth', [
-      'rand'  => $rand,
+$inputs = [
+   __('Subtree root', 'formcreator') => [
+      'type' => 'select',
+      'name' => 'show_tree_root',
+      'value' => $root,
+      'values' => getOptionForItems($itemtype),
+      'col_lg' => 12,
+      'col_md' => 12,
+   ],
+   __('Selectable', 'formcreator') => [
+      'type' => 'checkbox',
+      'name' => 'selectable_tree_root',
+      'value' => $selectableRoot,
+      'col_lg' => 12,
+      'col_md' => 12,
+   ],
+   __('Limit subtree depth', 'formcreator') => [
+      'type' => 'number',
+      'name' => 'show_tree_depth',
       'value' => $depth,
-      'min' => 1,
+      'min' => 0,
       'max' => 16,
-      'toadd' => [0 => __('No limit', 'formcreator')],
-      'display' => false,
-   ]
-);
-$additions .= '</td>';
+      'after' => '0 -> ' . __('No limit'),
+      'col_lg' => 12,
+      'col_md' => 12,
+   ],
+];
 
+ob_start();
+foreach($inputs as $title => $input) {
+   renderTwigTemplate('macros/wrappedInput.twig', [
+      'title' => $title,
+      'input' => $input,
+   ]);
+}
+$additions = ob_get_clean();
 echo $additions;

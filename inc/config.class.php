@@ -59,6 +59,7 @@
     public function showConfigForm() {
         $config = $this->getConfig();
 
+<<<<<<< HEAD
         $headerGeneral = __('General setup');
         $headerSimplified = __('Simplified view', 'formcreator');
 
@@ -144,5 +145,60 @@
         HTML;
         Html::closeForm();
         echo '</div>';
+=======
+        $form = [
+            'action' => Plugin::getWebDir('formcreator') . '/front/config.form.php',
+            'buttons' => [
+                'update' => [
+                    'name' => 'update',
+                    'value' => __('Update'),
+                    'class' => 'btn btn-secondary'
+                ]
+            ],
+            'content' => [
+                __('General setup') => [
+                    'visible' => true,
+                    'inputs' => [
+                        __('Enable See all tab', 'formcreator') => [
+                            'type' => 'checkbox',
+                            'name' => 'see_all',
+                            'value' => $config['see_all'],
+                        ],
+                        __('Default category', 'formcreator') => [
+                            'type' => 'select',
+                            'name' => 'default_categories_id',
+                            'values' => getOptionForItems(PluginFormcreatorCategory::class, ['level' => 1]),
+                            'value' => $config['default_categories_id'],
+                        ],
+                    ]
+                ],
+                __('Simplified view', 'formcreator') => [
+                    'visible' => true,
+                    'inputs' => [
+                        __('Enable profile infos', 'formcreator') => [
+                            'type' => 'checkbox',
+                            'name' => 'enable_profile_info',
+                            'value' => $config['enable_profile_info'],
+                        ],
+                        __('Saved searches') => [
+                            'type' => 'checkbox',
+                            'name' => 'enable_saved_search',
+                            'value' => $config['enable_saved_search'],
+                        ],
+                        __('Collapse menu by default', 'formcreator') => [
+                            'type' => 'checkbox',
+                            'name' => 'collapse_menu',
+                            'value' => $config['collapse_menu'],
+                        ],
+                        __("Enable ticket status counter", 'formcreator') => [
+                            'type' => 'checkbox',
+                            'name' => 'enable_ticket_status_counter',
+                        ]
+                    ]
+                ]
+            ]
+        ];
+        renderTwigForm($form);
+>>>>>>> latest
      }
  }

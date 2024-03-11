@@ -76,7 +76,6 @@ $(function() {
 
    // toggle menu in desktop mode
    $('#formcreator-toggle-nav-desktop').change(function() {
-      $('.plugin_formcreator_container').toggleClass('toggle_menu');
       $.ajax({
          url: formcreatorRootDoc + '/ajax/homepage_wizard.php',
          data: {wizard: 'toggle_menu'},
@@ -666,51 +665,6 @@ var plugin_formcreator = new function() {
       });
    };
 
-   this.initGridStack = function (sectionId) {
-      var that = this;
-      var group = $('#plugin_formcreator_form.plugin_formcreator_form_design [data-itemtype="PluginFormcreatorSection"][data-id="' + sectionId + '"] .grid-stack');
-      group.gridstack({
-         width:          this.questionsColumns,
-         column:         this.questionsColumns,
-         cellHeight:     '32px',
-         verticalMargin: '5px',
-         float:          true,
-         acceptWidgets:  true,
-         resizeable:     {
-            handles: 'e, w'
-         }
-      });
-      $.get({
-         url: formcreatorRootDoc + '/ajax/question_get.php',
-         dataType: 'json',
-         data: {
-            id: sectionId,
-            design: true
-         }
-      }).success(function(data, httpCode) {
-         var grid = group.data('gridstack');
-         that.dirty = true;
-         $.each(data, function(index, question) {
-            grid.addWidget(
-               question.html,
-               Number(question.x),
-               Number(question.y),
-               Number(question.width),
-               Number(question.height),
-               false,
-               1,
-               this.questionColumns,
-               1,
-               1
-            );
-         });
-         that.dirty = false;
-      }).complete(function () {
-         that.setupGridStack(group);
-         group.data('gridstack').float(false);
-      });
-   };
-
    /**
    * Event handler : when an item is about to move or resize
    */
@@ -794,7 +748,7 @@ var plugin_formcreator = new function() {
    // === QUESTIONS ===
 
    this.deleteQuestion = function (target) {
-      var item = $(target).closest('.grid-stack-item');
+      var item = $(target).closest('.formcreator-question');
       var id = item.attr('data-id');
       if (typeof(id) === 'undefined') {
          return;
@@ -809,36 +763,13 @@ var plugin_formcreator = new function() {
          }).fail(function(data) {
             alert(data.responseText);
          }).done(function() {
-            var container = item.closest('.grid-stack');
-            var gridstack = container.data('gridstack');
-            var row = $(item).attr('data-gs-y');
-            gridstack.removeWidget(item);
-            //plugin_formcreator.moveUpItems(container);
+            item.remove();
          });
       }
    };
 
-   /**
-    * Move up items in a grid when row is empty
-    * @param grid stack container
-    * @param row  row to fill with items after it
-    */
-   this.moveUpItems = function (grid) {
-      return;
-      // Disabled cause it does not fully works with dropped elements
-      var lastRow = grid.find('.grid-stack-item:not(.grid-stack-placeholder)').last().attr('data-gs-y');
-      for (let y = 0; y < lastRow; y++) {
-         var movable = grid.find('.grid-stack-item:not(.grid-stack-placeholder)').filter(function(index, element) {
-            return ($(element).attr('data-gs-y') > y);
-         }).first();
-         if (movable.length > 0) {
-            grid.data('gridstack').move(movable, Number(movable.attr('data-gs-x')), y)
-         }
-      }
-   };
-
    this.toggleRequired = function (target) {
-      var item = $(target).closest('.grid-stack-item');
+      var item = $(target).closest('.formcreator-question');
       var id = item.attr('data-id');
       if (typeof(id) === 'undefined') {
          return;
@@ -866,6 +797,58 @@ var plugin_formcreator = new function() {
     }, 300);
 }
 
+   this.moveQuestion = function (target, action) {
+      var item = $(target).closest('.formcreator-question');
+      var id = item.attr('data-id');
+      if (typeof(id) === 'undefined') {
+         return;
+      }
+      switch (action) {
+         case 'up':
+            var otherItem = item.prev('.formcreator-question');
+            break;
+         case 'down':
+            var otherItem = item.next('.formcreator-question');
+            break;
+      }
+      if (otherItem.length < 1) {
+         return;
+      }
+      const otherId = otherItem.attr('data-id');
+      const data = {move: {}};
+      data.move[otherId] = {
+         y: item.attr('data-order'),
+      };
+      data.move[id] = {
+         y: otherItem.attr('data-order'),
+      };
+      $.ajax({
+         url: formcreatorRootDoc + '/ajax/question_move.php',
+         type: "POST",
+         data,
+         success: function() {
+            if (action == 'up') {
+               otherItem.before(item);
+            }
+            if (action == 'down') {
+               otherItem.after(item);
+            }
+            $.each([item, otherItem], function(index, item) {
+               if (item.prev('.formcreator-question').length < 1) {
+                  item.find('.moveUp').hide();
+               } else {
+                  item.find('.moveUp').show();
+               }
+               if (item.next('.formcreator-question').length < 1) {
+                  item.find('.moveDown').hide();
+               } else {
+                  item.find('.moveDown').show();
+               }
+            });
+         }
+      });
+   };
+
    this.addQuestion = function () {
       var form = $('form[data-itemtype="PluginFormcreatorQuestion"]');
       var that = this;
@@ -878,20 +861,8 @@ var plugin_formcreator = new function() {
          displayAjaxMessageAfterRedirect();
       }).done(function(data) {
          var sectionId = form.find('select[name="plugin_formcreator_sections_id"]').val();
-         var container = $('[data-itemtype="PluginFormcreatorSection"][data-id="' + sectionId + '"] .grid-stack');
-         var grid = container.data('gridstack');
-         grid.addWidget(
-            data.html,
-            Number(data.x),
-            Number(data.y),
-            Number(data.width),
-            Number(data.height),
-            false,
-            1,
-            this.questionColumns,
-            1,
-            1
-         );
+         var container = $('[data-itemtype="PluginFormcreatorSection"][data-id="' + sectionId + '"] .plugin_formcreator_sectionContent');
+         container.append(data.html);
          modalWindow.dialog('close');
          that.resetTabs();
       });
@@ -901,6 +872,11 @@ var plugin_formcreator = new function() {
       var form = $('form[data-itemtype="PluginFormcreatorQuestion"]');
       var questionId = form.find('[name="id"]').val();
       var that = this;
+
+      const editors = form.find('textarea[type="richtextarea"]');
+      editors.each(function(index, editor) {
+         eval(editor.id + '.updateSourceElement()');
+      });
       $.ajax({
          url: formcreatorRootDoc + '/ajax/question_update.php',
          type: "POST",
@@ -917,9 +893,8 @@ var plugin_formcreator = new function() {
    }
 
    this.duplicateQuestion = function (target) {
-      var item = $(target).closest('.grid-stack-item');
+      var item = $(target).closest('.formcreator-question');
       var id = item.attr('data-id');
-      var that = this;
       if (typeof(id) === 'undefined') {
          return;
       }
@@ -934,25 +909,13 @@ var plugin_formcreator = new function() {
       }).fail(function(data) {
          alert(data.responseText);
       }).done(function(question) {
-         var container = item.closest('[data-itemtype="PluginFormcreatorSection"] .grid-stack');
-         var grid = container.data('gridstack');
-         grid.addWidget(
-            question.html,
-            Number(question.x),
-            Number(question.y),
-            Number(question.width),
-            Number(question.height),
-            false,
-            1,
-            this.questionColumns,
-            1,
-            1
-         );
-         that.resetTabs();
+         var sectionContent = item.closest('[data-itemtype="PluginFormcreatorSection"] .plugin_formcreator_sectionContent');
+         sectionContent.append(question.html);
       });
    };
 
    this.showFields = function (form) {
+      console.log(form);
       $.ajax({
          url: formcreatorRootDoc + '/ajax/showfields.php',
          type: "POST",
@@ -1014,7 +977,6 @@ var plugin_formcreator = new function() {
             }
          }).done(function() {
             section.remove();
-            plugin_formcreator.updateSectionControls();
             that.resetTabs();
          }).fail(function(data) {
             alert(data.responseText);
@@ -1031,28 +993,29 @@ var plugin_formcreator = new function() {
          data: {
             id: sectionId,
             way: action
-         }
-      }).done(function() {
-         if (action == 'up') {
-            var otherSection = section.prev('#plugin_formcreator_form.plugin_formcreator_form_design [data-itemtype="PluginFormcreatorSection"]').detach();
-            section.after(otherSection);
-         }
-         if (action == 'down') {
-            var otherSection = section.next('#plugin_formcreator_form.plugin_formcreator_form_design [data-itemtype="PluginFormcreatorSection"]').detach();
-            section.before(otherSection);
-         }
-         $.each([section, otherSection], function(index, section) {
-            if (section.prev('#plugin_formcreator_form.plugin_formcreator_form_design [data-itemtype="PluginFormcreatorSection"]').length < 1) {
-               section.children('.moveUp').hide();
-            } else {
-               section.children('.moveUp').show();
+         },
+         success: function() {
+            if (action == 'up') {
+               var otherSection = section.prev('#plugin_formcreator_form.plugin_formcreator_form_design [data-itemtype="PluginFormcreatorSection"]').detach();
+               section.after(otherSection);
             }
-            if (section.next('#plugin_formcreator_form.plugin_formcreator_form_design [data-itemtype="PluginFormcreatorSection"]').length < 1) {
-               section.children('.moveDown').hide();
-            } else {
-               section.children('.moveDown').show();
+            if (action == 'down') {
+               var otherSection = section.next('#plugin_formcreator_form.plugin_formcreator_form_design [data-itemtype="PluginFormcreatorSection"]').detach();
+               section.before(otherSection);
             }
-         });
+            $.each([section, otherSection], function(index, section) {
+               if (section.prev('#plugin_formcreator_form.plugin_formcreator_form_design [data-itemtype="PluginFormcreatorSection"]').length < 1) {
+                  section.children('.moveUpSection').hide();
+               } else {
+                  section.children('.moveUpSection').show();
+               }
+               if (section.next('#plugin_formcreator_form.plugin_formcreator_form_design [data-itemtype="PluginFormcreatorSection"]').length < 1) {
+                  section.children('.moveDownSection').hide();
+               } else {
+                  section.children('.moveDownSection').show();
+               }
+            });
+         }
       });
    };
 
@@ -1085,8 +1048,6 @@ var plugin_formcreator = new function() {
          var lastSection = $('.plugin_formcreator_form_design[data-itemtype="PluginFormcreatorForm"] [data-itemtype="PluginFormcreatorSection"]').last();
          lastSection.after(data);
          sectionId = $('.plugin_formcreator_form_design[data-itemtype="PluginFormcreatorForm"] [data-itemtype="PluginFormcreatorSection"]').last().attr('data-id');
-         plugin_formcreator.initGridStack(sectionId);
-         plugin_formcreator.updateSectionControls();
          that.resetTabs();
       }).fail(function(data) {
          alert(data.responseText);
@@ -1120,9 +1081,6 @@ var plugin_formcreator = new function() {
       }).done(function(data) {
          var addSectionRow = $('[data-itemtype="PluginFormcreatorForm"] li').last();
          addSectionRow.before(data);
-         var sectionId = $('.plugin_formcreator_form_design[data-itemtype="PluginFormcreatorForm"] [data-itemtype="PluginFormcreatorSection"]').last().attr('data-id');
-         plugin_formcreator.initGridStack(sectionId);
-         plugin_formcreator.updateSectionControls();
          modalWindow.dialog('close');
          that.resetTabs();
       });
@@ -1145,17 +1103,6 @@ var plugin_formcreator = new function() {
          modalWindow.dialog('close');
          that.resetTabs();
       });
-   }
-
-   /**
-    * Show / hide controls for sections
-    */
-   this.updateSectionControls = function () {
-      var sections = $('.plugin_formcreator_form_design[data-itemtype="PluginFormcreatorForm"] [data-itemtype="PluginFormcreatorSection"]');
-      sections.find('.moveUp').show();
-      sections.first().find('.moveUp').hide();
-      sections.find('.moveDown').show();
-      sections.last().find('.moveDown').hide();
    }
 
    this.createLanguage = function (formId, id = -1) {
@@ -1924,17 +1871,14 @@ function plugin_formcreator_changeQuestionType(rand) {
       },
    }).done(function(response) {
       try {
-         var response = $.parseJSON(response);
+         var response = JSON.parse(response);
       } catch (e) {
-         console.log('Plugin Formcreator: Failed to get subtype fields');
+         console.error('Plugin Formcreator: Failed to get subtype fields');
          return;
       }
 
-      $('#plugin_formcreator_subtype_label').html(response.label);
-      $('#plugin_formcreator_subtype_value').html(response.field);
-
-      $('.plugin_formcreator_required').toggle(response.may_be_required);
-      $('.plugin_formcreator_mayBeEmpty').toggle(response.may_be_empty);
+      $('.plugin_formcreator_required').attr('disabled', !response.may_be_required);
+      $('.plugin_formcreator_mayBeEmpty').attr('disabled', !response.may_be_empty);
       $('#plugin_formcreator_subtype_label').html(response.label);
       $('#plugin_formcreator_subtype_value').html(response.field);
       plugin_formcreator_updateQuestionSpecific(response.additions);

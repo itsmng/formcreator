@@ -51,29 +51,31 @@ class DatetimeField extends PluginFormcreatorAbstractField
    }
 
    public function getDesignSpecializationField(): array {
-      $rand = mt_rand();
-
       $label = '';
       $field = '';
 
-      $additions = '<tr class="plugin_formcreator_question_specific">';
-      $additions .= '<td>';
-      $additions .= '<label for="dropdown_default_values' . $rand . '">';
-      $additions .= __('Default values');
-      $additions .= '</label>';
-      $additions .= '</td>';
-      $additions .= '<td>';
-      $value = Html::entities_deep($this->question->fields['default_values']);
-      $additions .= Html::showDateTimeField('default_values', ['value' => $value, 'display' => false]);
-      $additions .= '</td>';
-      $additions .= '<td>';
-      $additions .= '</td>';
-      $additions .= '<td>';
-      $additions .= '</td>';
-      $additions .= '</tr>';
+      $inputs = [
+         __('Default values') => [
+            'type' => 'datetime-local',
+            'name' => 'default_values',
+            'value' => Html::entities_deep($this->question->fields['default_values']),
+            'col_lg' => 12,
+            'col_md' => 12,   
+         ],
+      ];
+      ob_start();
+      foreach ($inputs as $title => $input) {
+         renderTwigTemplate('macros/wrappedInput.twig', [
+            'title' => $title,
+            'input' => $input,
+         ]);
+      }
+      $renderedInputs = ob_get_clean();
+      $additions = '<div class="plugin_formcreator_question_specific row">' . $renderedInputs;
 
       $common = parent::getDesignSpecializationField();
       $additions .= $common['additions'];
+      $additions .= '</div>';
 
       return [
          'label' => $label,
@@ -94,11 +96,18 @@ class DatetimeField extends PluginFormcreatorAbstractField
       $rand      = mt_rand();
       $fieldName = 'formcreator_field_' . $id;
 
-      $html .= Html::showDateTimeField($fieldName, [
-         'value'   => strtotime($this->value) != '' ? $this->value : '',
-         'rand'    => $rand,
-         'display' => false,
+      ob_start();
+      renderTwigTemplate('macros/wrappedInput.twig', [
+         'input' => [
+            'type'  => 'datetime-local',
+            'id'    => $fieldName . '_' . $rand,
+            'name'  => $fieldName,
+            'value' => Html::entities_deep($this->value),
+            'col_lg' => 12,
+            'col_md' => 12,
+         ],
       ]);
+      $html .= ob_get_clean();
       $html .= Html::scriptBlock("$(function() {
          pluginFormcreatorInitializeDate('$fieldName', '$rand');
       });");
