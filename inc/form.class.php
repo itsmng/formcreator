@@ -1441,7 +1441,7 @@ PluginFormcreatorTranslatableInterface
                $form = new self();
                $form->getFromDB($input['id']);
                if ($form->fields['icon_type'] == 1) {
-                  User::dropPictureFiles($form->fields['icon']);
+                  unlink($form->fields['icon']);
                }
             }
          };
@@ -1450,7 +1450,7 @@ PluginFormcreatorTranslatableInterface
          $form = new self();
          $form->getFromDB($input['id']);
          if ($form->fields['icon_type'] == 1) {
-            User::dropPictureFiles($form->fields['icon']);
+            unlink($form->fields['icon']);
          }
       }
       // Control fields values :
