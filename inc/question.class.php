@@ -259,7 +259,7 @@ PluginFormcreatorTranslatableInterface
     * @param array   $value   Values all fields of the form
     * @param bool $isVisible is the question visible by default ?
     */
-   public function getRenderedHtml($domain, $canEdit = true, $value = [], $isVisible = true) : array {
+   public function getRenderedHtml($domain, $canEdit = true, $value = [], $isVisible = true) : mixed {
       if ($this->isNewItem()) {
          return '';
       }

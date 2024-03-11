@@ -161,6 +161,14 @@ html, body {
    .plugin_formcreator_card {
       width: 100%;
       display: flex;
+      margin-bottom: 1rem;
+      
+      li {
+         list-style: none;
+         list-style-image: url('../pics/accepted.png');
+         text-align: start;
+         border-block: 1px solid #CCC;
+      }
    }
 
    #plugin_formcreator_lastForms, #plugin_formcreator_lastForms > .plugin_formcreator_card {
