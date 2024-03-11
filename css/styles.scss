@@ -764,49 +764,6 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
    line-height: 31px;
 }
 
-<<<<<<< HEAD
-#plugin_formcreator_wizard {
-   position: relative;
-}
-
-
-#formcreator_servicecatalogue {
-   position: absolute;
-   width: 100%;
-   margin-top: 10px;
-}
-
-.toggle_menu #formcreator_servicecatalogue_ticket_summary {
-   left: 100px;
-}
-
-#formcreator_servicecatalogue_ticket_summary {
-   height: inherit;
-   position: absolute;
-   display: flex;
-   align-items: center;
-   z-index: 15;
-   left: 150px;
-   width: 260px;
-   top: 10px;
-   transition: .4s;
-   height: 45px;
-
-   .status {
-      min-width: 2.3rem;
-      max-height: 45px;
-      display: inline-block;
-      margin-right: 5px;
-      padding: 5px;
-      text-align: center;
-      background-color: rgba(0, 0, 0, .15);
-      vertical-align: top;
-      box-sizing: border-box;
-   }
-
-   .status:hover {
-      background-color: rgba(0, 0, 0, .3);
-=======
 .toggle_menu #formcreator_servicecatalogue_ticket_summary {
    left: 100px;
 }
@@ -838,7 +795,6 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
          display: flex;
          flex-direction: column;
       }
->>>>>>> latest
    }
 
    .status_number {
@@ -846,15 +802,6 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
    }
    .status_label {
       font-size: .7em;
-<<<<<<< HEAD
-      display: none;
-   }
-
-   .status:hover .status_label {
-      display: block;
-      line-height: 0;
-=======
->>>>>>> latest
    }
 
    .status_incoming, .status_incoming a {
@@ -1351,16 +1298,6 @@ a.plugin_formcreator_formTile_title {
    color: #FFF;
 }
 
-<<<<<<< HEAD
-.plugin_formcreator_leftHeader a, .plugin_formcreator_myname {
-   color: #FFF;
-   height: 35px;
-   // line-height: 35px;
-}
-
-
-=======
->>>>>>> latest
 .plugin_formcreator_threadBrowser {
    margin: 5px;
    border-top: 1px dashed #3C5874;
@@ -1525,12 +1462,6 @@ span.fc_list_icon {
 
    .plugin_formcreator_page {
       width: 100%;
-<<<<<<< HEAD
-      display: block;
-
-      .status_label {
-         display: block;
-=======
       margin-left: 0;
 
       #plugin_formcreator_wizard {
@@ -1543,7 +1474,6 @@ span.fc_list_icon {
          #plugin_formcreator_formlist {
             position: relative;
          }
->>>>>>> latest
       }
    }
 
