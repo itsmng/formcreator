@@ -1506,7 +1506,7 @@ PluginFormcreatorTranslatableInterface
       } else if (isset($input['id'])) {
          $form = new self();
          $form->getFromDB($input['id']);
-         if ($form->fields['icon_type'] == 1) {
+         if ($form->fields['icon_type'] == 1 && $input['icon_type'] == 0) {
             User::dropPictureFiles($form->fields['icon']);
          }
       }
