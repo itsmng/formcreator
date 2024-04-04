@@ -1250,12 +1250,21 @@ a.plugin_formcreator_formTile_title {
             align-items: center;
             min-width: 10rem;
             height: 100%;
+            
+            span {
+               display: none;
+            }
          }
       }
    
       .header-right {
          display: flex;
          flex-direction: row-reverse;
+         align-items: center;
+
+         .plugin_formcreator_entityProfile {
+            display: block;
+         }
       }
    }
 
@@ -1267,9 +1276,6 @@ a.plugin_formcreator_formTile_title {
          color: white;
       }
 
-      span {
-         display: none;
-      }
    }
 }
 .formcreator_header_top#header_top {
@@ -1713,7 +1719,6 @@ span.fc_list_icon {
 
          .header-left {
             margin: 0;
-            margin-left: 100px;
             width: 100%;
             height: max-content;
             ul {

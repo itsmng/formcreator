@@ -990,16 +990,19 @@ a.plugin_formcreator_formTile_title {
         align-items: center;
         min-width: 10rem;
         height: 100%; }
+        #plugin_formcreator_serviceCatalog #header_top #header_content .header-left ul span {
+          display: none; }
     #plugin_formcreator_serviceCatalog #header_top #header_content .header-right {
       display: flex;
-      flex-direction: row-reverse; }
+      flex-direction: row-reverse;
+      align-items: center; }
+      #plugin_formcreator_serviceCatalog #header_top #header_content .header-right .plugin_formcreator_entityProfile {
+        display: block; }
   #plugin_formcreator_serviceCatalog #header_top ul {
     align-items: center; }
     #plugin_formcreator_serviceCatalog #header_top ul i {
       font-size: 1.25rem;
       color: white; }
-    #plugin_formcreator_serviceCatalog #header_top ul span {
-      display: none; }
 
 .formcreator_header_top#header_top {
   margin-left: 300px;
@@ -1366,7 +1369,6 @@ span.fc_list_icon {
         justify-content: space-around; }
       #plugin_formcreator_serviceCatalog #header_top #header_content .header-left {
         margin: 0;
-        margin-left: 100px;
         width: 100%;
         height: max-content; }
         #plugin_formcreator_serviceCatalog #header_top #header_content .header-left ul {
