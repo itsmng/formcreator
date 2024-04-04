@@ -870,8 +870,11 @@ PluginFormcreatorTranslatableInterface
       $fcConfig = new PluginFormcreatorConfig();
       $config = $fcConfig->getConfig();
 
-      echo '<div id="plugin_formcreator_wizard_categories">';
-      echo '<div><h2>'._n("Category", "Categories", 2, 'formcreator').'</h2></div>';
+      $categoriesTitle = _n("Category", "Categories", 2, 'formcreator');
+      echo <<<HTML
+         <div id="plugin_formcreator_wizard_categories">
+            <div><h2>{$categoriesTitle}</h2></div>
+      HTML;
       if ($config['see_all']) {
          echo '<div><a href="#" id="wizard_seeall">' . __('see all', 'formcreator') . '</a></div>';
       }

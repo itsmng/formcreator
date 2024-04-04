@@ -579,7 +579,6 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
   position: relative; }
 
 #formcreator_servicecatalogue {
-  position: absolute;
   width: 100%;
   margin-top: 10px; }
 
@@ -588,15 +587,10 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
 
 #formcreator_servicecatalogue_ticket_summary {
   height: inherit;
-  position: absolute;
   display: flex;
   align-items: center;
   z-index: 15;
-  left: 150px;
-  width: 260px;
-  top: 10px;
-  transition: .4s;
-  height: 45px; }
+  transition: .4s; }
   #formcreator_servicecatalogue_ticket_summary .status {
     min-width: 2.3rem;
     max-height: 45px;
@@ -689,9 +683,7 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
   bottom: 0;
   left: 0;
   float: left;
-  height: calc(100vh - 28px - 65px);
   background-color: #f8f7f3;
-  border-right: 1px solid #DDD;
   position: relative; }
   #plugin_formcreator_kb_categories div > a, #plugin_formcreator_wizard_categories div > a {
     display: inline-block;
@@ -842,7 +834,6 @@ a.plugin_formcreator_formTile_title {
   overflow-y: auto;
   padding: 0 0 3px 23px;
   margin: -10px 0 -3px -23px;
-  background-color: #FFFFFF;
   margin-left: 300px; }
 
 #plugin_formcreator_wizard_forms {
@@ -972,10 +963,43 @@ a.plugin_formcreator_formTile_title {
     margin-right: 10px; }
 
 #plugin_formcreator_serviceCatalog #header_top {
-  height: 45px;
-  line-height: 45px;
-  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 3rem;
   z-index: 10; }
+  #plugin_formcreator_serviceCatalog #header_top #header_logo {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100%;
+    margin-left: 10px; }
+    #plugin_formcreator_serviceCatalog #header_top #header_logo #c_logo {
+      position: initial;
+      margin-right: 1rem; }
+  #plugin_formcreator_serviceCatalog #header_top #header_content {
+    display: flex;
+    width: 55vw;
+    justify-content: space-between;
+    align-items: center; }
+    #plugin_formcreator_serviceCatalog #header_top #header_content .header-left {
+      height: 100%; }
+      #plugin_formcreator_serviceCatalog #header_top #header_content .header-left ul {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        min-width: 10rem;
+        height: 100%; }
+    #plugin_formcreator_serviceCatalog #header_top #header_content .header-right {
+      display: flex;
+      flex-direction: row-reverse; }
+  #plugin_formcreator_serviceCatalog #header_top ul {
+    align-items: center; }
+    #plugin_formcreator_serviceCatalog #header_top ul i {
+      font-size: 1.25rem;
+      color: white; }
+    #plugin_formcreator_serviceCatalog #header_top ul span {
+      display: none; }
 
 .formcreator_header_top#header_top {
   margin-left: 300px;
@@ -1122,9 +1146,7 @@ span.fc_list_icon {
   box-sizing: border-box; }
 
 .plugin_formcreator_entityProfile {
-  float: right;
-  width: 190px;
-  height: 40px; }
+  height: max-content; }
 
 .plugin_formcreator_entityProfile > li {
   line-height: normal;
@@ -1166,7 +1188,6 @@ span.fc_list_icon {
   right: 5px; }
 
 .plugin_formcreator_userMenu_icons {
-  float: right;
   margin: 12px 8px 0 8px; }
 
 .plugin_formcreator_userMenu_icons > li {
@@ -1212,16 +1233,15 @@ span.fc_list_icon {
 
 .plugin_formcreator_container {
   vertical-align: top;
-  top: 0;
-  position: fixed;
-  right: 0;
-  left: 0;
+  overflow-x: hidden;
   bottom: 0;
   margin-bottom: 20px; }
   .plugin_formcreator_container .plugin_formcreator_leftHeader#header {
     float: left;
     height: 100%;
     position: relative; }
+  .plugin_formcreator_container input#toggle-nav-menu, .plugin_formcreator_container label[for="toggle-nav-menu"] {
+    display: none; }
 
 .plugin_formcreator_page .navigationheader .tab_cadre_pager {
   width: auto; }
@@ -1310,10 +1330,59 @@ span.fc_list_icon {
   .plugin_formcreator_marginRight {
     margin-right: 0; }
 
-  .plugin_formcreator_container .plugin_formcreator_leftHeader#header {
-    width: 100%;
-    height: 70px;
-    position: relative; }
+  #plugin_formcreator_serviceCatalog {
+    overflow-x: hidden; }
+    #plugin_formcreator_serviceCatalog label[for="toggle-nav-menu"] {
+      display: block;
+      padding: 10px;
+      height: 3rem;
+      font-size: 2rem;
+      width: 3rem;
+      line-height: 3rem;
+      color: #FFF;
+      text-align: center;
+      cursor: pointer; }
+    #plugin_formcreator_serviceCatalog .plugin_formcreator_leftHeader#header {
+      width: 100%;
+      height: 70px;
+      position: relative; }
+    #plugin_formcreator_serviceCatalog #header, #plugin_formcreator_serviceCatalog #header_top {
+      overflow-x: hidden;
+      position: initial; }
+    #plugin_formcreator_serviceCatalog #header_top #header_content {
+      position: fixed;
+      width: 100vw;
+      height: calc(100vh - 70px);
+      top: 70px;
+      right: 100%;
+      transition: right .3s;
+      background: white;
+      z-index: 1000;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start; }
+      #plugin_formcreator_serviceCatalog #header_top #header_content .header_logo {
+        justify-content: space-around; }
+      #plugin_formcreator_serviceCatalog #header_top #header_content .header-left {
+        margin: 0;
+        margin-left: 100px;
+        width: 100%;
+        height: max-content; }
+        #plugin_formcreator_serviceCatalog #header_top #header_content .header-left ul {
+          display: block;
+          padding-left: .5rem; }
+          #plugin_formcreator_serviceCatalog #header_top #header_content .header-left ul li {
+            padding-block: .5rem; }
+          #plugin_formcreator_serviceCatalog #header_top #header_content .header-left ul span, #plugin_formcreator_serviceCatalog #header_top #header_content .header-left ul i {
+            display: inline;
+            color: black; }
+      #plugin_formcreator_serviceCatalog #header_top #header_content .header-right {
+        margin: 0 auto 1rem auto; }
+        #plugin_formcreator_serviceCatalog #header_top #header_content .header-right a {
+          color: black !important; }
+    #plugin_formcreator_serviceCatalog #toggle-nav-menu:checked ~ #header #header_top #header_content {
+      right: 0%; }
 
   .formcreator_header_top#header_top {
     display: none;
@@ -1330,8 +1399,8 @@ span.fc_list_icon {
     display: inline-block; }
 
   #formcreator_servicecatalogue_ticket_summary {
-    width: 100%;
-    display: block; }
+    height: max-content;
+    margin-left: auto; }
     #formcreator_servicecatalogue_ticket_summary .status_label {
       display: block; }
 
@@ -1397,15 +1466,10 @@ span.fc_list_icon {
   .plugin_formcreator_page #formcreator_servicecatalogue {
     width: 100%; }
 
-  #formcreator_servicecatalogue_ticket_summary {
-    left: 100px; }
-
   #plugin_formcreator_wizard_categories {
-    height: inherit;
-    width: 100%;
+    margin-left: auto;
     position: initial;
-    float: none;
-    min-height: initial; }
+    float: none; }
 
   #plugin_formcreator_wizard_categories .slinky-menu {
     position: static; }

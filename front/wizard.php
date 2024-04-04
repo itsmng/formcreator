@@ -45,4 +45,11 @@ PluginFormcreatorWizard::header(__('Service catalog', 'formcreator'));
 $form = new PluginFormcreatorForm();
 $form->showServiceCatalog();
 
+if (Session::getCurrentInterface() == 'helpdesk') {
+   $fcConfig = new PluginFormcreatorConfig();
+   $config = $fcConfig->getConfig();
+
+   Search::show('PluginFormcreatorIssue');
+}
+
 PluginFormcreatorWizard::footer();
