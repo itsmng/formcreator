@@ -1319,13 +1319,14 @@ PluginFormcreatorTranslatableInterface
       $formName = 'plugin_formcreator_form';
       $formId = $this->getID();
       self::getFormURL();
-      echo '<form name="' . $formName . '" method="post" role="form" enctype="multipart/form-data"'
-      . ' class="plugin_formcreator_form"'
-      . ' action="' . self::getFormURL() . '"'
-      . ' id="plugin_formcreator_form"'
-      . ' data-itemtype="PluginFormcreatorForm"'
-      . ' data-id="' . $formId . '"'
-      . '>';
+      echo <<<HTML
+         <form name="{$formName}" method="post" role="form" enctype="multipart/form-data"
+               class="plugin_formcreator_form plugin_formcreator_form_input"
+               action="{$this->getFormURL()}"
+               id="plugin_formcreator_form"
+               data-itemtype="PluginFormcreatorForm"
+               data-id="{$formId}">
+      HTML;
 
       // load thanguage for the form, if any
       $domain = self::getTranslationDomain($formId);
@@ -1352,6 +1353,8 @@ PluginFormcreatorTranslatableInterface
          $_SESSION['formcreator']['data'] = [];
       }
       $sections = (new PluginFormcreatorSection)->getSectionsFromForm($formId);
+
+      $i = 1;
       foreach ($sections as $section) {
          $sectionId = $section->getID();
 
@@ -1389,76 +1392,87 @@ PluginFormcreatorTranslatableInterface
             echo $question->getRenderedHtml($domain, true, $_SESSION['formcreator']['data']);
             $lastQuestion = $question;
          }
-         echo '</div>';
 
+         echo "<div class='navigationButton'>";
+         if ($i > 1) {
+            echo "<button type='button' class='vsubmit' onclick='plugin_formcreator_previousSection(".$i.")'>Previous</button>";
+         }
+         if ($i < count($sections)) {
+            echo "<button type='button' class='vsubmit' onclick='plugin_formcreator_nextSection(".$i.")'>Next</button>";
+         }
+         echo "</div>";
+         if ($i == count($sections)) {
+            // Captcha for anonymous forms
+            if ($this->fields['access_rights'] == PluginFormcreatorForm::ACCESS_PUBLIC
+               && $this->fields['is_captcha_enabled'] != '0') {
+               $captchaTime = time();
+               $captchaId = md5($captchaTime . $this->getID());
+               $captcha = PluginFormcreatorCommon::getCaptcha($captchaId);
+               echo '<li class="plugin_formcreator_section" id="plugin_formcreator_captcha_section">';
+               echo '<h2>' . __('Are you a robot ?', 'formcreator') . '</h2>';
+               echo '<div class="form-group line1"><label for="plugin_formcreator_captcha">' . __('Are you a robot ?', 'formcreator') . '</label>';
+               echo '<div><i onclick="plugin_formcreator_refreshCaptcha()" class="fas fa-sync-alt"></i>&nbsp;<img src="' . $captcha['img'] . '">';
+               echo '<div style="width: 50%; float: right" class="form_field"><span class="no-wrap">';
+               echo Html::input('plugin_formcreator_captcha');
+               echo Html::hidden('plugin_formcreator_captcha_id', ['value' => $captchaId]);
+               echo '</div></div>';
+               echo '</div>';
+               echo '</li>';
+            }
+      
+            // Show validator selector
+            if ($this->fields['validation_required'] != PluginFormcreatorForm_Validator::VALIDATION_NONE) {
+               $validators = [];
+               $formValidator = new PluginFormcreatorForm_Validator();
+               switch ($this->fields['validation_required']) {
+                  case PluginFormcreatorForm_Validator::VALIDATION_GROUP:
+                     $validatorType = Group::class;
+                     $result = $formValidator->getValidatorsForForm($this, $validatorType);
+                     foreach ($result as $validator) {
+                        $validators[$validator->getID()] = $validator->fields['completename'];
+                     }
+                     break;
+                  case PluginFormcreatorForm_Validator::VALIDATION_USER:
+                     $validatorType = User::class;
+                     $result = $formValidator->getValidatorsForForm($this, $validatorType);
+                     foreach ($result as $validator) {
+                        $validators[$validator->getID()] = formatUserName($validator->getID(), $validator->fields['name'], $validator->fields['realname'], $validator->fields['firstname']);
+                     }
+                     break;
+               }
+      
+               $resultCount = count($result);
+               if ($resultCount == 1) {
+                  reset($validators);
+                  $validatorId = key($validators);
+                  echo Html::hidden('formcreator_validator', ['value' => $validatorId]);
+               } else if ($resultCount > 1) {
+                  $validators = [0 => Dropdown::EMPTY_VALUE] + $validators;
+                  echo '<h2>' . __('Validation', 'formcreator') . '</h2>';
+                  echo '<div class="form-group required liste" id="form-validator">';
+                  echo '<label>' . __('Choose a validator', 'formcreator') . ' <span class="red">*</span></label>';
+                  Dropdown::showFromArray('formcreator_validator', $validators);
+                  echo '</div>';
+               }
+            }
+      
+            // Display submit button
+            echo '<div class="center">';
+            echo Html::submit(__('Send'), ['name' => 'submit_formcreator']);
+            echo '</div>';
+         }
+         echo '</div>';
          echo '</li>';
+         $i++;
       }
 
-      // Captcha for anonymous forms
-      if ($this->fields['access_rights'] == PluginFormcreatorForm::ACCESS_PUBLIC
-         && $this->fields['is_captcha_enabled'] != '0') {
-         $captchaTime = time();
-         $captchaId = md5($captchaTime . $this->getID());
-         $captcha = PluginFormcreatorCommon::getCaptcha($captchaId);
-         echo '<li class="plugin_formcreator_section" id="plugin_formcreator_captcha_section">';
-         echo '<h2>' . __('Are you a robot ?', 'formcreator') . '</h2>';
-         echo '<div class="form-group line1"><label for="plugin_formcreator_captcha">' . __('Are you a robot ?', 'formcreator') . '</label>';
-         echo '<div><i onclick="plugin_formcreator_refreshCaptcha()" class="fas fa-sync-alt"></i>&nbsp;<img src="' . $captcha['img'] . '">';
-         echo '<div style="width: 50%; float: right" class="form_field"><span class="no-wrap">';
-         echo Html::input('plugin_formcreator_captcha');
-         echo Html::hidden('plugin_formcreator_captcha_id', ['value' => $captchaId]);
-         echo '</div></div>';
-         echo '</div>';
-         echo '</li>';
-      }
 
       // Delete saved answers if any
       unset($_SESSION['formcreator']['data']);
 
-      // Show validator selector
-      if ($this->fields['validation_required'] != PluginFormcreatorForm_Validator::VALIDATION_NONE) {
-         $validators = [];
-         $formValidator = new PluginFormcreatorForm_Validator();
-         switch ($this->fields['validation_required']) {
-            case PluginFormcreatorForm_Validator::VALIDATION_GROUP:
-               $validatorType = Group::class;
-               $result = $formValidator->getValidatorsForForm($this, $validatorType);
-               foreach ($result as $validator) {
-                  $validators[$validator->getID()] = $validator->fields['completename'];
-               }
-               break;
-            case PluginFormcreatorForm_Validator::VALIDATION_USER:
-               $validatorType = User::class;
-               $result = $formValidator->getValidatorsForForm($this, $validatorType);
-               foreach ($result as $validator) {
-                  $validators[$validator->getID()] = formatUserName($validator->getID(), $validator->fields['name'], $validator->fields['realname'], $validator->fields['firstname']);
-               }
-               break;
-         }
-
-         $resultCount = count($result);
-         if ($resultCount == 1) {
-            reset($validators);
-            $validatorId = key($validators);
-            echo Html::hidden('formcreator_validator', ['value' => $validatorId]);
-         } else if ($resultCount > 1) {
-            $validators = [0 => Dropdown::EMPTY_VALUE] + $validators;
-            echo '<h2>' . __('Validation', 'formcreator') . '</h2>';
-            echo '<div class="form-group required liste" id="form-validator">';
-            echo '<label>' . __('Choose a validator', 'formcreator') . ' <span class="red">*</span></label>';
-            Dropdown::showFromArray('formcreator_validator', $validators);
-            echo '</div>';
-         }
-      }
-
       echo Html::scriptBlock('$(function() {
          plugin_formcreator.showFields($("form[name=\'' . $formName . '\']"));
       })');
-
-      // Display submit button
-      echo '<div class="center">';
-      echo Html::submit(__('Send'), ['name' => 'submit_formcreator']);
-      echo '</div>';
 
       echo Html::hidden('plugin_formcreator_forms_id', ['value' => $this->getID()]);
       echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);

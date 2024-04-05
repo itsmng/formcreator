@@ -84,6 +84,7 @@ class PluginFormcreatorWizard {
          HTML;
       };
 
+      
       $faqLink = '';
       if (PluginFormcreatorEntityConfig::getUsedConfig('is_kb_separated', Session::getActiveEntity()) == PluginFormcreatorEntityConfig::CONFIG_KB_DISTINCT
          && Session::haveRight('knowbase', KnowbaseItem::READFAQ)) {
@@ -100,49 +101,46 @@ class PluginFormcreatorWizard {
          $rssLink = $makeItem('rss', __('Consult feeds', 'formcreator'), $formcreator_root.'/front/wizardfeeds.php');
       }
 
+      $homeLink = $makeItem('home', __('Home', 'formcreator'), $CFG_GLPI['root_doc'].'/front/helpdesk.public.php');
+
       ob_start();
       self::showHeaderTopContent();
       $header_right = ob_get_clean();
       
       ob_start();
-      self::showTicketSummary();
       if ($config['enable_ticket_status_counter'] == 1) {
-         $ticketSummary = ob_get_clean();
+         self::showTicketSummary();
       }
+      $ticketSummary = ob_get_clean();
       $title = __('Home');
       echo <<<HTML
-         <body class='$body_class' id='plugin_formcreator_serviceCatalog'>
-            <div class="plugin_formcreator_container">
-               $impersonate_banner
-               <input type="checkbox" id="toggle-nav-menu" />
-               <header id="header">
-                  <div id="header_top">
-                     <div id="header_logo">
-                        <div id="c_logo"></div>
-                        $ticketSummary
-                        <label for="toggle-nav-menu"><i class="fas fa-bars"></i></label>
+      <body class='$body_class' id='plugin_formcreator_serviceCatalog'>
+         <div class="plugin_formcreator_container">
+            $impersonate_banner
+            <input type="checkbox" id="toggle-nav-menu" />
+            <header id="header">
+               <div id="header_top">
+                  <div id="header_logo">
+                     <a href=""><div id="c_logo"></div>
+                     $ticketSummary
+                     <label for="toggle-nav-menu"><i class="fas fa-bars"></i></label>
+                  </div>
+                  <div id="header_content">
+                     <div class="header-left">
+                        <ul>
+                           $homeLink
+                           $faqLink
+                           $reservationLink
+                           $rssLink
+                        </ul>
                      </div>
-                     <div id="header_content">
-                        <div class="header-left">
-                           <ul>
-                              <li>
-                                 <a href="{$formcreator_root}/front/wizard.php" title="{$title}">
-                                    <i class="fa fa-home"></i>
-                                    <span>{$title}</span>
-                                 </a>
-                              </li>
-                              $faqLink
-                              $reservationLink
-                              $rssLink
-                           </ul>
-                        </div>
-                        <div class="header-right">
-                           $header_right
-                        </div>
+                     <div class="header-right">
+                        $header_right
                      </div>
                   </div>
-               </header>
-               <main class="formcreator_main">
+               </div>
+            </header>
+            <main id="page" class="plugin_formcreator_page">
       HTML;
 
       // call static function callcron() every 5min

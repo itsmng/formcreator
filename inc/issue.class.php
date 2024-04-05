@@ -69,6 +69,22 @@ class PluginFormcreatorIssue extends CommonDBTM {
    }
 
    /**
+    * Get the form page URL for the current class
+    *
+    * @param boolean $full path or relative one (true by default)
+    *
+    * @return string
+   **/
+   static function getFormURL($full = true) {
+      if (Session::haveRight('ticket', READ)) {
+         die(var_dump(PluginFormcreatorForm::getFormURL($full)));
+         return PluginFormcreatorForm::getFormURL($full);
+      }
+      return Toolbox::getItemTypeFormURL(get_called_class(), $full);
+   }
+
+
+   /**
     * Sync issues table
     *
     * @return AbstractQuery

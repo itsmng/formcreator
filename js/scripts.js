@@ -2156,3 +2156,29 @@ function plugin_formcreator_refreshCaptcha() {
       $('form[name="plugin_formcreator_form"] button[type="submit"]').removeAttr('disabled');
    });
 }
+
+function plugin_formcreator_nextSection(sectionNo) {
+   var form = $('form[name="plugin_formcreator_form"]');
+   var section = form.find('.plugin_formcreator_section[data-id="' + sectionNo + '"]');
+   var nextSection = section.next('[data-itemtype="PluginFormcreatorSection"]');
+   while (nextSection.attr('hidden') == 'hidden') {
+      nextSection = nextSection.next('[data-itemtype="PluginFormcreatorSection"]');
+   }
+   if (nextSection.length) {
+      section.hide();
+      nextSection.show();
+   }
+}
+
+function plugin_formcreator_previousSection(sectionNo) {
+   var form = $('form[name="plugin_formcreator_form"]');
+   var section = form.find('.plugin_formcreator_section[data-id="' + sectionNo + '"]');
+   var previousSection = section.prev('[data-itemtype="PluginFormcreatorSection"]');
+   while (previousSection.attr('hidden') == 'hidden') {
+      previousSection = previousSection.prev('[data-itemtype="PluginFormcreatorSection"]');
+   }
+   if (previousSection.length) {
+      section.hide();
+      previousSection.show();
+   }
+}

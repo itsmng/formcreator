@@ -133,6 +133,22 @@ input.submit_button:focus {
  * Form designer
  */
 /* Sections */
+#plugin_formcreator_form.plugin_formcreator_form_input ol {
+  position: relative;
+  height: max-content; }
+  #plugin_formcreator_form.plugin_formcreator_form_input ol > .plugin_formcreator_section {
+    display: none;
+    width: 100%; }
+    #plugin_formcreator_form.plugin_formcreator_form_input ol > .plugin_formcreator_section:first-child {
+      display: block; }
+
+.navigationButton {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 100%;
+  padding-block: 10px; }
+
 #plugin_formcreator_form.plugin_formcreator_form_design > ol {
   list-style-type: none;
   text-align: left;
@@ -233,8 +249,6 @@ input.submit_button:focus {
   display: inline-block; }
 
 form#plugin_formcreator_form {
-  max-width: 950px;
-  margin: 10px auto 50px !important;
   display: block;
   position: relative;
   line-height: 1.4em; }
@@ -619,9 +633,6 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
     color: #9B9BE9; }
   #formcreator_servicecatalogue_ticket_summary .status_solved, #formcreator_servicecatalogue_ticket_summary .status_solved a {
     color: #ffffff; }
-
-.plugin_formcreator_page #plugin_formcreator_wizard {
-  height: calc(100vh - 28px - 65px); }
 
 .plugin_formcreator_marginRight {
   margin-right: 275px; }
@@ -1061,10 +1072,6 @@ a.plugin_formcreator_formTile_title {
   background-color: rgba(0, 0, 0, 0.3);
   height: 48px; }
 
-.toggle_menu #page.plugin_formcreator_page {
-  width: calc(100% - 53px);
-  margin-left: 53px; }
-
 .toggle_menu .formcreator_header_top#header_top {
   margin-left: 53px;
   width: calc(100vw - 53px); }
@@ -1218,14 +1225,11 @@ span.fc_list_icon {
   height: 40px; }
 
 #page.plugin_formcreator_page {
-  margin: 0 0 0 300px;
   padding: 0;
-  max-height: 100%;
+  height: max-content;
   top: 0;
   overflow-y: auto;
-  height: calc(100% - 28px - 65px);
   min-height: 0;
-  width: calc(100% - 300px);
   z-index: 0;
   position: relative;
   transition: .3s; }
@@ -1348,7 +1352,7 @@ span.fc_list_icon {
     #plugin_formcreator_serviceCatalog .plugin_formcreator_leftHeader#header {
       width: 100%;
       height: 70px;
-      position: relative; }
+      position: fixed; }
     #plugin_formcreator_serviceCatalog #header, #plugin_formcreator_serviceCatalog #header_top {
       overflow-x: hidden;
       position: initial; }
