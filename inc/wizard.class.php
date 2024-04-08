@@ -121,7 +121,7 @@ class PluginFormcreatorWizard {
             <header id="header">
                <div id="header_top">
                   <div id="header_logo">
-                     <a href=""><div id="c_logo"></div>
+                     <div id="c_logo"></div>
                      $ticketSummary
                      <label for="toggle-nav-menu"><i class="fas fa-bars"></i></label>
                   </div>
