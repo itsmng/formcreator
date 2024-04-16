@@ -76,7 +76,7 @@ class PluginFormcreatorIssue extends CommonDBTM {
     * @return string
    **/
    static function getFormURL($full = true) {
-      if (Session::haveRight('ticket', READ)) {
+      if (Session::haveRight('ticket', Ticket::READMY)) {
          return PluginFormcreatorForm::getFormURL($full);
       }
       return Toolbox::getItemTypeFormURL(get_called_class(), $full);
@@ -806,13 +806,16 @@ class PluginFormcreatorIssue extends CommonDBTM {
          case "glpi_plugin_formcreator_issues.name":
             $name = $data[$num][0]['name'];
             $subItemtype = $data['raw']['itemtype'];
+            if (!Session::haveRight('ticket', Ticket::READMY)) {
+                $subItemtype = PluginFormcreatorFormAnswer::class;
+            }
             switch ($subItemtype) {
                case Ticket::class:
                   $ticket = new Ticket();
                   $ticket->getFromDB($id);
                   $content = $ticket->fields['content'];
                   $canViewItem = $ticket->canViewItem();
-                  $formLink = ticket::getFormURLWithID($data['id']);
+                  $formLink = self::getFormURLWithID($data['id']);
                   break;
 
                case PluginFormcreatorFormAnswer::class:
