@@ -161,7 +161,7 @@ if (isset($_POST['add'])) {
 
    if (plugin_formcreator_replaceHelpdesk()) {
       // Form was saved from the service catalog
-      Html::redirect('issue.php');
+      Html::redirect('wizard.php');
    }
    if (strpos($_SERVER['HTTP_REFERER'], 'formdisplay.php') !== false) {
       // Form was saved from helpdesk (assistance > forms)
