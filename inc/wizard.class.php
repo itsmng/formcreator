@@ -86,22 +86,28 @@ class PluginFormcreatorWizard {
 
       
       $faqLink = '';
-      if (PluginFormcreatorEntityConfig::getUsedConfig('is_kb_separated', Session::getActiveEntity()) == PluginFormcreatorEntityConfig::CONFIG_KB_DISTINCT
-         && Session::haveRight('knowbase', KnowbaseItem::READFAQ)) {
+      $faqRight = PluginFormcreatorEntityConfig::getUsedConfig('is_kb_separated', Session::getActiveEntity()) == PluginFormcreatorEntityConfig::CONFIG_KB_DISTINCT
+         && Session::haveRight('knowbase', KnowbaseItem::READFAQ);
+      if ($faqRight) {
             $faqLink = $makeItem('question', __('Knowledge Base', 'formcreator'), $formcreator_root.'/front/knowbaseitem.php');
       }
 
       $reservationLink = '';
-      if (Session::haveRight("reservation", ReservationItem::RESERVEANITEM)) {
+      $reservationRight = Session::haveRight("reservation", ReservationItem::RESERVEANITEM);
+      if ($reservationRight) {
          $reservationLink = $makeItem('calendar-check', __('Book an asset', 'formcreator'), $formcreator_root.'/front/reservationitem.php');
       }
 
       $rssLink = '';
-      if (RSSFeed::canView()) {
+      $rssRight = RSSFeed::canView();
+      if ($rssRight) {
          $rssLink = $makeItem('rss', __('Consult feeds', 'formcreator'), $formcreator_root.'/front/wizardfeeds.php');
       }
 
-      $homeLink = $makeItem('home', __('Home', 'formcreator'), $CFG_GLPI['root_doc'].'/front/helpdesk.public.php');
+      $homeLink = '';
+      if ($faqRight || $reservationRight || $rssRight) {
+        $homeLink = $makeItem('home', __('Home', 'formcreator'), $CFG_GLPI['root_doc'].'/front/helpdesk.public.php');
+      }
 
       ob_start();
       self::showHeaderTopContent();
@@ -113,33 +119,36 @@ class PluginFormcreatorWizard {
       }
       $ticketSummary = ob_get_clean();
       $title = __('Home');
+      $header = <<<HTML
+        <header id="header">
+           <div id="header_top">
+              <div id="header_logo">
+                 <div id="c_logo"></div>
+                 $ticketSummary
+                 <label for="toggle-nav-menu"><i class="fas fa-bars"></i></label>
+              </div>
+              <div id="header_content">
+                 <div class="header-left">
+                    <ul>
+                       $homeLink
+                       $faqLink
+                       $reservationLink
+                       $rssLink
+                    </ul>
+                 </div>
+                 <div class="header-right">
+                    $header_right
+                 </div>
+              </div>
+           </div>
+        </header>
+      HTML;
       echo <<<HTML
       <body class='$body_class' id='plugin_formcreator_serviceCatalog'>
          <div class="plugin_formcreator_container">
             $impersonate_banner
             <input type="checkbox" id="toggle-nav-menu" />
-            <header id="header">
-               <div id="header_top">
-                  <div id="header_logo">
-                     <div id="c_logo"></div>
-                     $ticketSummary
-                     <label for="toggle-nav-menu"><i class="fas fa-bars"></i></label>
-                  </div>
-                  <div id="header_content">
-                     <div class="header-left">
-                        <ul>
-                           $homeLink
-                           $faqLink
-                           $reservationLink
-                           $rssLink
-                        </ul>
-                     </div>
-                     <div class="header-right">
-                        $header_right
-                     </div>
-                  </div>
-               </div>
-            </header>
+            $header
             <main id="page" class="plugin_formcreator_page">
       HTML;
 
