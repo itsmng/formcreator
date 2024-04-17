@@ -11503,5 +11503,7 @@ span.fc_list_icon {
 
   #debug-float.plugin_formcreator_debug-float {
     z-index: 1000; } }
+.ui-dialog .ui-dialog-content {
+  max-height: 80vh !important; }
 
 /*# sourceMappingURL=styles.min.css.map */

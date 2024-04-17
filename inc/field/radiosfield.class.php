@@ -48,7 +48,7 @@ class RadiosField extends PluginFormcreatorAbstractField
       $field = '';
 
       $value = json_decode($this->question->fields['values'] ?? '[]');
-      if ($value === null || is_array($value)) {
+      if ($value === null || !is_array($value)) {
          $value = [];
       }
 
