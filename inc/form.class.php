@@ -1395,10 +1395,10 @@ PluginFormcreatorTranslatableInterface
 
          echo "<div class='navigationButton'>";
          if ($i > 1) {
-            echo "<button type='button' class='vsubmit' onclick='plugin_formcreator_previousSection(".$i.")'>Previous</button>";
+            echo "<button type='button' class='vsubmit' onclick='plugin_formcreator_previousSection(".$sectionId.")'>Previous</button>";
          }
          if ($i < count($sections)) {
-            echo "<button type='button' class='vsubmit' onclick='plugin_formcreator_nextSection(".$i.")'>Next</button>";
+            echo "<button type='button' class='vsubmit' onclick='plugin_formcreator_nextSection(".$sectionId.")'>Next</button>";
          }
          echo "</div>";
          if ($i == count($sections)) {
