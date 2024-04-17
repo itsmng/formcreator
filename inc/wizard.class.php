@@ -104,10 +104,7 @@ class PluginFormcreatorWizard {
          $rssLink = $makeItem('rss', __('Consult feeds', 'formcreator'), $formcreator_root.'/front/wizardfeeds.php');
       }
 
-      $homeLink = '';
-      if ($faqRight || $reservationRight || $rssRight) {
-        $homeLink = $makeItem('home', __('Home', 'formcreator'), $CFG_GLPI['root_doc'].'/front/helpdesk.public.php');
-      }
+      $homeLink = $makeItem('home', __('Home', 'formcreator'), $CFG_GLPI['root_doc'].'/front/helpdesk.public.php');
 
       ob_start();
       self::showHeaderTopContent();
