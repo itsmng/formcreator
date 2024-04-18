@@ -351,7 +351,13 @@ class PluginFormcreatorIssue extends CommonDBTM {
                Html::redirect($CFG_GLPI['root_doc']."/front/central.php");
             }
 
-            html::displayRightError();
+            $content = htmlspecialchars_decode($item->fields['content']);
+            echo <<<HTML
+                <div class="ui-tabs" style="margin-inline: 20%; width: 60%">
+                    $content
+                </div>
+            HTML;
+            return;
          }
       }
 
@@ -785,22 +791,18 @@ class PluginFormcreatorIssue extends CommonDBTM {
          $id = $matches[1];
       }
 
-      $formLink = '';
-      $answerLink = '';
+      $link = '';
       switch ("$table.$field") {
          case "glpi_plugin_formcreator_issues.name":
             $name = $data[$num][0]['name'];
             $subItemtype = $data['raw']['itemtype'];
-            if (!Session::haveRight('ticket', Ticket::READMY)) {
-                $subItemtype = PluginFormcreatorFormAnswer::class;
-            }
             switch ($subItemtype) {
                case Ticket::class:
                   $ticket = new Ticket();
                   $ticket->getFromDB($id);
                   $content = $ticket->fields['content'];
                   $canViewItem = $ticket->canViewItem();
-                  $formLink = self::getFormURLWithID($data['id']);
+                  $link = self::getFormURLWithID($data['id']);
                   break;
 
                case PluginFormcreatorFormAnswer::class:
@@ -808,15 +810,11 @@ class PluginFormcreatorIssue extends CommonDBTM {
                   $formAnswer->getFromDB($id);
                   $content = $formAnswer->parseTags($formAnswer->getFullForm());
                   $canViewItem = $formAnswer->canViewItem();
-                  $answerLink = PluginFormcreatorFormAnswer::getFormURLWithID($id);
+                  $link = PluginFormcreatorFormAnswer::getFormURLWithID($id);
                   break;
 
                default:
                   $content = '';
-            }
-            $link = $formLink;
-            if (!$canViewItem || empty($formLink)) {
-               $link = $answerLink;
             }
             $key = 'id';
             $tooltip = '';
