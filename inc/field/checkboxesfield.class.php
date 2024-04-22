@@ -66,7 +66,7 @@ class CheckboxesField extends PluginFormcreatorAbstractField
             'type' => 'textarea',
             'name' => 'values',
             'id' => 'values',
-            'value' => implode("\r\n", json_decode($values)),
+            'value' => implode("\r\n", json_decode($values) ?? []),
             'cols' => '50',
             'col_lg' => 12,
             'col_md' => 12,

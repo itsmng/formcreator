@@ -59,13 +59,17 @@ class MultiSelectField extends CheckboxesField
          $translatedValues[$key] = __($value, $domain);
       }
       if (!empty($values)) {
-         $html .= Dropdown::showFromArray($fieldName, $translatedValues, [
-            'display_emptychoice' => $this->question->fields['show_empty'] == 1,
-            'values'    => $this->value,
-            'rand'      => $rand,
-            'multiple'  => true,
-            'display'   => false,
-         ]);
+        ob_start();
+        renderTwigTemplate('macros/wrappedInput.twig', [
+            'title' => '',
+            'input' => [
+                'type' => 'checklist',
+                'name' => $fieldName,
+                'options' => $translatedValues,
+                'values' => $this->value,
+            ]
+        ]);
+        $html .= ob_get_clean();
       }
       $html .= PHP_EOL;
       $html .= Html::scriptBlock("$(function() {
