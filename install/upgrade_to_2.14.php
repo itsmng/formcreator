@@ -35,7 +35,7 @@ class PluginFormcreatorUpgradeTo2_14 {
    /**
     * @param Migration $migration
     */
-   public function upgrade(Migration $migration) {
+    public function upgrade(Migration $migration) {
       global $DB;
 
       $query = "CREATE TABLE IF NOT EXISTS `glpi_plugin_formcreator_configs` (
@@ -43,30 +43,52 @@ class PluginFormcreatorUpgradeTo2_14 {
          `name`              varchar(255) NOT NULL DEFAULT '',
          `value`             text,
          PRIMARY KEY (`id`),
+
          UNIQUE KEY `name` (`name`)
        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
-       
+
       $DB->query($query) or plugin_formcreator_upgrade_error($migration);
-      
-      $migration->insertInTable("glpi_plugin_formcreator_configs", [
-         'name'  => 'enable_profile_info',
-         'value' => '1'
-      ]);
-      $migration->insertInTable("glpi_plugin_formcreator_configs", [
-         'name'  => 'collapse_menu',
-         'value' => '0'
-      ]);
-      $migration->insertInTable("glpi_plugin_formcreator_configs", [
-         'name'  => 'default_categories_id',
-         'value' => '0'
-      ]);
-      $migration->insertInTable("glpi_plugin_formcreator_configs", [
-         'name'  => 'see_all',
-         'value' => '1'
-      ]);
-      $migration->insertInTable("glpi_plugin_formcreator_configs", [
-         'name'  => 'enable_saved_search',
-         'value' => '1'
-      ]);
+
+      $count = $DB->request('SELECT COUNT(*) AS count FROM glpi_plugin_formcreator_configs WHERE name = "enable_profile_info"');
+      $valueExists = iterator_to_array($count)[0]['count'] > 0;
+      if (!$valueExists) {
+              $migration->insertInTable("glpi_plugin_formcreator_configs", [
+                 'name'  => 'enable_profile_info',
+                 'value' => '1'
+              ]);
+      }
+      $count = $DB->request('SELECT COUNT(*) AS count FROM glpi_plugin_formcreator_configs WHERE name = "collapse_menu"');
+      $valueExists = iterator_to_array($count)[0]['count'] > 0;
+      if (!$valueExists) {
+              $migration->insertInTable("glpi_plugin_formcreator_configs", [
+                 'name'  => 'collapse_menu',
+                 'value' => '0'
+              ]);
+      }
+      $count = $DB->request('SELECT COUNT(*) AS count FROM glpi_plugin_formcreator_configs WHERE name = "default_categories_id"');
+      $valueExists = iterator_to_array($count)[0]['count'] > 0;
+      if (!$valueExists) {
+              $migration->insertInTable("glpi_plugin_formcreator_configs", [
+                 'name'  => 'default_categories_id',
+                 'value' => '0'
+              ]);
+      }
+      $count = $DB->request('SELECT COUNT(*) AS count FROM glpi_plugin_formcreator_configs WHERE name = "see_all"');
+      $valueExists = iterator_to_array($count)[0]['count'] > 0;
+      if (!$valueExists) {
+              $migration->insertInTable("glpi_plugin_formcreator_configs", [
+                 'name'  => 'see_all',
+                 'value' => '1'
+              ]);
+      }
+      $count = $DB->request('SELECT COUNT(*) AS count FROM glpi_plugin_formcreator_configs WHERE name = "enable_saved_search"');
+      $valueExists = iterator_to_array($count)[0]['count'] > 0;
+      if (!$valueExists) {
+              $migration->insertInTable("glpi_plugin_formcreator_configs", [
+                 'name'  => 'enable_saved_search',
+                 'value' => '1'
+              ]);
+      }
    }
+
 }

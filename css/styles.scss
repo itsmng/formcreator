@@ -27,8 +27,6 @@
  * @link      http://plugins.glpi-project.org/#/plugin/formcreator
  * ---------------------------------------------------------------------
  */
-@import '../../../css/color';
-
 $header_height: 5rem;
 $nav_width: 25rem;
 
@@ -99,6 +97,7 @@ html, body {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      background: var(--bs-primary) !important;
 
       .formcreator_header_left {
          display: flex;
@@ -125,9 +124,6 @@ html, body {
             li {
                text-align: left;
 
-               .label {
-                  color: $primary-text-color;
-               }
             }
          }
       }
@@ -215,10 +211,6 @@ html, body {
 
       select {
          margin: 0 !important;
-      }
-
-      .profile-selector a {
-         color: $primary-text-color;
       }
    }
 }
