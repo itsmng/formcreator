@@ -20,7 +20,7 @@
         class="plugin_formcreator_container {{toggle_menu}}">
         <input type='checkbox' id='formcreator-toggle-nav' {% if toggle_menu %} checked {% endif %}>
 
-        <div id="header" class="plugin_formcreator_leftHeader bg-primary">
+        <div id="header" class="plugin_formcreator_leftHeader">
             <div class="formcreator_header_left">
                 <div id="header_top" class="formcreator_header_top">
                     <div id="c_logo"></div>
@@ -66,7 +66,7 @@
                     </span>
                 </span>
             {% endif %}
-            <div id="c_menu" class="bg-secondary">
+            <div id="c_menu">
                 <ul class="plugin_formcreator_services">
                     {% for title, item in c_menu %}
                         {% if not item.condition or item.condition == true %}
@@ -80,7 +80,7 @@
                     {% endfor %}
                 </ul>
             </div>
-            
+
             <div class="plugin_formcreator_userCard">
                 <ul class="plugin_formcreator_userMenu_icons">
                     {% if profile_info %}
@@ -110,5 +110,5 @@
                 </ul>
             </div>
         </div>
-        
+
         <main id="page" class="plugin_formcreator_page">
