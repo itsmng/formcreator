@@ -1,2 +1,6 @@
+.sass-cache/
+css_compiled
 /vendor/
 /lib/
+composer.lock
+yarn.lock
