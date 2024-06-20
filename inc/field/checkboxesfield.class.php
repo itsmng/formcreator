@@ -74,7 +74,7 @@ class CheckboxesField extends PluginFormcreatorAbstractField
       $additions .= '</td>';
       $additions .= '<td>';
       $value = json_decode($this->question->fields['values']);
-      if ($value === null || is_array($value)) {
+      if ($value === null || !is_array($value)) {
          $value = [];
       }
       $additions .= Html::textarea([
