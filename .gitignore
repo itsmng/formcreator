@@ -1,6 +1,6 @@
 .sass-cache/
-css_compiled
 /vendor/
 /lib/
 composer.lock
 yarn.lock
+css_compiled/styles.min.css.map
