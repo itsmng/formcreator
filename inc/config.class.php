@@ -43,7 +43,7 @@
             }
         }
     }
-    
+
     public function getConfig() {
         global $DB;
 
@@ -106,6 +106,7 @@
                         __("Enable ticket status counter", 'formcreator') => [
                             'type' => 'checkbox',
                             'name' => 'enable_ticket_status_counter',
+                            'value' => $config['enable_ticket_status_counter'],
                         ]
                     ]
                 ]
