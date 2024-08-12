@@ -159,6 +159,9 @@ class PluginFormcreatorCommon {
     */
    public static function getFontAwesomePictoNames() : array {
       $list = require_once(GLPI_PLUGIN_DOC_DIR . '/formcreator/' . self::getPictoFilename(GLPI_VERSION));
+      foreach ($list as $key => $value) {
+         $list[$key] = '<i class="'.$key.'"></i> '.$value;
+      }
       return $list;
    }
 
