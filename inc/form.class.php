@@ -446,6 +446,8 @@ PluginFormcreatorTranslatableInterface
          }
       }
 
+      $isIcon = $this->fields['icon_type'] == 1 || !isset($this->fields['icon']);
+
       $form = [
          'action' => $this->getFormURL(),
          'buttons' => [
@@ -529,14 +531,14 @@ PluginFormcreatorTranslatableInterface
                      'values' => PluginFormcreatorCommon::getFontAwesomePictoNames(),
                      'value' => $this->fields['icon'],
                      'col_lg' => 6,
-                     $this->fields['icon_type'] != 0 ? 'disabled' : '' => true,
+                     $isIcon ? 'disabled' : '' => true,
                   ],
                   __('Icon color', 'formcreator') => [
                      'type' => 'color',
                      'name' => 'icon_color',
                      'value' => $this->fields['icon_color'],
                      'col_lg' => 6,
-                     $this->fields['icon_type'] != 0 ? 'disabled' : '' => true,
+                     $isIcon ? 'disabled' : '' => true,
                   ],
                   __('Form image', 'formcreator') => [
                      'type' => 'file',
@@ -545,7 +547,7 @@ PluginFormcreatorTranslatableInterface
                      'name' => '_icon',
                      'value' => $this->fields['icon'],
                      'col_lg' => 6,
-                     $this->fields['icon_type'] == 0 ? 'disabled' : '' => true,
+                     !$isIcon ? 'disabled' : '' => true,
                   ],
                   __('Background color', 'formcreator') => [
                      'type' => 'color',
@@ -1308,7 +1310,7 @@ PluginFormcreatorTranslatableInterface
             [
                'type' => 'submit',
                'name' => 'submit_formcreator',
-               'value' => __('Submit', $domain),
+               'value' => _x('button', 'Send'),
                'class' => 'btn btn-secondary',
             ]
          ],

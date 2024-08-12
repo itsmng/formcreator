@@ -1071,8 +1071,10 @@ span.fc_list_icon {
 #searchcriterias {
   padding-top: 5px; }
 
-#page .tab_cadre_pager {
-  width: auto; }
+#page {
+  overflow-y: auto; }
+  #page .tab_cadre_pager {
+    width: auto; }
 
 .tab_cadre_pager, .navigationheader {
   margin-top: 0;
