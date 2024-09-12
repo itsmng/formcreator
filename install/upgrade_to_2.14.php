@@ -48,25 +48,29 @@ class PluginFormcreatorUpgradeTo2_14 {
        
       $DB->query($query) or plugin_formcreator_upgrade_error($migration);
       
-      $migration->insertInTable("glpi_plugin_formcreator_configs", [
-         'name'  => 'enable_profile_info',
-         'value' => '1'
-      ]);
-      $migration->insertInTable("glpi_plugin_formcreator_configs", [
-         'name'  => 'collapse_menu',
-         'value' => '0'
-      ]);
-      $migration->insertInTable("glpi_plugin_formcreator_configs", [
-         'name'  => 'default_categories_id',
-         'value' => '0'
-      ]);
-      $migration->insertInTable("glpi_plugin_formcreator_configs", [
-         'name'  => 'see_all',
-         'value' => '1'
-      ]);
-      $migration->insertInTable("glpi_plugin_formcreator_configs", [
-         'name'  => 'enable_saved_search',
-         'value' => '1'
-      ]);
+      $configs = array_column(iterator_to_array($DB->request([
+         'SELECT' => ['name'],
+         'FROM'   => 'glpi_plugin_formcreator_configs',
+      ])), 'name');
+
+      $values = [
+         'enable_profile_info'         => '1',
+         'collapse_menu'               => '0',
+         'default_categories_id'       => '0',
+         'see_all'                     => '1',
+         'enable_saved_search'         => '1',
+         'enable_ticket_status_counter' => '1',
+      ];
+
+      foreach ($values as $key => $value) {
+         if (!in_array($key, $configs)) {
+            $migration->insertInTable("glpi_plugin_formcreator_configs", [
+               'name'  => $key,
+               'value' => $value
+            ]);
+         }
+      }
+
+      $migration->addField('glpi_plugin_formcreator_forms', 'icon_type', 'boolean', ['default' => '1']);
    }
 }

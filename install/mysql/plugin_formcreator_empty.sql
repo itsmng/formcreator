@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS `glpi_plugin_formcreator_forms_profiles` (
   `profiles_id`                 int(11) NOT NULL,
   `uuid`                        varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `unicity` (`plugin_formcreator_forms_id`,`profiles_id`)
+  UNIQUE KEY `profiles_unicity` (`plugin_formcreator_forms_id`,`profiles_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `glpi_plugin_formcreator_forms_validators` (
@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS `glpi_plugin_formcreator_forms_validators` (
   `items_id`                    int(11) NOT NULL,
   `uuid`                        varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `unicity` (`plugin_formcreator_forms_id`,`itemtype`,`items_id`)
+  UNIQUE KEY `validator_unicity` (`plugin_formcreator_forms_id`,`itemtype`,`items_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `glpi_plugin_formcreator_questions` (

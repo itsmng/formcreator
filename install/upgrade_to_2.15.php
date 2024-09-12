@@ -36,9 +36,17 @@ class PluginFormcreatorUpgradeTo2_15 {
     * @param Migration $migration
     */
    public function upgrade(Migration $migration) {
-      $migration->insertInTable("glpi_plugin_formcreator_configs", [
-         'name'  => 'enable_ticket_status_counter',
-         'value' => '1'
-      ]);
+      global $DB;
+
+      $configs = array_column(iterator_to_array($DB->request([
+         'SELECT' => ['name'],
+         'FROM'   => 'glpi_plugin_formcreator_configs',
+      ])), 'name');
+      if (!in_array('enable_ticket_status_counter', $configs)) {
+         $migration->insertInTable("glpi_plugin_formcreator_configs", [
+            'name'  => 'enable_ticket_status_counter',
+            'value' => '1'
+         ]);
+      }
    }
 }
