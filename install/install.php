@@ -222,7 +222,7 @@ class PluginFormcreatorInstall {
 
       $this->migration->displayMessage("Configure existing entities");
 
-      $query = "INSERT INTO glpi_plugin_formcreator_entityconfigs
+      $query = "INSERT IGNORE INTO glpi_plugin_formcreator_entityconfigs
                   (id, replace_helpdesk, sort_order, is_kb_separated, is_search_visible, is_header_visible)
                SELECT ent.id,
                   IF(ent.id = 0, 0, ".PluginFormcreatorEntityconfig::CONFIG_PARENT."),
@@ -250,7 +250,7 @@ class PluginFormcreatorInstall {
       $result = $DB->query($query) or die ($DB->error());
 
       if (!$DB->numrows($result) > 0) {
-         $query = "INSERT INTO `glpi_requesttypes` SET `name` = 'Formcreator';";
+         $query = "INSERT IGNORE INTO `glpi_requesttypes` SET `name` = 'Formcreator';";
          $DB->query($query) or die ($DB->error());
          $DB->insertId();
       }
