@@ -61,20 +61,14 @@ html, body {
   100% {
     opacity: 0; } }
 .plugin_formcreator_container {
-  vertical-align: top;
-  top: 0;
-  position: fixed;
-  right: 0;
-  left: 0;
-  bottom: 0; }
+  vertical-align: top; }
   .plugin_formcreator_container #header {
     width: 100%;
-    position: fixed;
     height: 5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--bs-primary) !important; }
+    background: var(--bs-header) !important; }
     .plugin_formcreator_container #header .formcreator_header_left {
       display: flex;
       align-items: center; }
@@ -95,10 +89,9 @@ html, body {
           text-align: left; }
 
 .plugin_formcreator_page {
-  height: calc(100% - 5rem);
+  height: calc(100vh - 5rem);
   width: calc(100% - 25rem);
   margin-left: 25rem;
-  margin-top: 5rem;
   padding: 0 !important; }
   .plugin_formcreator_page #formcreator_servicecatalogue, .plugin_formcreator_page #plugin_formcreator_wizard {
     height: 100%;
@@ -929,7 +922,6 @@ a.plugin_formcreator_formTile_title {
 .formcreator_header_top#header_top {
   text-align: right;
   color: #FFF;
-  z-index: 50;
   transition: .3s; }
 
 .formcreator-nav-button {
@@ -1058,12 +1050,7 @@ span.fc_list_icon {
   height: 40px; }
 
 .plugin_formcreator_container {
-  vertical-align: top;
-  top: 0;
-  position: fixed;
-  right: 0;
-  left: 0;
-  bottom: 0; }
+  vertical-align: top; }
 
 .plugin_formcreator_page .navigationheader .tab_cadre_pager {
   width: auto; }
@@ -1138,7 +1125,8 @@ span.fc_list_icon {
 
   .plugin_formcreator_page {
     width: 100%;
-    margin-left: 0; }
+    margin-left: 0;
+    margin-top: 5rem; }
     .plugin_formcreator_page #plugin_formcreator_wizard {
       display: block; }
       .plugin_formcreator_page #plugin_formcreator_wizard #plugin_formcreator_wizard_categories {

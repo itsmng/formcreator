@@ -72,6 +72,10 @@ class PluginFormcreatorWizard {
          Html::showProfileSelecter($CFG_GLPI["root_doc"] . "/front/helpdesk.public.php", false);
       };
       $profileSelector = ob_get_clean();
+      ob_start();
+      renderTwigTemplate('headers/utils/accessibility_buttons.twig', []);
+      $accessibilityButtons = ob_get_clean();
+
       renderTwigTemplate('wizard.twig', [
          'root_doc' => $CFG_GLPI['root_doc'],
          'c_menu' => [
@@ -129,7 +133,7 @@ class PluginFormcreatorWizard {
          'username' => formatUserName(0, $_SESSION["glpiname"], $_SESSION["glpirealname"], $_SESSION["glpifirstname"], 0, 20),
          'userPic' => User::getThumbnailURLForPicture(Session::getLoginUserID()),
          'profileSelector' => $profileSelector,
-
+         'accessibilityButtons' => $accessibilityButtons,
       ], '/plugins/formcreator/templates');
 
       // echo '<main id="page" class="plugin_formcreator_page">';
