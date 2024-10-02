@@ -84,15 +84,9 @@ html, body {
 
 .plugin_formcreator_container {
    vertical-align: top;
-   top: 0;
-   position: fixed;
-   right: 0;
-   left: 0;
-   bottom: 0;
 
    #header {
       width: 100%;
-      position: fixed;
       height: 5rem;
       display: flex;
       justify-content: space-between;
@@ -131,10 +125,9 @@ html, body {
 }
 
 .plugin_formcreator_page {
-   height: calc(100% - #{$header_height});
+   height: calc(100vh - #{$header_height});
    width: calc(100% - #{$nav_width});
    margin-left: #{$nav_width};
-   margin-top: #{$header_height};
    padding: 0 !important;
 
    #formcreator_servicecatalogue, #plugin_formcreator_wizard {
@@ -1203,7 +1196,6 @@ a.plugin_formcreator_formTile_title {
 .formcreator_header_top#header_top {
    text-align: right;
    color: #FFF;
-   z-index: 50;
    transition: .3s;
 }
 
@@ -1357,11 +1349,6 @@ span.fc_list_icon {
 
 .plugin_formcreator_container {
    vertical-align: top;
-   top: 0;
-   position: fixed;
-   right: 0;
-   left: 0;
-   bottom: 0;
 }
 
 .plugin_formcreator_page .navigationheader .tab_cadre_pager {
@@ -1463,6 +1450,7 @@ span.fc_list_icon {
    .plugin_formcreator_page {
       width: 100%;
       margin-left: 0;
+      margin-top: $header_height;
 
       #plugin_formcreator_wizard {
          display: block;
