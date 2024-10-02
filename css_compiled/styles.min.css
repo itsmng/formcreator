@@ -68,7 +68,7 @@ html, body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--bs-primary) !important; }
+    background: var(--bs-header) !important; }
     .plugin_formcreator_container #header .formcreator_header_left {
       display: flex;
       align-items: center; }
