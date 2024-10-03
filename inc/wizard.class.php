@@ -72,7 +72,6 @@ class PluginFormcreatorWizard {
          Html::showProfileSelecter($CFG_GLPI["root_doc"] . "/front/helpdesk.public.php", false);
       };
       $profileSelector = ob_get_clean();
-      ob_start();
 
       renderTwigTemplate('wizard.twig', [
          'root_doc' => $CFG_GLPI['root_doc'],
