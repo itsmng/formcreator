@@ -73,8 +73,6 @@ class PluginFormcreatorWizard {
       };
       $profileSelector = ob_get_clean();
       ob_start();
-      renderTwigTemplate('headers/utils/accessibility_buttons.twig', []);
-      $accessibilityButtons = ob_get_clean();
 
       renderTwigTemplate('wizard.twig', [
          'root_doc' => $CFG_GLPI['root_doc'],
