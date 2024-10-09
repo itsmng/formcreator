@@ -1103,7 +1103,7 @@ class PluginFormcreatorTargetTicket extends PluginFormcreatorAbstractTarget
                $field = $question->getSubField();
                $field->deserializeValue($answer['answer']);
                $itemtype = $field->getSubItemtype();
-               if (!in_array($itemtype, $CFG_GLPI['asset_types'])) {
+               if (!in_array($itemtype, $CFG_GLPI['ticket_types'])) {
                   continue;
                }
 
