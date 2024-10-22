@@ -4,42 +4,42 @@ if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access this file directly");
 }
 
-/// Class Profile_PluginFormcreatorForm
+/// Class Entity_PluginFormcreatorForm
 /// @since 0.83
-class PluginFormcreatorForm_Profile extends CommonDBRelation {
+class PluginFormcreatorForm_Entity extends CommonDBRelation {
 
    // From CommonDBRelation
    static public $itemtype_1          = 'PluginFormcreatorForm';
    static public $items_id_1          = 'forms_id';
-   static public $itemtype_2          = 'Profile';
-   static public $items_id_2          = 'profiles_id';
+   static public $itemtype_2          = 'Entity';
+   static public $items_id_2          = 'entities_id';
 
    static public $checkItem_2_Rights  = self::DONT_CHECK_ITEM_RIGHTS;
    static public $logs_for_item_2     = false;
 
 
    /**
-    * Get profiles for a form
+    * Get entities for a form
     *
-    * @param $forms_id ID of the form
+    * @param PluginFormcreatorForm $form PluginFormcreatorForm instance
     *
-    * @return array of profiles linked to a form
+    * @return array of entities linked to a form
    **/
-   static function getProfiles($forms_id) {
+   static function getEntities($form) {
       global $DB;
 
-      $prof  = [];
+      $ent   = [];
       $iterator = $DB->request([
          'FROM'   => self::getTable(),
          'WHERE'  => [
-            'plugin_formcreator_forms_id' => $forms_id
+            'plugin_formcreator_forms_id' => $form->fields['id']
          ]
       ]);
 
       while ($data = $iterator->next()) {
-         $prof[$data['profiles_id']][] = $data;
+         $ent[$data['entities_id']][] = $data;
       }
-      return $prof;
+      return $ent;
    }
 
 }

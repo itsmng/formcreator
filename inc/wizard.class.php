@@ -89,7 +89,7 @@ class PluginFormcreatorWizard {
       echo "<input type='checkbox' id='formcreator-toggle-nav-desktop'>";
       echo "<label for='formcreator-toggle-nav-desktop' class='formcreator-nav-button'></label>";
 
-      if ($config['enable_ticket_status_counter'] == 1) {
+      if (Session::haveRight('pluginformcreatorform_ticketcounters', READ)) {
          self::showTicketSummary();
       }
 
@@ -140,7 +140,7 @@ class PluginFormcreatorWizard {
          echo '</a></li>';
       }
 
-      if ($config['enable_saved_search'] == 1) {
+      if (Session::haveRight('pluginformcreator_savedsearch', READ)) {
          Ajax::createSlidePanel(
             'showSavedSearches',
             [
@@ -202,7 +202,7 @@ class PluginFormcreatorWizard {
       echo '</ul>';
       echo '<ul class="plugin_formcreator_userMenu_icons">';
       // preferences
-      if ($config['enable_profile_info'] == 1) {
+      if (Session::haveRight('pluginformcreator_profileinfos', READ)) {
          echo '<li id="plugin_formcreator_preferences_icon">';
          echo '<a href="'.$CFG_GLPI["root_doc"].'/front/preference.php" class="fa fa-cog" title="'.
                __s('My settings').'"><span id="preferences_icon" title="'.__s('My settings').'" alt="'.__s('My settings').'" class="button-icon"></span>';
@@ -220,7 +220,7 @@ class PluginFormcreatorWizard {
       echo '</ul>';
 
       // avatar
-      if ($config['enable_profile_info'] == 1) {
+      if (Session::haveRight('pluginformcreator_profileinfos', READ)) {
          echo '<span id="plugin_formcreator_avatar">';
          $user = new User;
          $user->getFromDB($_SESSION['glpiID']);

@@ -73,6 +73,7 @@ class PluginFormcreatorInstall {
       '2.12.5' => '2.13',
       '2.13' => '2.14',
       '2.14' => '2.15',
+      '2.15' => '2.16',
    ];
 
    /**
@@ -90,6 +91,7 @@ class PluginFormcreatorInstall {
       $this->createDefaultDisplayPreferences();
       $this->createCronTasks();
       $this->createNotifications();
+      $this->addRights();
       Config::setConfigurationValues('formcreator', ['schema_version' => PLUGIN_FORMCREATOR_SCHEMA_VERSION]);
 
       $task = new CronTask();
@@ -370,6 +372,26 @@ class PluginFormcreatorInstall {
       }
    }
 
+   protected function addRights() {
+      global $DB;
+      if (!$DB->tableExists("glpi_plugin_formcreator_profiles")) {
+        $query = "CREATE TABLE `glpi_plugin_formcreator_profiles` (
+            `id` int(11) NOT NULL default '0' COMMENT 'RELATION to glpi_profiles (id)',
+            `right` char(1) collate utf8_unicode_ci default NULL,
+            PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
+
+        $DB->queryOrDie($query, $DB->error());
+
+        include_once(GLPI_ROOT."/plugins/formcreator/inc/profile.class.php");
+        PluginFormcreatorProfile::createAdminAccess($_SESSION['glpiactiveprofile']['id']);
+
+        foreach (PluginFormcreatorProfile::getRightsGeneral() as $right) {
+            PluginFormcreatorProfile::addDefaultProfileInfos($_SESSION['glpiactiveprofile']['id'],[$right['field'] => $right['default']]);
+        }
+      }
+   }
+
    protected function deleteNotifications() {
       global $DB;
 
@@ -476,6 +498,7 @@ class PluginFormcreatorInstall {
          'PluginFormcreatorQuestionRegex',
          'PluginFormcreatorForm_Language',
          'PluginFormcreatorConfig',
+         'PluginFormcreatorProfile',
       ];
 
       foreach ($itemtypes as $itemtype) {

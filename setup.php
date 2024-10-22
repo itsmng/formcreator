@@ -31,9 +31,9 @@
 
 global $CFG_GLPI;
 // Version of the plugin (major.minor.bugfix)
-define('PLUGIN_FORMCREATOR_VERSION', '2.14.5');
+define('PLUGIN_FORMCREATOR_VERSION', '2.15.0');
 // Schema version of this version (major.minor only)
-define('PLUGIN_FORMCREATOR_SCHEMA_VERSION', '2.15');
+define('PLUGIN_FORMCREATOR_SCHEMA_VERSION', '2.16');
 // is or is not an official release of the plugin
 define('PLUGIN_FORMCREATOR_IS_OFFICIAL_RELEASE', true);
 
@@ -128,6 +128,9 @@ function plugin_init_formcreator() {
 
    // Set the plugin CSRF compliance (required since GLPI 0.84)
    $PLUGIN_HOOKS['csrf_compliant']['formcreator'] = true;
+
+   $PLUGIN_HOOKS['change_profile']['formcreator'] = ['PluginFormcreatorProfile', 'initProfile'];
+   Plugin::registerClass(PluginFormcreatorProfile::class, ['addtabon' => Profile::class]);
 
    // Can assign FormAnswer to tickets
    $PLUGIN_HOOKS['assign_to_ticket']['formcreator'] = true;

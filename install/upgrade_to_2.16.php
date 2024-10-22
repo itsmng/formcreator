@@ -42,6 +42,8 @@ class PluginFormcreatorUpgradeTo2_16 {
         $query = "CREATE TABLE `glpi_plugin_formcreator_profiles` (
             `id` int(11) NOT NULL default '0' COMMENT 'RELATION to glpi_profiles (id)',
             `right` char(1) collate utf8_unicode_ci default NULL,
+            `entities_id` int(11) NOT NULL DEFAULT '0',
+            `is_recursive` tinyint(1) NOT NULL DEFAULT '0',
             PRIMARY KEY (`id`)
         ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
 
@@ -54,5 +56,42 @@ class PluginFormcreatorUpgradeTo2_16 {
             PluginFormcreatorProfile::addDefaultProfileInfos($_SESSION['glpiactiveprofile']['id'],[$right['field'] => $right['default']]);
         }
       }
+      if (!$DB->tableExists("glpi_plugin_formcreator_forms_users")) {
+        $query = "CREATE TABLE `glpi_plugin_formcreator_forms_users` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `plugin_formcreator_forms_id` int(11) NOT NULL DEFAULT '0',
+            `users_id` int(11) NOT NULL DEFAULT '0',
+            PRIMARY KEY (`id`),
+            KEY `plugin_formcreator_forms_id` (`plugin_formcreator_forms_id`),
+            KEY `users_id` (`users_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
+        $DB->queryOrDie($query, $DB->error());
+      }
+      if (!$DB->tableExists("glpi_plugin_formcreator_forms_entities")) {
+        $query = "CREATE TABLE `glpi_plugin_formcreator_forms_entities` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `plugin_formcreator_forms_id` int(11) NOT NULL DEFAULT '0',
+            `entities_id` int(11) NOT NULL DEFAULT '0',
+            `is_recursive` tinyint(1) NOT NULL DEFAULT '0',
+            PRIMARY KEY (`id`),
+            KEY `plugin_formcreator_forms_id` (`plugin_formcreator_forms_id`),
+            KEY `entities_id` (`entities_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
+        $DB->queryOrDie($query, $DB->error());
+      }
+      if (!$DB->tableExists("glpi_plugin_formcreator_forms_groups")) {
+        $query = "CREATE TABLE `glpi_plugin_formcreator_forms_groups` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `plugin_formcreator_forms_id` int(11) NOT NULL DEFAULT '0',
+            `groups_id` int(11) NOT NULL DEFAULT '0',
+            PRIMARY KEY (`id`),
+            KEY `plugin_formcreator_forms_id` (`plugin_formcreator_forms_id`),
+            KEY `groups_id` (`groups_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
+        $DB->queryOrDie($query, $DB->error());
+      }
+      $migration->dropField('glpi_plugin_formcreator_form_profiles', 'uuid');
+      $migration->addField('glpi_plugin_formcreator_forms_groups', 'entities_id', 'int(11)');
+      $migration->addField('glpi_plugin_formcreator_forms_groups', 'is_recursive', 'tinyint(1)');
    }
 }

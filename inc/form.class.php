@@ -36,7 +36,7 @@ if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access this file directly");
 }
 
-class PluginFormcreatorForm extends CommonDBTM implements
+class PluginFormcreatorForm extends CommonDBVisible implements
 PluginFormcreatorExportableInterface,
 PluginFormcreatorDuplicatableInterface,
 PluginFormcreatorConditionnableInterface,
@@ -57,6 +57,13 @@ PluginFormcreatorTranslatableInterface
    const VALIDATION_NONE     = 0;
    const VALIDATION_USER     = 1;
    const VALIDATION_GROUP    = 2;
+
+   // For visibility checks
+   protected $users     = [];
+   protected $groups    = [];
+   protected $profiles  = [];
+   protected $entities  = [];
+
 
    public static function getEnumAccessType() {
       return [
@@ -780,6 +787,7 @@ PluginFormcreatorTranslatableInterface
                   $item->countTargets()
                ),
                2 => __('Preview'),
+               3 => _n('Access type', 'Access types', 2, 'formcreator'),
             ];
             break;
          case Central::class:
@@ -814,6 +822,9 @@ PluginFormcreatorTranslatableInterface
                   $item->displayUserForm($item);
                   echo '</div>';
                   break;
+               case 3:
+                   $item->showVisibility();
+                   break;
             }
             break;
          case Central::getType():
@@ -828,7 +839,6 @@ PluginFormcreatorTranslatableInterface
       $ong = [];
       $this->addDefaultFormTab($ong);
       $this->addStandardTab(PluginFormcreatorQuestion::class, $ong, $options);
-      $this->addStandardTab(PluginFormcreatorForm_Profile::class, $ong, $options);
       $this->addStandardTab(__CLASS__, $ong, $options);
       $this->addStandardTab(PluginFormcreatorFormAnswer::class, $ong, $options);
       $this->addStandardTab(PluginFormcreatorForm_Language::class, $ong, $options);
@@ -2644,6 +2654,19 @@ PluginFormcreatorTranslatableInterface
          }
       }
       $_SESSION['formcreator']['languages'][$formId][$language] = true;
+
+      // Users
+      $this->users    = PluginFormcreatorForm_User::getUsers($this->fields['id']);
+
+      // Entities
+      $this->entities = PluginFormcreatorForm_Entity::getEntities($this);
+
+      // Group / entities
+      $this->groups   = PluginFormcreatorForm_Group::getGroups($this->fields['id']);
+
+      // Profile / entities
+      $this->profiles = PluginFormcreatorForm_Profile::getProfiles($this->fields['id']);
+
    }
 
    /**
@@ -2789,7 +2812,7 @@ PluginFormcreatorTranslatableInterface
       if ($language == '') {
          $language = $_SESSION['glpilanguage'];
       }
-      return "form_${id}_${language}";
+      return "form_{$id}_{$language}";
    }
 
    /**
