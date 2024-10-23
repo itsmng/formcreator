@@ -91,7 +91,8 @@ class PluginFormcreatorUpgradeTo2_16 {
         $DB->queryOrDie($query, $DB->error());
       }
       $migration->dropField('glpi_plugin_formcreator_form_profiles', 'uuid');
-      $migration->addField('glpi_plugin_formcreator_forms_groups', 'entities_id', 'int(11)');
-      $migration->addField('glpi_plugin_formcreator_forms_groups', 'is_recursive', 'tinyint(1)');
+      $migration->addField('glpi_plugin_formcreator_forms_profiles', 'entities_id', 'int(11)');
+      $migration->addField('glpi_plugin_formcreator_forms_profiles', 'is_recursive', 'tinyint(1)');
+      $migration->migrationOneTable('glpi_plugin_formcreator_form_profiles');
    }
 }

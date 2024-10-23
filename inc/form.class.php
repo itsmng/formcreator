@@ -984,6 +984,40 @@ PluginFormcreatorTranslatableInterface
       echo '</div>';
    }
 
+   protected function canAccessForm($form) {
+       if ($form['access_rights'] != self::ACCESS_RESTRICTED) return true;
+       if (in_array((string)Session::getLoginUserID(), explode(',', $form['users_id'] ?? ''))) {
+          return true;
+       }
+       if (isset($form['groups_ids']) && !empty($form['groups_ids'])) {
+           foreach (explode(',', $form['groups_ids'] ?? '') as $group) {
+              list($groupId, $group_entity, $group_recursive) = explode(':', $group);
+              if (in_array(intval($groupId), $_SESSION['glpigroups'])
+                  && Session::haveAccessToEntity($group_entity, $group_recursive)) {
+                  return true;
+              }
+           }
+       }
+       if (isset($form['profiles_ids']) && !empty($form['profiles_ids'])) {
+           foreach (explode(',', $form['profiles_ids'] ?? '') as $profile) {
+              list($profileId, $profile_entity, $profile_recursive) = explode(':', $profile);
+              if (in_array(intval($profileId), $_SESSION['glpiactiveprofiles'])
+                  && Session::haveAccessToEntity($profile_entity, $profile_recursive)) {
+                  return true;
+              }
+           }
+       }
+       if (isset($form['entities_ids']) && !empty($form['entities_ids'])) {
+           foreach (explode(',', $form['entities_ids'] ?? '') as $entity) {
+              list($entityId, $is_recursive) = explode(':', $entity);
+              if (Session::haveAccessToEntity($entityId, $is_recursive)) {
+                  return true;
+              }
+           }
+       }
+       return false;
+   }
+
    /**
     * Show form and FAQ items
     * @param number $rootCategory Items of this subtree only. 0 = no filtering
@@ -996,10 +1030,14 @@ PluginFormcreatorTranslatableInterface
 
       $table_cat          = getTableForItemType('PluginFormcreatorCategory');
       $table_form         = getTableForItemType('PluginFormcreatorForm');
-      $table_fp           = getTableForItemType('PluginFormcreatorForm_Profile');
       $table_section      = getTableForItemType('PluginFormcreatorSections');
       $table_question     = getTableForItemType('PluginFormcreatorQuestions');
       $table_formLanguage = getTableForItemType(PluginFormcreatorForm_Language::class);
+
+      $table_entityRestrict = getTableForItemType(PluginFormcreatorForm_Entity::class);
+      $table_profileRestrict = getTableForItemType(PluginFormcreatorForm_Profile::class);
+      $table_groupRestrict = getTableForItemType(PluginFormcreatorForm_Group::class);
+      $table_userRestrict = getTableForItemType(PluginFormcreatorForm_User::class);
 
       $order         = "$table_form.name ASC";
 
@@ -1041,18 +1079,14 @@ PluginFormcreatorTranslatableInterface
             ]
          ];
       }
-      $where_form['AND'][] = [
-         'OR' => [
-            'access_rights' => ['!=', PluginFormcreatorForm::ACCESS_RESTRICTED],
-            [
-               "$table_fp.profiles_id" => $_SESSION['glpiactiveprofile']['id']
-            ]
-         ]
-      ];
 
       $result_forms = $DB->request([
          'SELECT' => [
-            $table_form => ['id', 'name', 'icon_type', 'icon', 'icon_color', 'background_color', 'description', 'usage_count', 'is_default'],
+             $table_form => ['id', 'name', 'icon_type', 'icon', 'icon_color', 'background_color', 'description', 'usage_count', 'is_default', 'access_rights'],
+             new \QueryExpression("GROUP_CONCAT(DISTINCT $table_userRestrict.users_id) AS `users_ids`"),
+             new \QueryExpression("GROUP_CONCAT(DISTINCT CONCAT($table_entityRestrict.entities_id, ':', $table_entityRestrict.is_recursive)) AS `entities_ids`"),
+             new \QueryExpression("GROUP_CONCAT(DISTINCT CONCAT($table_profileRestrict.profiles_id, ':', $table_profileRestrict.entities_id, ':', $table_profileRestrict.is_recursive)) AS `profiles_ids`"),
+             new \QueryExpression("GROUP_CONCAT(DISTINCT CONCAT($table_groupRestrict.groups_id, ':', $table_groupRestrict.entities_id, ':', $table_groupRestrict.is_recursive)) AS `groups_ids`"),
          ],
          'FROM' => $table_form,
          'LEFT JOIN' => [
@@ -1074,16 +1108,34 @@ PluginFormcreatorTranslatableInterface
                   $table_section => 'id'
                ]
             ],
-            $table_fp => [
-               'FKEY' => [
-                  $table_fp => PluginFormcreatorForm::getForeignKeyField(),
-                  $table_form => 'id',
-               ]
-            ],
             $table_formLanguage => [
                'FKEY' => [
                   $table_form => 'id',
                   $table_formLanguage => PluginFormcreatorForm::getForeignKeyField(),
+               ]
+            ],
+            $table_entityRestrict => [
+               'FKEY' => [
+                  $table_form => 'id',
+                  $table_entityRestrict => PluginFormcreatorForm::getForeignKeyField(),
+               ]
+            ],
+            $table_profileRestrict => [
+               'FKEY' => [
+                  $table_form => 'id',
+                  $table_profileRestrict => PluginFormcreatorForm::getForeignKeyField(),
+               ]
+            ],
+            $table_groupRestrict => [
+               'FKEY' => [
+                  $table_form => 'id',
+                  $table_groupRestrict => PluginFormcreatorForm::getForeignKeyField(),
+               ]
+            ],
+            $table_userRestrict => [
+               'FKEY' => [
+                  $table_form => 'id',
+                  $table_userRestrict => PluginFormcreatorForm::getForeignKeyField(),
                ]
             ],
          ],
@@ -1091,6 +1143,10 @@ PluginFormcreatorTranslatableInterface
          'GROUPBY' => [
             "$table_form.id",
             "$table_form.name",
+            "$table_form.icon_type",
+            "$table_form.icon",
+            "$table_form.icon_color",
+            "$table_form.background_color",
             "$table_form.description",
             "$table_form.usage_count",
             "$table_form.is_default"
@@ -1109,18 +1165,20 @@ PluginFormcreatorTranslatableInterface
             if (file_exists($phpfile)) {
                $TRANSLATE->addTranslationFile('phparray', $phpfile, $domain, $_SESSION['glpilanguage']);
             }
-            $formList[] = [
-               'id'               => $form['id'],
-               'name'             => __($form['name'], $domain),
-               'icon_type'        => $form['icon_type'],
-               'icon'             => $form['icon_type'] ? $CFG_GLPI['root_doc'] . '/front/document.send.php?file=_pictures/' .  $form['icon'] : $form['icon'],
-               'icon_color'       => $form['icon_color'],
-               'background_color' => $form['background_color'],
-               'description'      => __($form['description'], $domain),
-               'type'             => 'form',
-               'usage_count'      => $form['usage_count'],
-               'is_default'       => $form['is_default'] ? "true" : "false"
-            ];
+            if ($this->canAccessForm($form)) {
+                $formList[] = [
+                   'id'               => $form['id'],
+                   'name'             => __($form['name'], $domain),
+                   'icon_type'        => $form['icon_type'],
+                   'icon'             => $form['icon_type'] ? $CFG_GLPI['root_doc'] . '/front/document.send.php?file=_pictures/' .  $form['icon'] : $form['icon'],
+                   'icon_color'       => $form['icon_color'],
+                   'background_color' => $form['background_color'],
+                   'description'      => __($form['description'], $domain),
+                   'type'             => 'form',
+                   'usage_count'      => $form['usage_count'],
+                   'is_default'       => $form['is_default'] ? "true" : "false"
+                ];
+            }
          }
       }
 
