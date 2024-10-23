@@ -823,7 +823,7 @@ PluginFormcreatorTranslatableInterface
                   echo '</div>';
                   break;
                case 3:
-                   $item->showVisibility();
+                   $item->showAccessRights($item);
                    break;
             }
             break;
@@ -834,6 +834,65 @@ PluginFormcreatorTranslatableInterface
       }
    }
 
+   protected function showAccessRights($item) {
+      global $DB, $CFG_GLPI;
+      
+      echo "<form name='form_profiles_form' id='form_profiles_form'
+             method='post' action=' ";
+      echo Toolbox::getItemTypeFormURL(__CLASS__)."'>";
+      echo '<table class="tab_cadre_fixe">';
+      echo '<tr><th colspan="2">'._n('Access type', 'Access types', 1, 'formcreator').'</th>';
+      echo '</tr>';
+      // Access type
+      echo '<tr>';
+      echo '<td>';
+      Dropdown::showFromArray(
+         'access_rights',
+         self::getEnumAccessType(),
+         [
+            'value' => (isset($item->fields['access_rights'])) ? $item->fields['access_rights'] : '1',
+         ]
+      );
+      echo '</td>';
+      echo '<td>'.__('Link to the form', 'formcreator').': ';
+      if ($item->fields['is_active']) {
+         $parsedBaseUrl = parse_url($CFG_GLPI['url_base']);
+         $baseUrl = $parsedBaseUrl['scheme'] . '://' . $parsedBaseUrl['host'];
+         if (isset($parsedBaseUrl['port'])) {
+            $baseUrl .= ':' . $parsedBaseUrl['port'];
+         }
+         $form_url = $baseUrl . FORMCREATOR_ROOTDOC . '/front/formdisplay.php?id='.$item->getID();
+         echo '<a href="'.$form_url.'">'.$form_url.'</a>&nbsp;';
+         echo '<a href="mailto:?subject='.$item->getName().'&body='.$form_url.'" target="_blank">';
+         echo '<i class="fas fa-envelope"><i/>';
+         echo '</a>';
+      } else {
+         echo __('Please activate the form to view the link', 'formcreator');
+      }
+      echo '</td>';
+      echo '</tr>';
+      // Captcha
+      if ($this->fields["access_rights"] == PluginFormcreatorForm::ACCESS_PUBLIC) {
+         echo '<tr>';
+         echo '<td>' . __('Enable captcha', 'formcreator') . '</td>';
+         echo '<td>';
+         Dropdown::showYesNo('is_captcha_enabled', $item->fields['is_captcha_enabled']);
+         echo '</td>';
+         echo '</tr>';
+      }
+      echo '<tr>';
+         echo '<td class="center" colspan="2">';
+            echo Html::hidden('profiles_id[]', ['value' => '0']);
+            echo Html::hidden('id', ['value' => $item->fields['id']]);
+            echo '<input type="submit" name="update" value="'.__('Save').'" class="submit" />';
+         echo "</td>";
+      echo "</tr>";
+      echo "</table>";
+      Html::closeForm();
+      if ($item->fields["access_rights"] == PluginFormcreatorForm::ACCESS_RESTRICTED) {
+          $item->showVisibility();
+      }
+   }
 
    public function defineTabs($options = []) {
       $ong = [];
@@ -1175,6 +1234,7 @@ PluginFormcreatorTranslatableInterface
                $order
             ],
          ];
+         die(var_dump($query_forms));
          $result_forms = $DB->request($query_forms);
 
          if ($result_forms->count() > 0) {
