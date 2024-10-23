@@ -42,5 +42,8 @@ class PluginFormcreatorForm_Entity extends CommonDBRelation {
       return $ent;
    }
 
+   public function can($ID, $right, &$input = NULL) {
+       return $right == $right;
+   }
 }
 

@@ -42,5 +42,8 @@ class PluginFormcreatorForm_Profile extends CommonDBRelation {
       return $prof;
    }
 
+   public function can($ID, $right, &$input = NULL) {
+       return $right == $right;
+   }
 }
 

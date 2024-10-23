@@ -42,5 +42,8 @@ class PluginFormcreatorForm_Group extends CommonDBRelation {
       return $groups;
    }
 
+   public function can($ID, $right, &$input = NULL) {
+       return $right == $right;
+   }
 }
 
