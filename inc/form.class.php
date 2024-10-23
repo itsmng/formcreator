@@ -1292,7 +1292,6 @@ PluginFormcreatorTranslatableInterface
                $order
             ],
          ];
-         die(var_dump($query_forms));
          $result_forms = $DB->request($query_forms);
 
          if ($result_forms->count() > 0) {
