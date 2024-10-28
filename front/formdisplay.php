@@ -55,7 +55,7 @@ if (isset($_REQUEST['id'])
 
 
    if ($form->fields['access_rights'] == PluginFormcreatorForm::ACCESS_RESTRICTED) {
-      $formWithRights = $form->getFormsWithRights(0, '', false, $form->fields['id'])[1][$form->fields['id']];
+      $formWithRights = $form->getFormsWithRights([], '', false, $form->fields['id']);
       if (!$form->canAccessForm($formWithRights)) {
          Html::displayRightError();
          exit();

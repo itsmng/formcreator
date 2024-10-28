@@ -1018,7 +1018,7 @@ PluginFormcreatorTranslatableInterface
        return false;
    }
 
-   public function getFormsWithRights(int $rootCategory = 0, string $keywords = '', bool $helpdeskHome = false, $formId = NULL) {
+   public function getFormsWithRights(array $selectedCategories = [], string $keywords = '', bool $helpdeskHome = false, $formId = NULL) {
       global $DB;
 
       $table_cat          = getTableForItemType('PluginFormcreatorCategory');
@@ -1052,10 +1052,7 @@ PluginFormcreatorTranslatableInterface
       if ($helpdeskHome) {
          $where_form['AND']["$table_form.helpdesk_home"] = '1';
       }
-
-      $selectedCategories = [];
-      if ($rootCategory != 0) {
-         $selectedCategories = getSonsOf($table_cat, $rootCategory);
+      if (!empty($selectedCategories)) {
          $where_form['AND']["$table_form.plugin_formcreator_categories_id"] = $selectedCategories;
       }
 
@@ -1153,7 +1150,8 @@ PluginFormcreatorTranslatableInterface
             $order
          ],
       ]);
-      return [$selectedCategories, iterator_to_array($result_forms)];
+      $forms = iterator_to_array($result_forms);
+      return isset($formId) ? $forms[array_key_first($forms)] : $forms;
    }
 
    /**
@@ -1167,8 +1165,14 @@ PluginFormcreatorTranslatableInterface
       global $DB, $TRANSLATE, $CFG_GLPI;
 
       $table_cat          = getTableForItemType('PluginFormcreatorCategory');
+      $table_form         = getTableForItemType('PluginFormcreatorForm');
 
-      list($selectedCategories, $formWithRights) = $this->getFormsWithRights($rootCategory, $keywords, $helpdeskHome);
+      $selectedCategories = [];
+      if ($rootCategory != 0) {
+         $selectedCategories = getSonsOf($table_cat, $rootCategory);
+      }
+
+      $formWithRights = $this->getFormsWithRights($selectedCategories, $keywords, $helpdeskHome);
       $formList = [];
       if (count($formWithRights) > 0) {
          foreach ($formWithRights as $form) {
