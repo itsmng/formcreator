@@ -82,15 +82,9 @@
         $seeAllLabel = __('Enable See all tab', 'formcreator');
         $seeAll = $config['see_all'] == 1 ? 'checked' : '';
 
-        $savedSearchLabel = __('Saved searches');
-        $savedSearch = $config['enable_saved_search'] == 1 ? 'checked' : '';
-
         $action = Plugin::getWebDir('formcreator') . '/front/config.form.php';
 
         $updateLabel = __('Update');
-
-        $counterLabel = __('Enable ticket status counter', 'formcreator');
-        $counterCheck = $config['enable_ticket_status_counter'] == 1 ? 'checked' : '';
 
         echo <<<HTML
         <div class="center vertical ui-tabs">
@@ -113,27 +107,10 @@
                         <th colspan="4">$headerSimplified</th>
                     </tr>
                     <tr>
-                        <td>$profileLabel</td>
-                        <td>
-                            <input type="hidden" name="enable_profile_info" value="0">
-                            <input type="checkbox" name="enable_profile_info" value="1" {$pofileChecked}/>
-                        </td>
-                        <td>$savedSearchLabel</td>
-                        <td>
-                            <input type="hidden" name="enable_saved_search" value="0">
-                            <input type="checkbox" name="enable_saved_search" value="1" {$savedSearch}/>
-                        </td>
-                    </tr>
-                    <tr>
                         <td>$collapseLabel</td>
                         <td>
                             <input type="hidden" name="collapse_menu" value="0">
                             <input type="checkbox" name="collapse_menu" value="1" {$collapseChecked}/>
-                        </td>
-                        <td>$counterLabel</td>
-                        <td>
-                            <input type="hidden" name="enable_ticket_status_counter" value="0">
-                            <input type="checkbox" name="enable_ticket_status_counter" value="1" {$counterCheck}/>
                         </td>
                     </tr>
                 </tbody>

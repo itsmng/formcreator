@@ -169,6 +169,38 @@ if (isset($_POST['add'])) {
    }
    // Form was saved from preview tab, go back to the preview
    Html::back();
+} else if (isset($_POST["addvisibility"])) {
+   if (isset($_POST["_type"]) && !empty($_POST["_type"])
+       && isset($_POST["plugin_formcreator_forms_id"]) && $_POST["plugin_formcreator_forms_id"]) {
+      $item = null;
+      switch ($_POST["_type"]) {
+         case 'User' :
+            if (isset($_POST['users_id']) && $_POST['users_id']) {
+               $item = new PluginFormcreatorForm_User();
+            }
+            break;
+
+         case 'Group' :
+            if (isset($_POST['groups_id']) && $_POST['groups_id']) {
+               $item = new PluginFormcreatorForm_Group();
+            }
+            break;
+
+         case 'Profile' :
+            if (isset($_POST['profiles_id']) && $_POST['profiles_id']) {
+               $item = new PluginFormcreatorForm_Profile();
+            }
+            break;
+
+         case 'Entity' :
+            $item = new PluginFormcreatorForm_Entity();
+            break;
+      }
+      if (!is_null($item)) {
+         $item->add($_POST);
+      }
+   }
+   Html::back();
 
 } else {
    // Show forms form

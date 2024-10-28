@@ -94,7 +94,6 @@ class PluginFormcreatorCategory extends CommonTreeDropdown
 
       $cat_table  = PluginFormcreatorCategory::getTable();
       $form_table = PluginFormcreatorForm::getTable();
-      $table_fp   = PluginFormcreatorForm_Profile::getTable();
 
       $query_faqs = KnowbaseItem::getListRequest([
          'faq'      => '1',
@@ -113,48 +112,18 @@ class PluginFormcreatorCategory extends CommonTreeDropdown
 
       // Selects categories containing forms or sub-categories
       $categoryFk = self::getForeignKeyField();
-      $count1 = new QuerySubQuery([
-         'COUNT' => 'count',
-         'FROM' => $form_table,
-         'WHERE' => [
-            'is_active'    => '1',
-            'is_deleted'   => '0',
-            "$form_table.plugin_formcreator_categories_id" => new QueryExpression("$cat_table.id"),
-            'language' => [$_SESSION['glpilanguage'], '', '0', null],
-            'OR' => [
-               'access_rights' => ['!=', PluginFormcreatorForm::ACCESS_RESTRICTED],
-               'id' => new QuerySubQuery([
-                  'SELECT' => 'plugin_formcreator_forms_id',
-                  'FROM' => $table_fp,
-                  'WHERE' => ['profiles_id' => $_SESSION['glpiactiveprofile']['id']],
-               ])
-            ]
-         ]
-         + ($helpdeskHome ? ['helpdesk_home' => '1']: [])
-         + $entityRestrict,
-      ]);
-      $count2 = new QuerySubQuery([
-         'COUNT' => 'count',
-         'FROM' => (new QueryExpression("($query_faqs) as faqs")),
-         'WHERE' => [
-            [(new QueryExpression("faqs.knowbaseitemcategories_id = $cat_table.knowbaseitemcategories_id"))],
-            ["faqs.knowbaseitemcategories_id" => ['!=', '0'],],
-         ]
-      ]);
-      $request = [
-         'SELECT' => [
-            'id',
-            'name',
-            "$categoryFk as parent",
-            'level',
-            new QueryExpression(
-               $count1->getQuery() . " + " . $count2->getQuery() . " as items_count"
-            ),
-         ],
-         'FROM' => $cat_table,
-         'ORDER' => ["level DESC", "name DESC"],
-      ];
-      $result = $DB->request($request);
+      $authorizedForms = (new PluginFormcreatorForm())->showFormList();
+      $formsId = implode(',', array_column($authorizedForms['forms'], 'id'));
+      $query = <<<SQL
+         SELECT DISTINCT
+            {$cat_table}.name as name,
+            {$cat_table}.id as id, 
+            {$cat_table}.plugin_formcreator_categories_id as parent
+         FROM {$form_table}
+         LEFT JOIN {$cat_table} ON {$cat_table}.id = {$form_table}.plugin_formcreator_categories_id
+         WHERE {$form_table}.id IN ({$formsId})
+      SQL;
+      $result = $DB->query($query);
 
       $categories = [];
       foreach ($result as $category) {
@@ -175,10 +144,6 @@ class PluginFormcreatorCategory extends CommonTreeDropdown
                return $category['id'] == $element['parent'];
             }
          );
-         if (empty($children) && 0 == $category['items_count']) {
-            unset($categories[$index]);
-            continue;
-         }
          $categories[$index]['active'] = $config['default_categories_id'] == $category['id'] ? 1 : 0;
          $categories[$index]['subcategories'] = [];
       }

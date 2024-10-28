@@ -36,7 +36,7 @@ if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access this file directly");
 }
 
-class PluginFormcreatorForm extends CommonDBTM implements
+class PluginFormcreatorForm extends CommonDBVisible implements
 PluginFormcreatorExportableInterface,
 PluginFormcreatorDuplicatableInterface,
 PluginFormcreatorConditionnableInterface,
@@ -57,6 +57,13 @@ PluginFormcreatorTranslatableInterface
    const VALIDATION_NONE     = 0;
    const VALIDATION_USER     = 1;
    const VALIDATION_GROUP    = 2;
+
+   // For visibility checks
+   protected $users     = [];
+   protected $groups    = [];
+   protected $profiles  = [];
+   protected $entities  = [];
+
 
    public static function getEnumAccessType() {
       return [
@@ -780,6 +787,7 @@ PluginFormcreatorTranslatableInterface
                   $item->countTargets()
                ),
                2 => __('Preview'),
+               3 => _n('Access type', 'Access types', 2, 'formcreator'),
             ];
             break;
          case Central::class:
@@ -814,6 +822,9 @@ PluginFormcreatorTranslatableInterface
                   $item->displayUserForm($item);
                   echo '</div>';
                   break;
+               case 3:
+                   $item->showAccessRights($item);
+                   break;
             }
             break;
          case Central::getType():
@@ -823,12 +834,70 @@ PluginFormcreatorTranslatableInterface
       }
    }
 
+   protected function showAccessRights($item) {
+      global $DB, $CFG_GLPI;
+      
+      echo "<form name='form_profiles_form' id='form_profiles_form'
+             method='post' action=' ";
+      echo Toolbox::getItemTypeFormURL(__CLASS__)."'>";
+      echo '<table class="tab_cadre_fixe">';
+      echo '<tr><th colspan="2">'._n('Access type', 'Access types', 1, 'formcreator').'</th>';
+      echo '</tr>';
+      // Access type
+      echo '<tr>';
+      echo '<td>';
+      Dropdown::showFromArray(
+         'access_rights',
+         self::getEnumAccessType(),
+         [
+            'value' => (isset($item->fields['access_rights'])) ? $item->fields['access_rights'] : '1',
+         ]
+      );
+      echo '</td>';
+      echo '<td>'.__('Link to the form', 'formcreator').': ';
+      if ($item->fields['is_active']) {
+         $parsedBaseUrl = parse_url($CFG_GLPI['url_base']);
+         $baseUrl = $parsedBaseUrl['scheme'] . '://' . $parsedBaseUrl['host'];
+         if (isset($parsedBaseUrl['port'])) {
+            $baseUrl .= ':' . $parsedBaseUrl['port'];
+         }
+         $form_url = $baseUrl . FORMCREATOR_ROOTDOC . '/front/formdisplay.php?id='.$item->getID();
+         echo '<a href="'.$form_url.'">'.$form_url.'</a>&nbsp;';
+         echo '<a href="mailto:?subject='.$item->getName().'&body='.$form_url.'" target="_blank">';
+         echo '<i class="fas fa-envelope"><i/>';
+         echo '</a>';
+      } else {
+         echo __('Please activate the form to view the link', 'formcreator');
+      }
+      echo '</td>';
+      echo '</tr>';
+      // Captcha
+      if ($this->fields["access_rights"] == PluginFormcreatorForm::ACCESS_PUBLIC) {
+         echo '<tr>';
+         echo '<td>' . __('Enable captcha', 'formcreator') . '</td>';
+         echo '<td>';
+         Dropdown::showYesNo('is_captcha_enabled', $item->fields['is_captcha_enabled']);
+         echo '</td>';
+         echo '</tr>';
+      }
+      echo '<tr>';
+         echo '<td class="center" colspan="2">';
+            echo Html::hidden('profiles_id[]', ['value' => '0']);
+            echo Html::hidden('id', ['value' => $item->fields['id']]);
+            echo '<input type="submit" name="update" value="'.__('Save').'" class="submit" />';
+         echo "</td>";
+      echo "</tr>";
+      echo "</table>";
+      Html::closeForm();
+      if ($item->fields["access_rights"] == PluginFormcreatorForm::ACCESS_RESTRICTED) {
+          $item->showVisibility();
+      }
+   }
 
    public function defineTabs($options = []) {
       $ong = [];
       $this->addDefaultFormTab($ong);
       $this->addStandardTab(PluginFormcreatorQuestion::class, $ong, $options);
-      $this->addStandardTab(PluginFormcreatorForm_Profile::class, $ong, $options);
       $this->addStandardTab(__CLASS__, $ong, $options);
       $this->addStandardTab(PluginFormcreatorFormAnswer::class, $ong, $options);
       $this->addStandardTab(PluginFormcreatorForm_Language::class, $ong, $options);
@@ -915,22 +984,53 @@ PluginFormcreatorTranslatableInterface
       echo '</div>';
    }
 
-   /**
-    * Show form and FAQ items
-    * @param number $rootCategory Items of this subtree only. 0 = no filtering
-    * @param string $keywords Filter items with keywords
-    * @param bool $helpdeskHome show items for helpdesk only
-    * @return array
-    */
-   public function showFormList(int $rootCategory = 0, string $keywords = '', bool $helpdeskHome = false) : array {
-      global $DB, $TRANSLATE, $CFG_GLPI;
+   public function canAccessForm($form) {
+       if ($form['access_rights'] != self::ACCESS_RESTRICTED) return true;
+       if (in_array((string)Session::getLoginUserID(), explode(',', $form['users_id'] ?? ''))) {
+          return true;
+       }
+       if (isset($form['groups_ids']) && !empty($form['groups_ids'])) {
+           foreach (explode(',', $form['groups_ids'] ?? '') as $group) {
+              list($groupId, $group_entity, $group_recursive) = explode(':', $group);
+              if (in_array(intval($groupId), $_SESSION['glpigroups'])
+                  && Session::haveAccessToEntity($group_entity, $group_recursive)) {
+                  return true;
+              }
+           }
+       }
+       if (isset($form['profiles_ids']) && !empty($form['profiles_ids'])) {
+           foreach (explode(',', $form['profiles_ids'] ?? '') as $profile) {
+              list($profileId, $profile_entity, $profile_recursive) = explode(':', $profile);
+              if (in_array(intval($profileId), $_SESSION['glpiactiveprofile'])
+                  && Session::haveAccessToEntity($profile_entity, $profile_recursive)) {
+                  return true;
+              }
+           }
+       }
+       if (isset($form['entities_ids']) && !empty($form['entities_ids'])) {
+           foreach (explode(',', $form['entities_ids'] ?? '') as $entity) {
+              list($entityId, $is_recursive) = explode(':', $entity);
+              if (Session::haveAccessToEntity($entityId, $is_recursive)) {
+                  return true;
+              }
+           }
+       }
+       return false;
+   }
+
+   public function getFormsWithRights(array $selectedCategories = [], string $keywords = '', bool $helpdeskHome = false, $formId = NULL) {
+      global $DB;
 
       $table_cat          = getTableForItemType('PluginFormcreatorCategory');
       $table_form         = getTableForItemType('PluginFormcreatorForm');
-      $table_fp           = getTableForItemType('PluginFormcreatorForm_Profile');
       $table_section      = getTableForItemType('PluginFormcreatorSections');
       $table_question     = getTableForItemType('PluginFormcreatorQuestions');
       $table_formLanguage = getTableForItemType(PluginFormcreatorForm_Language::class);
+
+      $table_entityRestrict = getTableForItemType(PluginFormcreatorForm_Entity::class);
+      $table_profileRestrict = getTableForItemType(PluginFormcreatorForm_Profile::class);
+      $table_groupRestrict = getTableForItemType(PluginFormcreatorForm_Group::class);
+      $table_userRestrict = getTableForItemType(PluginFormcreatorForm_User::class);
 
       $order         = "$table_form.name ASC";
 
@@ -952,10 +1052,7 @@ PluginFormcreatorTranslatableInterface
       if ($helpdeskHome) {
          $where_form['AND']["$table_form.helpdesk_home"] = '1';
       }
-
-      $selectedCategories = [];
-      if ($rootCategory != 0) {
-         $selectedCategories = getSonsOf($table_cat, $rootCategory);
+      if (!empty($selectedCategories)) {
          $where_form['AND']["$table_form.plugin_formcreator_categories_id"] = $selectedCategories;
       }
 
@@ -972,18 +1069,19 @@ PluginFormcreatorTranslatableInterface
             ]
          ];
       }
-      $where_form['AND'][] = [
-         'OR' => [
-            'access_rights' => ['!=', PluginFormcreatorForm::ACCESS_RESTRICTED],
-            [
-               "$table_fp.profiles_id" => $_SESSION['glpiactiveprofile']['id']
-            ]
-         ]
-      ];
+      if (isset($formId)) {
+            $where_form['AND'][] = [
+                $table_form.'.id' => $formId,
+            ];
+      }
 
       $result_forms = $DB->request([
          'SELECT' => [
-            $table_form => ['id', 'name', 'icon_type', 'icon', 'icon_color', 'background_color', 'description', 'usage_count', 'is_default'],
+             $table_form => ['id', 'name', 'icon_type', 'icon', 'icon_color', 'background_color', 'description', 'usage_count', 'is_default', 'access_rights'],
+             new \QueryExpression("GROUP_CONCAT(DISTINCT $table_userRestrict.users_id) AS `users_ids`"),
+             new \QueryExpression("GROUP_CONCAT(DISTINCT CONCAT($table_entityRestrict.entities_id, ':', $table_entityRestrict.is_recursive)) AS `entities_ids`"),
+             new \QueryExpression("GROUP_CONCAT(DISTINCT CONCAT($table_profileRestrict.profiles_id, ':', $table_profileRestrict.entities_id, ':', $table_profileRestrict.is_recursive)) AS `profiles_ids`"),
+             new \QueryExpression("GROUP_CONCAT(DISTINCT CONCAT($table_groupRestrict.groups_id, ':', $table_groupRestrict.entities_id, ':', $table_groupRestrict.is_recursive)) AS `groups_ids`"),
          ],
          'FROM' => $table_form,
          'LEFT JOIN' => [
@@ -1005,16 +1103,34 @@ PluginFormcreatorTranslatableInterface
                   $table_section => 'id'
                ]
             ],
-            $table_fp => [
-               'FKEY' => [
-                  $table_fp => PluginFormcreatorForm::getForeignKeyField(),
-                  $table_form => 'id',
-               ]
-            ],
             $table_formLanguage => [
                'FKEY' => [
                   $table_form => 'id',
                   $table_formLanguage => PluginFormcreatorForm::getForeignKeyField(),
+               ]
+            ],
+            $table_entityRestrict => [
+               'FKEY' => [
+                  $table_form => 'id',
+                  $table_entityRestrict => PluginFormcreatorForm::getForeignKeyField(),
+               ]
+            ],
+            $table_profileRestrict => [
+               'FKEY' => [
+                  $table_form => 'id',
+                  $table_profileRestrict => PluginFormcreatorForm::getForeignKeyField(),
+               ]
+            ],
+            $table_groupRestrict => [
+               'FKEY' => [
+                  $table_form => 'id',
+                  $table_groupRestrict => PluginFormcreatorForm::getForeignKeyField(),
+               ]
+            ],
+            $table_userRestrict => [
+               'FKEY' => [
+                  $table_form => 'id',
+                  $table_userRestrict => PluginFormcreatorForm::getForeignKeyField(),
                ]
             ],
          ],
@@ -1022,6 +1138,10 @@ PluginFormcreatorTranslatableInterface
          'GROUPBY' => [
             "$table_form.id",
             "$table_form.name",
+            "$table_form.icon_type",
+            "$table_form.icon",
+            "$table_form.icon_color",
+            "$table_form.background_color",
             "$table_form.description",
             "$table_form.usage_count",
             "$table_form.is_default"
@@ -1030,28 +1150,52 @@ PluginFormcreatorTranslatableInterface
             $order
          ],
       ]);
+      $forms = iterator_to_array($result_forms);
+      return isset($formId) ? $forms[array_key_first($forms)] : $forms;
+   }
 
+   /**
+    * Show form and FAQ items
+    * @param number $rootCategory Items of this subtree only. 0 = no filtering
+    * @param string $keywords Filter items with keywords
+    * @param bool $helpdeskHome show items for helpdesk only
+    * @return array
+    */
+   public function showFormList(int $rootCategory = 0, string $keywords = '', bool $helpdeskHome = false) : array {
+      global $DB, $TRANSLATE, $CFG_GLPI;
+
+      $table_cat          = getTableForItemType('PluginFormcreatorCategory');
+      $table_form         = getTableForItemType('PluginFormcreatorForm');
+
+      $selectedCategories = [];
+      if ($rootCategory != 0) {
+         $selectedCategories = getSonsOf($table_cat, $rootCategory);
+      }
+
+      $formWithRights = $this->getFormsWithRights($selectedCategories, $keywords, $helpdeskHome);
       $formList = [];
-      if ($result_forms->count() > 0) {
-         foreach ($result_forms as $form) {
+      if (count($formWithRights) > 0) {
+         foreach ($formWithRights as $form) {
             // load thanguage for the form, if any
             $domain = self::getTranslationDomain($form['id']);
             $phpfile = self::getTranslationFile($form['id'], $_SESSION['glpilanguage']);
             if (file_exists($phpfile)) {
                $TRANSLATE->addTranslationFile('phparray', $phpfile, $domain, $_SESSION['glpilanguage']);
             }
-            $formList[] = [
-               'id'               => $form['id'],
-               'name'             => __($form['name'], $domain),
-               'icon_type'        => $form['icon_type'],
-               'icon'             => $form['icon_type'] ? $CFG_GLPI['root_doc'] . '/front/document.send.php?file=_pictures/' .  $form['icon'] : $form['icon'],
-               'icon_color'       => $form['icon_color'],
-               'background_color' => $form['background_color'],
-               'description'      => __($form['description'], $domain),
-               'type'             => 'form',
-               'usage_count'      => $form['usage_count'],
-               'is_default'       => $form['is_default'] ? "true" : "false"
-            ];
+            if ($this->canAccessForm($form)) {
+                $formList[] = [
+                   'id'               => $form['id'],
+                   'name'             => __($form['name'], $domain),
+                   'icon_type'        => $form['icon_type'],
+                   'icon'             => $form['icon_type'] ? $CFG_GLPI['root_doc'] . '/front/document.send.php?file=_pictures/' .  $form['icon'] : $form['icon'],
+                   'icon_color'       => $form['icon_color'],
+                   'background_color' => $form['background_color'],
+                   'description'      => __($form['description'], $domain),
+                   'type'             => 'form',
+                   'usage_count'      => $form['usage_count'],
+                   'is_default'       => $form['is_default'] ? "true" : "false"
+                ];
+            }
          }
       }
 
@@ -1127,18 +1271,6 @@ PluginFormcreatorTranslatableInterface
                ],
                "$table_form.is_default" => ['<>', '0']
             ] + $dbUtils->getEntitiesRestrictCriteria($table_form, '', '', true, false),
-         ];
-         $where_form['AND'][] = [
-            'OR' => [
-               'access_rights' => ['!=', PluginFormcreatorForm::ACCESS_RESTRICTED],
-               "$table_form.id" => new QuerySubQuery([
-                  'SELECT' => 'plugin_formcreator_forms_id',
-                  'FROM' => $table_fp,
-                  'WHERE' => [
-                     'profiles_id' => $_SESSION['glpiactiveprofile']['id']
-                  ]
-               ])
-            ]
          ];
 
          $query_forms = [
@@ -1846,12 +1978,10 @@ PluginFormcreatorTranslatableInterface
 
       $formTable        = PluginFormcreatorForm::getTable();
       $formFk           = PluginFormcreatorForm::getForeignKeyField();
-      $formProfileTable = PluginFormcreatorForm_Profile::getTable();
       $formLanguage     = PluginFormcreatorForm_Language::getTable();
 
       $nb = 0;
       if ($DB->tableExists($formTable)
-          && $DB->tableExists($formProfileTable)
           && isset($_SESSION['glpiactiveprofile']['id'])) {
          $nb = $DB->request([
             'COUNT' => 'c',
@@ -1870,18 +2000,6 @@ PluginFormcreatorTranslatableInterface
                'OR' => [
                   "$formTable.language" => [$_SESSION['glpilanguage'], '0', '', null],
                   "$formLanguage.name"  => $_SESSION['glpilanguage'],
-               ],
-               [
-                  'OR' => [
-                     "$formTable.access_rights" => ['<>', PluginFormcreatorForm::ACCESS_RESTRICTED],
-                     "$formTable.id" => new QuerySubQuery([
-                        'SELECT' => $formFk,
-                        'FROM' => $formProfileTable,
-                        'WHERE' => [
-                           'profiles_id' => $_SESSION['glpiactiveprofile']['id']
-                        ]
-                     ]),
-                  ],
                ],
             ] + (new DbUtils())->getEntitiesRestrictCriteria($formTable, '', '', (new self())->maybeRecursive()),
 
@@ -2644,6 +2762,19 @@ PluginFormcreatorTranslatableInterface
          }
       }
       $_SESSION['formcreator']['languages'][$formId][$language] = true;
+
+      // Users
+      $this->users    = PluginFormcreatorForm_User::getUsers($this->fields['id']);
+
+      // Entities
+      $this->entities = PluginFormcreatorForm_Entity::getEntities($this);
+
+      // Group / entities
+      $this->groups   = PluginFormcreatorForm_Group::getGroups($this->fields['id']);
+
+      // Profile / entities
+      $this->profiles = PluginFormcreatorForm_Profile::getProfiles($this->fields['id']);
+
    }
 
    /**
@@ -2789,7 +2920,7 @@ PluginFormcreatorTranslatableInterface
       if ($language == '') {
          $language = $_SESSION['glpilanguage'];
       }
-      return "form_${id}_${language}";
+      return "form_{$id}_{$language}";
    }
 
    /**
@@ -2939,6 +3070,191 @@ PluginFormcreatorTranslatableInterface
       }
 
       // All checks were succesful, display form
+      return true;
+   }
+
+      public function showVisibility() {
+      global $CFG_GLPI;
+
+      $ID      = $this->fields['id'];
+      $canedit = $this->canEdit($ID);
+      $rand    = mt_rand();
+      $nb      = $this->countVisibilities();
+      $str_type = strtolower($this::getType());
+      $fk = static::getForeignKeyField();
+
+      if ($canedit) {
+         echo "<div class='firstbloc'>";
+         echo "<form name='{$str_type}visibility_form$rand' id='{$str_type}visibility_form$rand' ";
+         echo " method='post' action='".static::getFormURL()."'>";
+         echo "<input type='hidden' name='{$fk}' value='$ID'>";
+         echo "<table class='tab_cadre_fixe'>";
+         echo "<tr class='tab_bg_1'><th colspan='4'>".__('Add a target')."</tr>";
+         echo "<tr class='tab_bg_1'><td class='tab_bg_2' width='100px'>";
+
+         $types   = ['Entity', 'Group', 'Profile', 'User'];
+
+         $addrand = Dropdown::showItemTypes('_type', $types);
+         $params = $this->getShowVisibilityDropdownParams();
+
+         Ajax::updateItemOnSelectEvent("dropdown__type".$addrand, "visibility$rand",
+                                       $CFG_GLPI["root_doc"]."/ajax/visibility.php", $params);
+
+         echo "</td>";
+         echo "<td><span id='visibility$rand'></span>";
+         echo "</td></tr>";
+         echo "</table>";
+         Html::closeForm();
+         echo "</div>";
+      }
+      echo "<div class='spaced'>";
+      if ($canedit && $nb) {
+         Html::openMassiveActionsForm('mass'.__CLASS__.$rand);
+         $massiveactionparams = ['num_displayed'
+                              => min($_SESSION['glpilist_limit'], $nb),
+                           'container'
+                              => 'mass'.__CLASS__.$rand,
+                           'specific_actions'
+                              => ['delete' => _x('button', 'Delete permanently')]];
+
+         Html::showMassiveActions($massiveactionparams);
+      }
+      echo "<table class='tab_cadre_fixehov'>";
+      $header_begin  = "<tr>";
+      $header_top    = '';
+      $header_bottom = '';
+      $header_end    = '';
+      if ($canedit && $nb) {
+         $header_begin  .= "<th width='10'>";
+         $header_top    .= Html::getCheckAllAsCheckbox('mass'.__CLASS__.$rand);
+         $header_bottom .= Html::getCheckAllAsCheckbox('mass'.__CLASS__.$rand);
+         $header_end    .= "</th>";
+      }
+      $header_end .= "<th>"._n('Type', 'Types', 1)."</th>";
+      $header_end .= "<th>"._n('Recipient', 'Recipients', Session::getPluralNumber())."</th>";
+      $header_end .= "</tr>";
+      echo $header_begin.$header_top.$header_end;
+
+      // Users
+      if (count($this->users)) {
+         foreach ($this->users as $val) {
+            foreach ($val as $data) {
+               echo "<tr class='tab_bg_1'>";
+               if ($canedit) {
+                  echo "<td>";
+                  Html::showMassiveActionCheckBox($this::getType() . '_User', $data["id"]);
+                  echo "</td>";
+               }
+               echo "<td>".User::getTypeName(1)."</td>";
+               echo "<td>".getUserName($data['users_id'])."</td>";
+               echo "</tr>";
+            }
+         }
+      }
+
+      // Groups
+      if (count($this->groups)) {
+         foreach ($this->groups as $val) {
+            foreach ($val as $data) {
+               echo "<tr class='tab_bg_1'>";
+               if ($canedit) {
+                  echo "<td>";
+                  Html::showMassiveActionCheckBox($this::getType() . '_Group', $data["id"]);
+                  echo "</td>";
+               }
+               echo "<td>".Group::getTypeName(1)."</td>";
+
+               $names   = Dropdown::getDropdownName('glpi_groups', $data['groups_id'], 1);
+               $entname = sprintf(__('%1$s %2$s'), $names["name"],
+                                  Html::showToolTip($names["comment"], ['display' => false]));
+               if ($data['entities_id'] >= 0) {
+                  $entname = sprintf(__('%1$s / %2$s'), $entname,
+                                     Dropdown::getDropdownName('glpi_entities',
+                                                               $data['entities_id']));
+                  if ($data['is_recursive']) {
+                     //TRANS: R for Recursive
+                     $entname = sprintf(__('%1$s %2$s'),
+                                        $entname, "<span class='b'>(".__('R').")</span>");
+                  }
+               }
+               echo "<td>".$entname."</td>";
+               echo "</tr>";
+            }
+         }
+      }
+
+      // Entity
+      if (count($this->entities)) {
+         foreach ($this->entities as $val) {
+            foreach ($val as $data) {
+               echo "<tr class='tab_bg_1'>";
+               if ($canedit) {
+                  echo "<td>";
+                  Html::showMassiveActionCheckBox($this::getType() . '_Entity', $data["id"]);
+                  echo "</td>";
+               }
+               echo "<td>".Entity::getTypeName(1)."</td>";
+               $names   = Dropdown::getDropdownName('glpi_entities', $data['entities_id'], 1);
+               $tooltip = Html::showToolTip($names["comment"], ['display' => false]);
+               $entname = sprintf(__('%1$s %2$s'), $names["name"], $tooltip);
+               if ($data['is_recursive']) {
+                  $entname = sprintf(__('%1$s %2$s'), $entname,
+                                     "<span class='b'>(".__('R').")</span>");
+               }
+               echo "<td>".$entname."</td>";
+               echo "</tr>";
+            }
+         }
+      }
+
+      // Profiles
+      if (count($this->profiles)) {
+         foreach ($this->profiles as $val) {
+            foreach ($val as $data) {
+               echo "<tr class='tab_bg_1'>";
+               if ($canedit) {
+                  echo "<td>";
+                  //Knowledgebase-specific case
+                  if ($this::getType() === "KnowbaseItem") {
+                     Html::showMassiveActionCheckBox($this::getType() . '_Profile', $data["id"]);
+                  } else {
+                     Html::showMassiveActionCheckBox($this::getType() . '_Profile', $data["id"]);
+                  }
+                  echo "</td>";
+               }
+               echo "<td>"._n('Profile', 'Profiles', 1)."</td>";
+
+               $names   = Dropdown::getDropdownName('glpi_profiles', $data['profiles_id'], 1);
+               $tooltip = Html::showToolTip($names["comment"], ['display' => false]);
+               $entname = sprintf(__('%1$s %2$s'), $names["name"], $tooltip);
+               if ($data['entities_id'] >= 0) {
+                  $entname = sprintf(__('%1$s / %2$s'), $entname,
+                                     Dropdown::getDropdownName('glpi_entities',
+                                                                $data['entities_id']));
+                  if ($data['is_recursive']) {
+                     $entname = sprintf(__('%1$s %2$s'), $entname,
+                                        "<span class='b'>(".__('R').")</span>");
+                  }
+               }
+               echo "<td>".$entname."</td>";
+               echo "</tr>";
+            }
+         }
+      }
+
+      if ($nb) {
+         echo $header_begin.$header_bottom.$header_end;
+      }
+      echo "</table>";
+      if ($canedit && $nb) {
+         $massiveactionparams['ontop'] = false;
+         Html::showMassiveActions($massiveactionparams);
+         Html::closeForm();
+      }
+
+      echo "</div>";
+      // Add items
+
       return true;
    }
 }

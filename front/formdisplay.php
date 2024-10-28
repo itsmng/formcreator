@@ -53,23 +53,16 @@ if (isset($_REQUEST['id'])
       Html::displayNotFoundError();
    }
 
-   if ($form->fields['access_rights'] != PluginFormcreatorForm::ACCESS_PUBLIC) {
-      Session::checkLoginUser();
-      if (!$form->checkEntity(true)) {
+
+   if ($form->fields['access_rights'] == PluginFormcreatorForm::ACCESS_RESTRICTED) {
+      $formWithRights = $form->getFormsWithRights([], '', false, $form->fields['id']);
+      if (!$form->canAccessForm($formWithRights)) {
          Html::displayRightError();
          exit();
       }
-   }
-
-   if ($form->fields['access_rights'] == PluginFormcreatorForm::ACCESS_RESTRICTED) {
-      $iterator = $DB->request(PluginFormcreatorForm_Profile::getTable(), [
-         'WHERE' => [
-            'profiles_id'                 => $_SESSION['glpiactiveprofile']['id'],
-            'plugin_formcreator_forms_id' => $form->getID()
-         ],
-         'LIMIT' => 1
-      ]);
-      if (count($iterator) == 0) {
+   } else if ($form->fields['access_rights'] != PluginFormcreatorForm::ACCESS_PUBLIC) {
+      Session::checkLoginUser();
+      if (!$form->checkEntity(true)) {
          Html::displayRightError();
          exit();
       }
