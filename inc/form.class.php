@@ -984,7 +984,7 @@ PluginFormcreatorTranslatableInterface
       echo '</div>';
    }
 
-   protected function canAccessForm($form) {
+   public function canAccessForm($form) {
        if ($form['access_rights'] != self::ACCESS_RESTRICTED) return true;
        if (in_array((string)Session::getLoginUserID(), explode(',', $form['users_id'] ?? ''))) {
           return true;
@@ -1018,15 +1018,8 @@ PluginFormcreatorTranslatableInterface
        return false;
    }
 
-   /**
-    * Show form and FAQ items
-    * @param number $rootCategory Items of this subtree only. 0 = no filtering
-    * @param string $keywords Filter items with keywords
-    * @param bool $helpdeskHome show items for helpdesk only
-    * @return array
-    */
-   public function showFormList(int $rootCategory = 0, string $keywords = '', bool $helpdeskHome = false) : array {
-      global $DB, $TRANSLATE, $CFG_GLPI;
+   public function getFormsWithRights(int $rootCategory = 0, string $keywords = '', bool $helpdeskHome = false, $formId = NULL) {
+      global $DB;
 
       $table_cat          = getTableForItemType('PluginFormcreatorCategory');
       $table_form         = getTableForItemType('PluginFormcreatorForm');
@@ -1078,6 +1071,11 @@ PluginFormcreatorTranslatableInterface
                   AGAINST('$keywordsWithWilcards' IN BOOLEAN MODE)"),
             ]
          ];
+      }
+      if (isset($formId)) {
+            $where_form['AND'][] = [
+                $table_form.'.id' => $formId,
+            ];
       }
 
       $result_forms = $DB->request([
@@ -1155,10 +1153,25 @@ PluginFormcreatorTranslatableInterface
             $order
          ],
       ]);
+      return [$selectedCategories, iterator_to_array($result_forms)];
+   }
 
+   /**
+    * Show form and FAQ items
+    * @param number $rootCategory Items of this subtree only. 0 = no filtering
+    * @param string $keywords Filter items with keywords
+    * @param bool $helpdeskHome show items for helpdesk only
+    * @return array
+    */
+   public function showFormList(int $rootCategory = 0, string $keywords = '', bool $helpdeskHome = false) : array {
+      global $DB, $TRANSLATE, $CFG_GLPI;
+
+      $table_cat          = getTableForItemType('PluginFormcreatorCategory');
+
+      list($selectedCategories, $formWithRights) = $this->getFormsWithRights($rootCategory, $keywords, $helpdeskHome);
       $formList = [];
-      if ($result_forms->count() > 0) {
-         foreach ($result_forms as $form) {
+      if (count($formWithRights) > 0) {
+         foreach ($formWithRights as $form) {
             // load thanguage for the form, if any
             $domain = self::getTranslationDomain($form['id']);
             $phpfile = self::getTranslationFile($form['id'], $_SESSION['glpilanguage']);
@@ -1254,18 +1267,6 @@ PluginFormcreatorTranslatableInterface
                ],
                "$table_form.is_default" => ['<>', '0']
             ] + $dbUtils->getEntitiesRestrictCriteria($table_form, '', '', true, false),
-         ];
-         $where_form['AND'][] = [
-            'OR' => [
-               'access_rights' => ['!=', PluginFormcreatorForm::ACCESS_RESTRICTED],
-               "$table_form.id" => new QuerySubQuery([
-                  'SELECT' => 'plugin_formcreator_forms_id',
-                  'FROM' => $table_fp,
-                  'WHERE' => [
-                     'profiles_id' => $_SESSION['glpiactiveprofile']['id']
-                  ]
-               ])
-            ]
          ];
 
          $query_forms = [
