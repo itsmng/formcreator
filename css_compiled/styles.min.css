@@ -780,33 +780,37 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
     -webkit-transform: none;
     transform: none; } }
 .plugin_formcreator_formTile {
-  margin: 0 3px 6px 3px;
+  margin: 6px;
   width: 20rem;
   display: inline-block;
   vertical-align: top;
   text-align: left;
   overflow: hidden;
   cursor: pointer;
-  border-radius: 0;
+  border-radius: 8px;
   box-sizing: border-box;
-  animation-name: fadeInUp;
-  animation-iteration-count: 1;
-  animation-timing-function: ease-in;
-  animation-duration: 0.3s;
-  height: 6rem;
-  display: flex; }
+  height: 7rem;
+  display: flex;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  /* Effet au hover */ }
+  .plugin_formcreator_formTile:hover {
+    background-color: #e0e0e0;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); }
   .plugin_formcreator_formTile > div:first-child {
     width: 6rem;
     font-size: 4.5rem;
     display: flex;
     justify-content: center;
-    align-items: center; }
+    align-items: center;
+    background-color: #f8f6f6;
+    border-right: 2px solid #ddd; }
     .plugin_formcreator_formTile > div:first-child > img {
       width: 4.5rem;
       height: 4.5rem;
       object-fit: contain; }
-  .plugin_formcreator_formTile:hover {
-    background-color: #EEEEEE; }
 
 .plugin_formcreator_formTile:hover {
   background-color: #EEEEEE; }
@@ -840,10 +844,7 @@ a.plugin_formcreator_formTile_title {
   min-width: 116px;
   overflow-x: hidden;
   overflow-y: auto;
-  padding: 0 0 3px 23px;
-  margin: -10px 0 -3px -23px;
-  background-color: #FFFFFF;
-  margin-left: 300px; }
+  background-color: #FFFFFF; }
 
 #plugin_formcreator_wizard_forms {
   clear: both; }
@@ -953,12 +954,9 @@ a.plugin_formcreator_formTile_title {
 .plugin_formcreator_heading {
   font-weight: bold; }
 
-.plugin_formcreator_sort:hover {
-  opacity: 1;
-  color: #3874BC; }
-  .plugin_formcreator_sort:hover .radios input[type=radio].form-check-input + label:before {
-    background-color: #3874BC;
-    border: 2px solid #3874BC; }
+.radios input[type=radio].form-check-input + label:before {
+  background-color: #3874BC;
+  border: 2px solid #3874BC; }
 
 .plugin_formcreator_sort {
   float: left;
