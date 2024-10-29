@@ -873,7 +873,7 @@ PluginFormcreatorTranslatableInterface
       echo '<div id="plugin_formcreator_wizard_categories">';
       echo '<div><h2>'._n("Category", "Categories", 2, 'formcreator').'</h2></div>';
       if ($config['see_all']) {
-         echo '<div><a href="#" id="wizard_seeall">' . __('see all', 'formcreator') . '</a></div>';
+         echo '<div><a href="#" id="wizard_seeall">' . __('See all', 'formcreator') . '</a></div>';
       }
       echo '</div>';
 
@@ -1342,43 +1342,46 @@ PluginFormcreatorTranslatableInterface
          echo html_entity_decode(__($this->fields['content'], $domain));
          echo '</div>';
       }
-
-      echo '<ol>';
-
+   
+      // Initialize session data if not set to avoid undefined array key error
       if (!isset($_SESSION['formcreator']['data'])) {
          $_SESSION['formcreator']['data'] = [];
       }
+   
+      // Sections wrapper for navigation
+      echo '<div id="sections-container">';
+   
       $sections = (new PluginFormcreatorSection)->getSectionsFromForm($formId);
+      $sectionCount = count($sections);
+      $sectionIndex = 0;
+   
       foreach ($sections as $section) {
          $sectionId = $section->getID();
-
-         // Section header
-         echo '<li'
-         . ' class="plugin_formcreator_section"'
-         . ' data-itemtype="' . PluginFormcreatorSection::class . '"'
-         . ' data-id="' . $sectionId . '"'
-         . '">';
-
-         // section name
+   
+         // Section header with data-index for navigation
+         echo '<div class="plugin_formcreator_section" data-index="' . $sectionIndex . '"'
+            . ' data-itemtype="' . PluginFormcreatorSection::class . '"'
+            . ' data-id="' . $sectionId . '"'
+            . ($sectionIndex > 0 ? ' style="display:none;"' : '') // Hide all but the first section
+            . '>';
+   
+         // Section name
          echo '<h2>';
          echo empty($section->fields['name']) ? '(' . $sectionId . ')' : __($section->fields['name'], $domain);
          echo '</h2>';
-
+   
          // Section content
          echo '<div>';
-         // Display all fields of the section
          $questions = (new PluginFormcreatorQuestion())->getQuestionsFromSection($section->getID());
          $lastQuestion = null;
          foreach ($questions as $question) {
             if ($lastQuestion !== null) {
                if ($lastQuestion->fields['row'] < $question->fields['row']) {
-                  // the question begins a new line
                   echo '<div class="plugin_formcreator_newRow"></div>';
                } else {
                   $x = $lastQuestion->fields['col'] + $lastQuestion->fields['width'];
                   $width = $question->fields['col'] - $x;
                   if ($x < $question->fields['col']) {
-                     // there is an horizontal gap between previous question and current one
                      echo '<div class="plugin_formcreator_gap" data-gs-x="' . $x . '" data-gs-width="' . $width . '"></div>';
                   }
                }
@@ -1387,81 +1390,52 @@ PluginFormcreatorTranslatableInterface
             $lastQuestion = $question;
          }
          echo '</div>';
-
-         echo '</li>';
-      }
-
-      // Captcha for anonymous forms
-      if ($this->fields['access_rights'] == PluginFormcreatorForm::ACCESS_PUBLIC
-         && $this->fields['is_captcha_enabled'] != '0') {
-         $captchaTime = time();
-         $captchaId = md5($captchaTime . $this->getID());
-         $captcha = PluginFormcreatorCommon::getCaptcha($captchaId);
-         echo '<li class="plugin_formcreator_section" id="plugin_formcreator_captcha_section">';
-         echo '<h2>' . __('Are you a robot ?', 'formcreator') . '</h2>';
-         echo '<div class="form-group line1"><label for="plugin_formcreator_captcha">' . __('Are you a robot ?', 'formcreator') . '</label>';
-         echo '<div><i onclick="plugin_formcreator_refreshCaptcha()" class="fas fa-sync-alt"></i>&nbsp;<img src="' . $captcha['img'] . '">';
-         echo '<div style="width: 50%; float: right" class="form_field"><span class="no-wrap">';
-         echo Html::input('plugin_formcreator_captcha');
-         echo Html::hidden('plugin_formcreator_captcha_id', ['value' => $captchaId]);
-         echo '</div></div>';
          echo '</div>';
-         echo '</li>';
+   
+         $sectionIndex++;
       }
-
-      // Delete saved answers if any
-      unset($_SESSION['formcreator']['data']);
-
-      // Show validator selector
-      if ($this->fields['validation_required'] != PluginFormcreatorForm_Validator::VALIDATION_NONE) {
-         $validators = [];
-         $formValidator = new PluginFormcreatorForm_Validator();
-         switch ($this->fields['validation_required']) {
-            case PluginFormcreatorForm_Validator::VALIDATION_GROUP:
-               $validatorType = Group::class;
-               $result = $formValidator->getValidatorsForForm($this, $validatorType);
-               foreach ($result as $validator) {
-                  $validators[$validator->getID()] = $validator->fields['completename'];
-               }
-               break;
-            case PluginFormcreatorForm_Validator::VALIDATION_USER:
-               $validatorType = User::class;
-               $result = $formValidator->getValidatorsForForm($this, $validatorType);
-               foreach ($result as $validator) {
-                  $validators[$validator->getID()] = formatUserName($validator->getID(), $validator->fields['name'], $validator->fields['realname'], $validator->fields['firstname']);
-               }
-               break;
-         }
-
-         $resultCount = count($result);
-         if ($resultCount == 1) {
-            reset($validators);
-            $validatorId = key($validators);
-            echo Html::hidden('formcreator_validator', ['value' => $validatorId]);
-         } else if ($resultCount > 1) {
-            $validators = [0 => Dropdown::EMPTY_VALUE] + $validators;
-            echo '<h2>' . __('Validation', 'formcreator') . '</h2>';
-            echo '<div class="form-group required liste" id="form-validator">';
-            echo '<label>' . __('Choose a validator', 'formcreator') . ' <span class="red">*</span></label>';
-            Dropdown::showFromArray('formcreator_validator', $validators);
-            echo '</div>';
-         }
-      }
-
-      echo Html::scriptBlock('$(function() {
-         plugin_formcreator.showFields($("form[name=\'' . $formName . '\']"));
-      })');
-
-      // Display submit button
-      echo '<div class="center">';
+      echo '</div>';
+   
+      // Display navigation buttons only if there is more than one section
+      if ($sectionCount > 1) {
+         echo '<div class="form-navigation" style="display: flex; justify-content: space-between;">';
+         echo '<button type="button" onclick="navigateSections(-1)" style="display: none; margin-right: auto;" id="prevBtn">Précédent</button>';
+         echo '<button type="button" onclick="navigateSections(1)" style="margin-left: auto;" id="nextBtn">Suivant</button>';
+         echo '</div>';
+     }
+     
+   
+      // Submit button, always visible when there is only one section or at the end otherwise
+      echo '<div class="center" id="submitBtnContainer"'
+         . ($sectionCount > 1 ? ' style="display: none;"' : '') . '>';
       echo Html::submit(__('Send'), ['name' => 'submit_formcreator']);
       echo '</div>';
-
+   
+      // JavaScript for section navigation
+      echo Html::scriptBlock('
+         let currentSection = 0;
+         const sections = document.querySelectorAll(".plugin_formcreator_section");
+   
+         function navigateSections(direction) {
+            sections[currentSection].style.display = "none";
+            currentSection += direction;
+            sections[currentSection].style.display = "block";
+            
+            // Hide/show buttons based on the current section
+            document.getElementById("prevBtn").style.display = currentSection === 0 ? "none" : "inline";
+            document.getElementById("nextBtn").style.display = currentSection === sections.length - 1 ? "none" : "inline";
+            
+            // Show submit button only on the last section
+            document.getElementById("submitBtnContainer").style.display = currentSection === sections.length - 1 ? "block" : "none";
+         }
+      ');
+   
       echo Html::hidden('plugin_formcreator_forms_id', ['value' => $this->getID()]);
       echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
       echo Html::hidden('uuid', ['value' => $this->fields['uuid']]);
       Html::closeForm();
    }
+   
 
    /**
     * Prepare input data for adding the form
