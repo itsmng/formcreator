@@ -1,2 +1,4 @@
 /vendor/
 /lib/
+/.sass-cache/
+/css_compiled/styles.min.css.map

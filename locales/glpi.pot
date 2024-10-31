@@ -614,7 +614,7 @@ msgid "Add a target"
 msgstr ""
 
 #: inc/form.class.php:830 inc/knowbase.class.php:65
-msgid "see all"
+msgid "See all"
 msgstr ""
 
 #: inc/form.class.php:1152
