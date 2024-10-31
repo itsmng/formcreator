@@ -842,8 +842,107 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
    }
 }
 
-/* KB page and forms page*/
-#plugin_formcreator_kb_categories, #plugin_formcreator_wizard_categories {
+#plugin_formcreator_wizard_categories {
+   width: 275px;
+   top: 0;
+   bottom: 0;
+   left: 0;
+   float: left;
+   height: calc(100vh - 28px - 65px);
+   background-color: #ffffff;
+   border-right: 1px solid #DDD;
+   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+   position: relative;
+   transition: width 0.3s ease;
+   display: flex;
+   flex-direction: column;
+}
+
+#plugin_formcreator_wizard_categories h2 {
+   padding: 1em;
+   margin: 0;
+   border-bottom: 1px solid #DDD;
+   color: #333;
+   font-size: 1.2em;
+   background-color: #f4f4f4;
+   text-transform: uppercase;
+}
+
+#plugin_formcreator_wizard_categories div > a,
+#plugin_formcreator_wizard_categories .slinky-menu a {
+   display: block;
+   width: 100%;
+   padding: 12px 20px;
+   box-sizing: border-box;
+   color: #555;
+   font-size: 1em;
+   text-decoration: none;
+   transition: all 0.3s;
+   position: relative;
+   display: flex;
+   align-items: center;
+}
+
+#plugin_formcreator_wizard_categories div > a:hover,
+#plugin_formcreator_wizard_categories .slinky-menu a:hover {
+   background-color: #f0f0f0;
+   color: #d9534f;
+   padding-left: 25px;
+}
+
+#plugin_formcreator_wizard_categories div > a::before,
+#plugin_formcreator_wizard_categories .slinky-menu a::before {
+   content: '•';
+   font-size: 1.2em;
+   color: #d9534f;
+   margin-right: 8px;
+   transition: transform 0.3s;
+}
+
+#plugin_formcreator_wizard_categories div > a.category_active::before,
+#plugin_formcreator_wizard_categories .slinky-menu a.category_active::before {
+   transform: translateX(5px);
+}
+
+@media (max-width: 768px) {
+   #plugin_formcreator_wizard_categories {
+      width: 220px;
+   }
+
+   #plugin_formcreator_wizard_categories h2 {
+      font-size: 1em;
+      padding: 0.8em;
+   }
+
+   #plugin_formcreator_wizard_categories div > a,
+   #plugin_formcreator_wizard_categories .slinky-menu a {
+      font-size: 0.9em;
+      padding: 10px 15px;
+   }
+}
+
+@media (max-width: 480px) {
+   #plugin_formcreator_wizard_categories {
+      width: 180px;
+   }
+
+   #plugin_formcreator_wizard_categories h2 {
+      font-size: 0.9em;
+      padding: 0.6em;
+   }
+
+   #plugin_formcreator_wizard_categories div > a,
+   #plugin_formcreator_wizard_categories .slinky-menu a {
+      font-size: 0.8em;
+      padding: 8px 10px;
+   }
+}
+
+
+
+
+
+#plugin_formcreator_kb_categories {
    width: 275px;
    top: 0;
    bottom: 0;
@@ -1737,18 +1836,6 @@ span.fc_list_icon {
 
    #formcreator_servicecatalogue_ticket_summary {
       left: 100px;
-   }
-
-   #plugin_formcreator_wizard_categories {
-      height: inherit;
-      width: 100%;
-      position: initial;
-      float: none;
-      min-height: initial;
-   }
-
-   #plugin_formcreator_wizard_categories .slinky-menu {
-      position: static;
    }
 
    .plugin_formcreator_page #plugin_formcreator_wizard {

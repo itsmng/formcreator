@@ -682,8 +682,93 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
     margin-right: 1em;
     float: left; }
 
-/* KB page and forms page*/
-#plugin_formcreator_kb_categories, #plugin_formcreator_wizard_categories {
+#plugin_formcreator_wizard_categories {
+  width: 275px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  float: left;
+  height: calc(100vh - 28px - 65px);
+  background-color: #ffffff;
+  border-right: 1px solid #DDD;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: width 0.3s ease;
+  display: flex;
+  flex-direction: column; }
+
+/* Titre de la section */
+#plugin_formcreator_wizard_categories h2 {
+  padding: 1em;
+  margin: 0;
+  border-bottom: 1px solid #DDD;
+  color: #333;
+  font-size: 1.2em;
+  background-color: #f4f4f4;
+  text-transform: uppercase; }
+
+/* Styles des liens dans la navigation latérale */
+#plugin_formcreator_wizard_categories div > a,
+#plugin_formcreator_wizard_categories .slinky-menu a {
+  display: block;
+  width: 100%;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  color: #555;
+  font-size: 1em;
+  text-decoration: none;
+  transition: all 0.3s;
+  position: relative;
+  display: flex;
+  align-items: center; }
+
+/* Effet de survol pour les liens */
+#plugin_formcreator_wizard_categories div > a:hover,
+#plugin_formcreator_wizard_categories .slinky-menu a:hover {
+  background-color: #f0f0f0;
+  color: #d9534f;
+  padding-left: 25px; }
+
+/* Pastille avant chaque lien */
+#plugin_formcreator_wizard_categories div > a::before,
+#plugin_formcreator_wizard_categories .slinky-menu a::before {
+  content: '•';
+  font-size: 1.2em;
+  color: #d9534f;
+  margin-right: 8px;
+  transition: transform 0.3s; }
+
+/* Déplacement de la pastille pour l'élément actif */
+#plugin_formcreator_wizard_categories div > a.category_active::before,
+#plugin_formcreator_wizard_categories .slinky-menu a.category_active::before {
+  transform: translateX(5px); }
+
+/* Media queries pour la responsivité */
+@media (max-width: 768px) {
+  #plugin_formcreator_wizard_categories {
+    width: 220px; }
+
+  #plugin_formcreator_wizard_categories h2 {
+    font-size: 1em;
+    padding: 0.8em; }
+
+  #plugin_formcreator_wizard_categories div > a,
+  #plugin_formcreator_wizard_categories .slinky-menu a {
+    font-size: 0.9em;
+    padding: 10px 15px; } }
+@media (max-width: 480px) {
+  #plugin_formcreator_wizard_categories {
+    width: 180px; }
+
+  #plugin_formcreator_wizard_categories h2 {
+    font-size: 0.9em;
+    padding: 0.6em; }
+
+  #plugin_formcreator_wizard_categories div > a,
+  #plugin_formcreator_wizard_categories .slinky-menu a {
+    font-size: 0.8em;
+    padding: 8px 10px; } }
+#plugin_formcreator_kb_categories {
   width: 275px;
   top: 0;
   bottom: 0;
@@ -693,28 +778,26 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
   background-color: #f8f7f3;
   border-right: 1px solid #DDD;
   position: relative; }
-  #plugin_formcreator_kb_categories div > a, #plugin_formcreator_wizard_categories div > a {
+  #plugin_formcreator_kb_categories div > a {
     display: inline-block;
     width: 100%;
     padding: 14px;
     box-sizing: border-box; }
-  #plugin_formcreator_kb_categories .slinky-menu, #plugin_formcreator_wizard_categories .slinky-menu {
+  #plugin_formcreator_kb_categories .slinky-menu {
     position: absolute;
     left: 0;
     right: -1px; }
-  #plugin_formcreator_kb_categories a, #plugin_formcreator_wizard_categories a {
+  #plugin_formcreator_kb_categories a {
     background-color: inherit;
     font-size: 1.2em; }
-  #plugin_formcreator_kb_categories a[data-category-id]:not([data-parent-category-id="0"]), #plugin_formcreator_wizard_categories a[data-category-id]:not([data-parent-category-id="0"]) {
+  #plugin_formcreator_kb_categories a[data-category-id]:not([data-parent-category-id="0"]) {
     margin-left: 20px; }
   #plugin_formcreator_kb_categories .category_active:not(.next),
-  #plugin_formcreator_kb_categories .category_active ~ ul .header, #plugin_formcreator_wizard_categories .category_active:not(.next),
-  #plugin_formcreator_wizard_categories .category_active ~ ul .header {
+  #plugin_formcreator_kb_categories .category_active ~ ul .header {
     border-bottom: 1px dashed #DDD;
     position: relative; }
   #plugin_formcreator_kb_categories .category_active:not(.next):after,
-  #plugin_formcreator_kb_categories .category_active ~ ul .header:after, #plugin_formcreator_wizard_categories .category_active:not(.next):after,
-  #plugin_formcreator_wizard_categories .category_active ~ ul .header:after {
+  #plugin_formcreator_kb_categories .category_active ~ ul .header:after {
     position: absolute;
     left: calc(100% - 45px);
     top: 50%;
@@ -727,8 +810,7 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
     margin-top: -23px;
     z-index: 20; }
   #plugin_formcreator_kb_categories .category_active:not(.next):before,
-  #plugin_formcreator_kb_categories .category_active ~ ul .header:before, #plugin_formcreator_wizard_categories .category_active:not(.next):before,
-  #plugin_formcreator_wizard_categories .category_active ~ ul .header:before {
+  #plugin_formcreator_kb_categories .category_active ~ ul .header:before {
     position: absolute;
     left: calc(100% - 46px);
     top: 50%;
@@ -740,21 +822,21 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
     border-width: 23px;
     margin-top: -23px;
     z-index: 20; }
-  #plugin_formcreator_kb_categories a, #plugin_formcreator_kb_categories h2, #plugin_formcreator_wizard_categories a, #plugin_formcreator_wizard_categories h2 {
+  #plugin_formcreator_kb_categories a, #plugin_formcreator_kb_categories h2 {
     font-size: 1.2em; }
-  #plugin_formcreator_kb_categories h2, #plugin_formcreator_wizard_categories h2 {
+  #plugin_formcreator_kb_categories h2 {
     padding: 0.83em 0;
     border-bottom: 1px solid #DDD;
     margin: 0;
     padding: 14px;
     color: #000; }
-  #plugin_formcreator_kb_categories .header h2, #plugin_formcreator_wizard_categories .header h2 {
+  #plugin_formcreator_kb_categories .header h2 {
     text-align: left; }
-  #plugin_formcreator_kb_categories .header .back, #plugin_formcreator_wizard_categories .header .back {
+  #plugin_formcreator_kb_categories .header .back {
     right: 20px;
     color: #000;
     left: inherit; }
-  #plugin_formcreator_kb_categories li, #plugin_formcreator_wizard_categories li {
+  #plugin_formcreator_kb_categories li {
     background-color: inherit; }
 
 .plugin_formcreator_card {
@@ -1397,16 +1479,6 @@ span.fc_list_icon {
 
   #formcreator_servicecatalogue_ticket_summary {
     left: 100px; }
-
-  #plugin_formcreator_wizard_categories {
-    height: inherit;
-    width: 100%;
-    position: initial;
-    float: none;
-    min-height: initial; }
-
-  #plugin_formcreator_wizard_categories .slinky-menu {
-    position: static; }
 
   .plugin_formcreator_page #plugin_formcreator_wizard {
     width: 100%;
