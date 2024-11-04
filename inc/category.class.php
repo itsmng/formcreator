@@ -161,7 +161,6 @@ class PluginFormcreatorCategory extends CommonTreeDropdown
       ];
 
       // Build from root node to leaves
-      $categories = array_reverse($categories);
       foreach ($categories as $item) {
          $flat[$item['id']] = $item;
          $flat[$item['parent']]['subcategories'][] = &$flat[$item['id']];
