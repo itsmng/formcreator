@@ -875,7 +875,7 @@ var plugin_formcreator = new function() {
 
       const editors = form.find('textarea[type="richtextarea"]');
       editors.each(function(index, editor) {
-         eval(editor.id + '.updateSourceElement()');
+         eval('window.CKEDITOR.editor_' + editor.id + '.updateSourceElement()');
       });
       $.ajax({
          url: formcreatorRootDoc + '/ajax/question_update.php',

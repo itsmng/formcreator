@@ -746,11 +746,6 @@ PluginFormcreatorTranslatableInterface
             $title => [
                'visible' => true,
                'inputs' => [
-                  [
-                     'type' => 'hidden',
-                     'name' => 'id',
-                     'value' => $ID,
-                  ],
                   __('Title') => [
                      'type' => 'text',
                      'name' => 'name',
@@ -796,6 +791,7 @@ PluginFormcreatorTranslatableInterface
                   ],
                   __('Description') => [
                      'type' => 'richtextarea',
+                     'id' => 'description',
                      'name' => 'description',
                      'value' => Toolbox::convertTagToImage($this->fields['description'], $this),
                      'col_lg' => 12,

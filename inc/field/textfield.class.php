@@ -52,29 +52,23 @@ class TextField extends PluginFormcreatorAbstractField
       $label = '';
       $field = '';
 
-      $additions = '<tr class="plugin_formcreator_question_specific">';
-      $additions .= '<td>';
-      $additions .= '<label for="dropdown_default_values' . $rand . '">';
-      $additions .= __('Default values');
-      $additions .= '</label>';
-      $additions .= '</td>';
-      $additions .= '<td>';
-      $value = Html::entities_deep($this->question->fields['default_values']);
-      $additions .= Html::input(
-         'default_values',
-         [
-            'type'  => 'text',
-            'id'    => 'default_values',
-            'value' => $value,
-         ]
-      );
-      $additions .= '</td>';
-      $additions .= '<td></td>';
-      $additions .= '<td></td>';
-      $additions .= '</tr>';
-
+      $additions = '<div class="plugin_formcreator_question_specific">';
+      ob_start();
+      renderTwigTemplate('macros/wrappedInput.twig', [
+          'title' => __('Default values'),
+          'input' => [
+              'type' => 'text',
+              'name' => 'default_values',
+              'id' => 'default_values',
+              'value' => Html::entities_deep($this->question->fields['default_values']),
+              'col_lg' => 12,
+          ]
+      ]);
+      $additions .= ob_get_clean();
       $common = parent::getDesignSpecializationField();
       $additions .= $common['additions'];
+      $additions .= '</div>';
+
 
       return [
          'label' => $label,
