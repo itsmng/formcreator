@@ -645,7 +645,7 @@ PluginFormcreatorTranslatableInterface
                                                 text: result[i].children[j].text,
                                              }),
                                           ],
-                                       }));                                       
+                                       }));
                                     }
                                  }
                               }
@@ -1284,7 +1284,7 @@ PluginFormcreatorTranslatableInterface
       if (file_exists($phpfile)) {
          $TRANSLATE->addTranslationFile('phparray', $phpfile, $domain, $_SESSION['glpilanguage']);
       }
-      
+
       echo "<h1 class='form-title'>";
       echo __($this->fields['name'], $domain) . "&nbsp;";
       echo '<i class="fas fa-print" style="cursor: pointer;" onclick="window.print();"></i>';
@@ -2438,7 +2438,8 @@ PluginFormcreatorTranslatableInterface
    public static function getTargetTypes() : array {
       return [
          PluginFormcreatorTargetTicket::class,
-         PluginFormcreatorTargetChange::class
+         PluginFormcreatorTargetChange::class,
+         PluginFormcreatorTargetWorkflow::class
       ];
    }
 
