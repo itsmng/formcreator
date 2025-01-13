@@ -81,7 +81,8 @@ class PluginFormcreatorTargetWorkflow extends PluginFormcreatorAbstractTarget
    }
 
    protected function getTargetItemtypeName(): string {
-      if (Plugin::isActivated('workflow')) {
+      $plugin = new Plugin();
+      if ($plugin->isActivated('workflows')) {
           return PluginWorkflowsWorkflow::class;
       }
    }
@@ -350,6 +351,12 @@ class PluginFormcreatorTargetWorkflow extends PluginFormcreatorAbstractTarget
     * @return Ticket|null Generated ticket if success, null otherwise
     */
    public function save(PluginFormcreatorFormAnswer $formanswer) {
+      $plugin = new Plugin();
+      if ($plugin->isActivated('workflows')) {
+          $workflow = new PluginWorkflowsWorkflow();
+          $workflow->getFromDB($this->fields['workflows_id']);
+          $workflow->run($formanswer->getAnswers($formanswer->fields['id']));
+      }
       return $formanswer;
    }
 
