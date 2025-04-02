@@ -68,6 +68,7 @@ use PluginGenericobjectType;
 use PluginDatabasesDatabase;
 
 use GlpiPlugin\Formcreator\Exception\ComparisonException;
+use PluginFormcreatorQuestion;
 
 class GlpiselectField extends DropdownField
 {
@@ -120,6 +121,7 @@ class GlpiselectField extends DropdownField
       $root = $decodedValues['show_tree_root'] ?? '0';
       $maxDepth = $decodedValues['show_tree_depth'] ?? Dropdown::EMPTY_VALUE;
       $selectableRoot = $decodedValues['selectable_tree_root'] ?? '0';
+      $computerLink = $decodedValues['link'] ?? '0';
 
       $additions = '<tr class="plugin_formcreator_question_specific">';
       $additions .= '<td>';
@@ -133,6 +135,7 @@ class GlpiselectField extends DropdownField
       $additions .= "<input id='commonTreeDropdownRoot' type='hidden' value='$root'>";
       $additions .= "<input id='commonTreeDropdownMaxDepth' type='hidden' value='$maxDepth'>";
       $additions .= "<input id='commonTreeDropdownSelectableRoot' type='hidden' value='$selectableRoot'>";
+      $additions .= "<input id='formCreatorLinkValue' type='hidden' value='$computerLink'>";
       $additions .= '</td>';
       $additions .= '<td>';
       $additions .= '</td>';
@@ -168,6 +171,8 @@ class GlpiselectField extends DropdownField
    }
 
    public function prepareQuestionInputForSave($input) {
+      global $CFG_GLPI;
+
       if (!isset($input['glpi_objects']) || empty($input['glpi_objects'])) {
          Session::addMessageAfterRedirect(
             __('The field value is required:', 'formcreator') . ' ' . $input['name'],
@@ -194,6 +199,11 @@ class GlpiselectField extends DropdownField
          $input['values']['show_tree_depth'] = (int) ($input['show_tree_depth'] ?? '-1');
          $input['values']['show_tree_root'] = ($input['show_tree_root'] ?? '');
          $input['values']['selectable_tree_root'] = ($input['selectable_tree_root'] ?? '0');
+      } else if (isset($input['link'])) {
+          $input['values']['link'] = ($input['link'] ?? '0');
+          $linkedQuestion = new PluginFormcreatorQuestion();
+          $linkedQuestion->getFromDB($input['link']);
+          $input['values']['linkItemType'] = json_decode($linkedQuestion->fields['values'], true)['itemtype'];
       }
       unset($input['show_tree_root']);
       unset($input['show_tree_depth']);
@@ -296,5 +306,56 @@ class GlpiselectField extends DropdownField
       }
 
       return $optgroup;
+   }
+
+   public function getRenderedHtml($domain, $canEdit = true): string {
+      $itemtype = $this->getSubItemtype();
+      if (!$canEdit) {
+         $item = new $itemtype();
+         $value = '';
+         if ($item->getFromDB($this->value)) {
+            $column = 'name';
+            if ($item instanceof CommonTreeDropdown) {
+               $column = 'completename';
+            }
+            $value = $item->fields[$column];
+         }
+
+         return $value;
+      }
+
+      $html        = '';
+      $id           = $this->question->getID();
+      $rand         = mt_rand();
+      $fieldName    = 'formcreator_field_' . $id;
+      if (!empty($this->question->fields['values'])) {
+         $dparams = $this->buildParams($rand);
+         $dparams['display'] = false;
+         $dparams['_idor_token'] = Session::getNewIDORToken($itemtype);
+         $html .= '<div id="dropdown_wrapper' . $id . $rand . '">';
+         $html .= $itemtype::dropdown($dparams);
+         $html .= '</div>';
+         $additionalParams = json_decode($this->question->fields['values'], true);
+         if (isset($additionalParams['link'])) {
+             $linkId = $additionalParams['link'];
+             $linkItemType = $additionalParams['linkItemType'];
+             $url = FORMCREATOR_ROOTDOC . '/ajax/getDropdownLink.php?itemtype=' . $itemtype
+                 . '&name=' . $this->question->fields['name'];
+             echo Html::scriptBlock("$(function() {
+                $('select[name=\"formcreator_field_{$linkId}\"]').on('change', function() {
+                        $('#dropdown_wrapper{$id}{$rand}').load(\"{$url}\" + \"&filter_items_id=\" + $(this).val()
+                            + \"&filter_itemtype=\" + \"{$linkItemType}\"
+                        )
+                });
+             });"
+             );
+         }
+      }
+      $html .= PHP_EOL;
+      $html .= Html::scriptBlock("$(function() {
+         pluginFormcreatorInitializeDropdown('$fieldName', '$rand');
+      });");
+
+      return $html;
    }
 }

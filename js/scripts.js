@@ -1677,15 +1677,24 @@ function plugin_formcreator_changeGlpiObjectItemType() {
       $('#dropdown_default_value_field').html(response);
    });
 
-   $.post({
-      url: formcreatorRootDoc + '/ajax/commontree.php',
-      data: {
-         itemtype: glpi_object,
-         root: $("#commonTreeDropdownRoot").val(),
-         maxDepth: $("#commonTreeDropdownMaxDepth").val(),
-         selectableRoot: $("#commonTreeDropdownSelectableRoot").val(),
-      },
-   }).done(function(response) {
+   const applianceLinks = [
+      'Computer', 'Monitor', 'NetworkEquipment', 'Peripheral', 'Phone',
+      'Printer', 'Software', 'Cluster'
+   ];
+
+   const url = formcreatorRootDoc + ( applianceLinks.includes(glpi_object) ? '/ajax/computerlink.php' : '/ajax/commontree.php');
+   const data = applianceLinks.includes(glpi_object) ? {
+      itemtype: glpi_object,
+      forms_id: $('#plugin_formcreator_form').data('id'),
+      questions_id: $('form[data-itemtype="PluginFormcreatorQuestion"]').find('input[name="id"]').val(),
+      value: $('#formCreatorLinkValue').val(),
+   } : {
+      itemtype: glpi_object,
+      root: $("#commonTreeDropdownRoot").val(),
+      maxDepth: $("#commonTreeDropdownMaxDepth").val(),
+      selectableRoot: $("#commonTreeDropdownSelectableRoot").val(),
+   };
+   $.post({ url, data }).done(function(response) {
       $('.plugin_formcreator_dropdown').html(response);
       $('.plugin_formcreator_dropdown').toggle(true);
    }).fail(function() {
