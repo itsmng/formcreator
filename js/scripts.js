@@ -1682,7 +1682,7 @@ function plugin_formcreator_changeGlpiObjectItemType() {
       'Printer', 'Software', 'Cluster'
    ];
 
-   const url = formcreatorRootDoc + ( applianceLinks.includes(glpi_object) ? '/ajax/computerlink.php' : '/ajax/commontree.php');
+   const url = formcreatorRootDoc + (applianceLinks.includes(glpi_object) ? '/ajax/computerlink.php' : '/ajax/commontree.php');
    const data = applianceLinks.includes(glpi_object) ? {
       itemtype: glpi_object,
       forms_id: $('#plugin_formcreator_form').data('id'),
