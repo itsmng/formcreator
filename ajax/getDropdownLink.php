@@ -66,7 +66,7 @@ $query = <<<SQL
 SQL;
 $results = $DB->query($query);
 while ($row = $DB->fetchAssoc($results)) {
-   $values[$row['items_id']] = $row['name'];
+   $values[$row['items_id']] = $row['name'] ?? '';
 }
 
 Dropdown::showFromArray($name, $values, ['display_emptychoice' => true]);

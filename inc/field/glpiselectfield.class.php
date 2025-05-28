@@ -340,7 +340,7 @@ class GlpiselectField extends DropdownField
              $linkId = $additionalParams['link'];
              $linkItemType = $additionalParams['linkItemType'];
              $url = FORMCREATOR_ROOTDOC . '/ajax/getDropdownLink.php?itemtype=' . $itemtype
-                 . '&name=' . urlencode($this->question->fields['name']);
+                 . '&name=' . urlencode('formcreator_field_' . $this->question->fields['id']);
              echo Html::scriptBlock("$(function() {
                 $('select[name=\"formcreator_field_{$linkId}\"]').on('change', function() {
                         $('#dropdown_wrapper{$id}{$rand}').load(\"{$url}\" + \"&filter_items_id=\" + $(this).val()
