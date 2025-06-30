@@ -638,7 +638,7 @@ msgstr "Ajouter une cible"
 
 #: inc/form.class.php:830 inc/knowbase.class.php:65
 msgid "see all"
-msgstr "voir tous"
+msgstr "Voir tous"
 
 #: inc/form.class.php:1152
 msgid "What are you looking for?"
