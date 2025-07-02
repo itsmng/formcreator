@@ -1893,6 +1893,48 @@ SCRIPT;
       return $condition->showConditionsForItem($this);
    }
 
+   private function showUserDropdown($name) {
+      global $DB;
+      
+      $users = $DB->request([
+          'SELECT' => ['id', 'name', 'firstname', 'realname'],
+          'FROM' => 'glpi_users',
+          'WHERE' => [
+              'is_active' => 1,
+              'is_deleted' => 0
+          ],
+          'ORDER' => ['realname', 'firstname']
+      ]);
+  
+      echo '<select name="' . $name . '" class="form-control">';
+      echo '<option value="">-----</option>';
+      foreach ($users as $user) {
+          $userName = trim($user['firstname'] . ' ' . $user['realname']);
+          if (empty($userName)) {
+              $userName = $user['name'];
+          }
+          echo '<option value="' . $user['id'] . '">' . htmlspecialchars($userName) . '</option>';
+      }
+      echo '</select>';
+  }
+  
+  private function showGroupDropdown($name) {
+      global $DB;
+      
+      $groups = $DB->request([
+          'SELECT' => ['id', 'name'],
+          'FROM' => 'glpi_groups',
+          'ORDER' => 'name'
+      ]);
+  
+      echo '<select name="' . $name . '" class="form-control">';
+      echo '<option value="">-----</option>';
+      foreach ($groups as $group) {
+          echo '<option value="' . $group['id'] . '">' . htmlspecialchars($group['name']) . '</option>';
+      }
+      echo '</select>';
+  }
+
    /**
     * Show header for actors edition
     *
@@ -1978,17 +2020,11 @@ SCRIPT;
       );
 
       echo '<div id="block_' . $type . '_user" style="display:none">';
-      User::dropdown([
-         'name' => 'actor_value_' . PluginFormcreatorTarget_Actor::ACTOR_TYPE_PERSON,
-         'right' => 'all',
-         'all'   => 0,
-      ]);
+      $this->showUserDropdown('actor_value_' . PluginFormcreatorTarget_Actor::ACTOR_TYPE_PERSON);
       echo '</div>';
-
+      
       echo '<div id="block_' . $type . '_group" style="display:none">';
-      Group::dropdown([
-         'name' => 'actor_value_' . PluginFormcreatorTarget_Actor::ACTOR_TYPE_GROUP,
-      ]);
+      $this->showGroupDropdown('actor_value_' . PluginFormcreatorTarget_Actor::ACTOR_TYPE_GROUP);
       echo '</div>';
 
       echo '<div id="block_' . $type . '_question_user" style="display:none">';
