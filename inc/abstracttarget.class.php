@@ -1037,77 +1037,103 @@ PluginFormcreatorTranslatableInterface
 
    protected function showSLASettings() {
       $question = new PluginFormcreatorQuestion();
+      
+      // Récupération manuelle des SLA TTO et TTR
+      $slaTtoOptions = $this->getSLAOptions(SLM::TTO);
+      $slaTtrOptions = $this->getSLAOptions(SLM::TTR);
+      
       $blocks = [
-         'visible' => true,
-         'inputs' => [
-            __("SLA") => [
-               'type' => 'select',
-               'id' => 'selectFormcreatorSlaRule',
-               'name' => 'sla_rule',
-               'values' => [Dropdown::EMPTY_VALUE] + self::getEnumSlaRule(),
-               'value' => $this->fields["sla_rule"],
-               'hooks' => [
-                  'change' => <<<JS
-                     const val = this.value;
-                     // PluginFormcreatorAbstractTarget::SLA_RULE_SPECIFIC
-                     $('#selectFormcreatorSlaSpecificTto').attr('disabled', val != 2);
-                     $('#selectFormcreatorSlaSpecificTtr').attr('disabled', val != 2);
-                     // PluginFormcreatorAbstractTarget::SLA_RULE_FROM_ANWSER
-                     $('#selectFormcreatorSlaQuestionsTto').attr('disabled', val != 3);
-                     $('#selectFormcreatorSlaQuestionsTtr').attr('disabled', val != 3);
-                  JS,
-               ],
-               'col_lg' => 12,
-               'col_md' => 12,
-            ],
-            __('SLA (TTO)', 'formcreator') => [
-               'type' => 'select',
-               'id' => 'selectFormcreatorSlaSpecificTto',
-               'name' => '_sla_specific_tto',
-               'values' => getOptionForItems(SLA::class, ['condition' => ['type' => SLM::TTO]]),
-               'value' => $this->fields["sla_question_tto"],
-               'col_lg' => 6,
-               $this->fields["sla_rule"] == PluginFormcreatorAbstractTarget::SLA_RULE_SPECIFIC ? '' : 'disabled' => 'disabled',
-            ],
-            __('SLA (TTR)', 'formcreator') => [
-               'type' => 'select',
-               'id' => 'selectFormcreatorSlaSpecificTtr',
-               'name' => '_sla_question_ttr',
-               'values' => getOptionForItems(SLA::class, ['condition' => ['type' => SLM::TTR]]),
-               'value' => $this->fields["sla_question_ttr"],
-               'col_lg' => 6,
-               $this->fields["sla_rule"] == PluginFormcreatorAbstractTarget::SLA_RULE_SPECIFIC ? '' : 'disabled' => 'disabled',
-            ],
-            __('Question (TTO)', 'formcreator') => [
-               'type' => 'select',
-               'id' => 'selectFormcreatorSlaQuestionsTto',
-               'name' => '_sla_questions_tto',
-               'values' => $question->getQuestionsFromFormBySection($this->getForm()->getID(),
-               [
-                  'fieldtype' => 'dropdown',
-                  new QueryExpression("`values` LIKE '%\"itemtype\":\"" . SLA::getType() . "\"%' AND `values` LIKE '%\"show_service_level_types\":\"1\"%'"),
-               ]),
-               'value' => $this->fields["sla_question_tto"],
-               'col_lg' => 6,
-               $this->fields["sla_rule"] == PluginFormcreatorAbstractTarget::SLA_RULE_FROM_ANWSER ? '' : 'disabled' => 'disabled',
-            ],
-            __('Question (TTR)', 'formcreator') => [
-               'type' => 'select',
-               'id' => 'selectFormcreatorSlaQuestionsTtr',
-               'name' => '_sla_questions_ttr',
-               'values' => $question->getQuestionsFromFormBySection($this->getForm()->getID(),
-               [
-                  'fieldtype' => 'dropdown',
-                  new QueryExpression("`values` LIKE '%\"itemtype\":\"" . SLA::getType() . "\"%' AND `values` LIKE '%\"show_service_level_types\":\"0\"%'"),
-               ]),
-               'value' => $this->fields["sla_question_ttr"],
-               'col_lg' => 6,
-               $this->fields["sla_rule"] == PluginFormcreatorAbstractTarget::SLA_RULE_FROM_ANWSER ? '' : 'disabled' => 'disabled',
-            ],
-         ]
+          'visible' => true,
+          'inputs' => [
+              __("SLA") => [
+                  'type' => 'select',
+                  'id' => 'selectFormcreatorSlaRule',
+                  'name' => 'sla_rule',
+                  'values' => [Dropdown::EMPTY_VALUE] + self::getEnumSlaRule(),
+                  'value' => $this->fields["sla_rule"],
+                  'hooks' => [
+                      'change' => <<<JS
+                          const val = this.value;
+                          // PluginFormcreatorAbstractTarget::SLA_RULE_SPECIFIC
+                          $('#selectFormcreatorSlaSpecificTto').attr('disabled', val != 2);
+                          $('#selectFormcreatorSlaSpecificTtr').attr('disabled', val != 2);
+                          // PluginFormcreatorAbstractTarget::SLA_RULE_FROM_ANWSER
+                          $('#selectFormcreatorSlaQuestionsTto').attr('disabled', val != 3);
+                          $('#selectFormcreatorSlaQuestionsTtr').attr('disabled', val != 3);
+                      JS,
+                  ],
+                  'col_lg' => 12,
+                  'col_md' => 12,
+              ],
+              __('SLA (TTO)', 'formcreator') => [
+                  'type' => 'select',
+                  'id' => 'selectFormcreatorSlaSpecificTto',
+                  'name' => '_sla_specific_tto',
+                  'values' => $slaTtoOptions,
+                  'value' => $this->fields["sla_question_tto"],
+                  'col_lg' => 6,
+                  $this->fields["sla_rule"] == PluginFormcreatorAbstractTarget::SLA_RULE_SPECIFIC ? '' : 'disabled' => 'disabled',
+              ],
+              __('SLA (TTR)', 'formcreator') => [
+                  'type' => 'select',
+                  'id' => 'selectFormcreatorSlaSpecificTtr',
+                  'name' => '_sla_question_ttr',
+                  'values' => $slaTtrOptions,
+                  'value' => $this->fields["sla_question_ttr"],
+                  'col_lg' => 6,
+                  $this->fields["sla_rule"] == PluginFormcreatorAbstractTarget::SLA_RULE_SPECIFIC ? '' : 'disabled' => 'disabled',
+              ],
+              __('Question (TTO)', 'formcreator') => [
+                  'type' => 'select',
+                  'id' => 'selectFormcreatorSlaQuestionsTto',
+                  'name' => '_sla_questions_tto',
+                  'values' => $question->getQuestionsFromFormBySection($this->getForm()->getID(),
+                  [
+                      'fieldtype' => 'dropdown',
+                      new QueryExpression("`values` LIKE '%\"itemtype\":\"" . SLA::getType() . "\"%' AND `values` LIKE '%\"show_service_level_types\":\"1\"%'"),
+                  ]),
+                  'value' => $this->fields["sla_question_tto"],
+                  'col_lg' => 6,
+                  $this->fields["sla_rule"] == PluginFormcreatorAbstractTarget::SLA_RULE_FROM_ANWSER ? '' : 'disabled' => 'disabled',
+              ],
+              __('Question (TTR)', 'formcreator') => [
+                  'type' => 'select',
+                  'id' => 'selectFormcreatorSlaQuestionsTtr',
+                  'name' => '_sla_questions_ttr',
+                  'values' => $question->getQuestionsFromFormBySection($this->getForm()->getID(),
+                  [
+                      'fieldtype' => 'dropdown',
+                      new QueryExpression("`values` LIKE '%\"itemtype\":\"" . SLA::getType() . "\"%' AND `values` LIKE '%\"show_service_level_types\":\"0\"%'"),
+                  ]),
+                  'value' => $this->fields["sla_question_ttr"],
+                  'col_lg' => 6,
+                  $this->fields["sla_rule"] == PluginFormcreatorAbstractTarget::SLA_RULE_FROM_ANWSER ? '' : 'disabled' => 'disabled',
+              ],
+          ]
       ];
       return $blocks;
-   }
+  }
+  
+  private function getSLAOptions($type) {
+      global $DB;
+      
+      $options = ['' => '-----'];
+      
+      $slas = $DB->request([
+          'SELECT' => ['id', 'name'],
+          'FROM' => 'glpi_slas',
+          'WHERE' => [
+              'type' => $type
+          ],
+          'ORDER' => 'name'
+      ]);
+      
+      foreach ($slas as $sla) {
+          $options[$sla['id']] = $sla['name'];
+      }
+      
+      return $options;
+  }
 
    protected function showOLASettings() {
       $question = new PluginFormcreatorQuestion();
@@ -1893,6 +1919,48 @@ SCRIPT;
       return $condition->showConditionsForItem($this);
    }
 
+   private function showUserDropdown($name) {
+      global $DB;
+      
+      $users = $DB->request([
+          'SELECT' => ['id', 'name', 'firstname', 'realname'],
+          'FROM' => 'glpi_users',
+          'WHERE' => [
+              'is_active' => 1,
+              'is_deleted' => 0
+          ],
+          'ORDER' => ['realname', 'firstname']
+      ]);
+  
+      echo '<select name="' . $name . '" class="form-control">';
+      echo '<option value="">-----</option>';
+      foreach ($users as $user) {
+          $userName = trim($user['firstname'] . ' ' . $user['realname']);
+          if (empty($userName)) {
+              $userName = $user['name'];
+          }
+          echo '<option value="' . $user['id'] . '">' . htmlspecialchars($userName) . '</option>';
+      }
+      echo '</select>';
+  }
+  
+  private function showGroupDropdown($name) {
+      global $DB;
+      
+      $groups = $DB->request([
+          'SELECT' => ['id', 'name'],
+          'FROM' => 'glpi_groups',
+          'ORDER' => 'name'
+      ]);
+  
+      echo '<select name="' . $name . '" class="form-control">';
+      echo '<option value="">-----</option>';
+      foreach ($groups as $group) {
+          echo '<option value="' . $group['id'] . '">' . htmlspecialchars($group['name']) . '</option>';
+      }
+      echo '</select>';
+  }
+
    /**
     * Show header for actors edition
     *
@@ -1978,17 +2046,11 @@ SCRIPT;
       );
 
       echo '<div id="block_' . $type . '_user" style="display:none">';
-      User::dropdown([
-         'name' => 'actor_value_' . PluginFormcreatorTarget_Actor::ACTOR_TYPE_PERSON,
-         'right' => 'all',
-         'all'   => 0,
-      ]);
+      $this->showUserDropdown('actor_value_' . PluginFormcreatorTarget_Actor::ACTOR_TYPE_PERSON);
       echo '</div>';
-
+      
       echo '<div id="block_' . $type . '_group" style="display:none">';
-      Group::dropdown([
-         'name' => 'actor_value_' . PluginFormcreatorTarget_Actor::ACTOR_TYPE_GROUP,
-      ]);
+      $this->showGroupDropdown('actor_value_' . PluginFormcreatorTarget_Actor::ACTOR_TYPE_GROUP);
       echo '</div>';
 
       echo '<div id="block_' . $type . '_question_user" style="display:none">';

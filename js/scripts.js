@@ -875,7 +875,13 @@ var plugin_formcreator = new function() {
 
       const editors = form.find('textarea[type="richtextarea"]');
       editors.each(function(index, editor) {
-         eval('window.CKEDITOR.editor_' + editor.id + '.updateSourceElement()');
+      try {
+         if (window.CKEDITOR && window.CKEDITOR.instances && window.CKEDITOR.instances[editor.id]) {
+            window.CKEDITOR.instances[editor.id].updateSourceElement();
+         }
+         } catch (e) {
+         console.warn('Erreur lors de la mise à jour de CKEditor:', e);
+            }
       });
       $.ajax({
          url: formcreatorRootDoc + '/ajax/question_update.php',
