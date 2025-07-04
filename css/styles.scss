@@ -882,95 +882,99 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
 }
 
 /* KB page and forms page*/
-#plugin_formcreator_kb_categories, #plugin_formcreator_wizard_categories {
+#plugin_formcreator_wizard_categories {
    width: 275px;
-   height: 100%;
-   background-color: #f8f7f3;
+   top: 0;
+   bottom: 0;
+   left: 0;
+   float: left;
+   height: calc(100vh - 28px - 65px);
+   background-color: #ffffff;
    border-right: 1px solid #DDD;
+   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
    position: relative;
+   transition: width 0.3s ease;
+   display: flex;
+   flex-direction: column;
+}
 
-   div > a {
-      display: inline-block;
-      width: 100%;
-      padding: 14px;
-      box-sizing: border-box;
+#plugin_formcreator_wizard_categories h2 {
+   padding: 1em;
+   margin: 0;
+   border-bottom: 1px solid #DDD;
+   color: #333;
+   font-size: 1.2em;
+   background-color: #f4f4f4;
+   text-transform: uppercase;
+}
+
+#plugin_formcreator_wizard_categories div > a,
+#plugin_formcreator_wizard_categories .slinky-menu a {
+   display: block;
+   width: 100%;
+   padding: 12px 20px;
+   box-sizing: border-box;
+   color: #555;
+   font-size: 1em;
+   text-decoration: none;
+   transition: all 0.3s;
+   position: relative;
+   display: flex;
+   align-items: center;
+}
+
+#plugin_formcreator_wizard_categories div > a:hover,
+#plugin_formcreator_wizard_categories .slinky-menu a:hover {
+   background-color: #f0f0f0;
+   color: #d9534f;
+   padding-left: 25px;
+}
+
+#plugin_formcreator_wizard_categories div > a::before,
+#plugin_formcreator_wizard_categories .slinky-menu a::before {
+   content: '•';
+   font-size: 1.2em;
+   color: #d9534f;
+   margin-right: 8px;
+   transition: transform 0.3s;
+}
+
+#plugin_formcreator_wizard_categories div > a.category_active::before,
+#plugin_formcreator_wizard_categories .slinky-menu a.category_active::before {
+   transform: translateX(5px);
+}
+
+@media (max-width: 768px) {
+   #plugin_formcreator_wizard_categories {
+      width: 220px;
    }
 
-   .slinky-menu {
-      position: absolute;
-      left: 0;
-      right: -1px;
+   #plugin_formcreator_wizard_categories h2 {
+      font-size: 1em;
+      padding: 0.8em;
    }
 
-   a {
-      background-color: inherit;
-      font-size: 1.2em;
+   #plugin_formcreator_wizard_categories div > a,
+   #plugin_formcreator_wizard_categories .slinky-menu a {
+      font-size: 0.9em;
+      padding: 10px 15px;
+   }
+}
+
+@media (max-width: 480px) {
+   #plugin_formcreator_wizard_categories {
+      width: 180px;
    }
 
-   a[data-category-id]:not([data-parent-category-id="0"])  {
-      margin-left: 20px;
+   #plugin_formcreator_wizard_categories h2 {
+      font-size: 0.9em;
+      padding: 0.6em;
    }
 
-   .category_active:not(.next),
-   .category_active ~ul .header {
-      border-bottom: 1px dashed #DDD;
-      position: relative;
-   }
-
-   .category_active:not(.next):after,
-   .category_active ~ul .header:after {
-      position: absolute;
-      left: calc(100% - 45px);
-      top: 50%;
-      border: solid transparent;
-      content: " ";
-      height: 0;
-      width: 0;
-      border-right-color: #FFF;
-      border-width: 23px;
-      margin-top: -23px;
-      z-index: 20;
-   }
-
-   .category_active:not(.next):before,
-   .category_active ~ul .header:before {
-      position: absolute;
-      left: calc(100% - 46px);
-      top: 50%;
-      border: solid transparent;
-      content: " ";
-      height: 0;
-      width: 0;
-      border-right-color: #DDD;
-      border-width: 23px;
-      margin-top: -23px;
-      z-index: 20;
-   }
-
-   a, h2 {
-      font-size: 1.2em;
-   }
-
-   h2 {
-      padding: 0.83em 0;
-      border-bottom: 1px solid #DDD;
-      margin: 0;
-      padding: 14px;
-      color: #000;
-   }
-
-   .header h2 {
-      text-align: left;
-   }
-
-   .header .back {
-      right: 20px;
-      color: #000;
-      left: inherit;
-   }
-
-   li {
-      background-color: inherit;
+   #plugin_formcreator_wizard_categories div > a,
+   #plugin_formcreator_wizard_categories .slinky-menu a {
+      font-size: 0.8em;
+      padding: 8px 10px;
    }
 }
 
@@ -994,21 +998,26 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
 }
 
 .plugin_formcreator_formTile {
-   margin: 0 3px 6px 3px;
+   margin: 6px;
    width: 20rem;
    display: inline-block;
    vertical-align: top;
    text-align: left;
    overflow: hidden;
    cursor: pointer;
-   border-radius: 0;
+   border-radius: 8px;
    box-sizing: border-box;
-   animation-name: fadeInUp ;
-   animation-iteration-count: 1;
-   animation-timing-function: ease-in;
-   animation-duration: 0.3s;
-   height: 6rem;
+   height: 7rem;
    display: flex;
+   background-color: #f9f9f9;
+   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+   transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+   &:hover {
+      background-color: #e0e0e0;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+   }
 
    & > div:first-child {
       width: 6rem;
@@ -1016,16 +1025,14 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
       display: flex;
       justify-content: center;
       align-items: center;
+      background-color: #f8f6f6;
+      border-right: 2px solid #ddd;
 
       & > img {
          width: 4.5rem;
          height: 4.5rem;
          object-fit: contain;
       }
-   }
-
-   &:hover {
-      background-color: #EEEEEE;
    }
 }
 .plugin_formcreator_formTile:hover {
@@ -1161,15 +1168,10 @@ a.plugin_formcreator_formTile_title {
    font-weight: bold;
 }
 
-.plugin_formcreator_sort:hover {
-   opacity: 1;
-   color: #3874BC;
-
    .radios input[type = radio].form-check-input + label:before {
       background-color: #3874BC;
       border: 2px solid #3874BC;
    }
-}
 
 .plugin_formcreator_sort {
    display: flex;
@@ -1529,17 +1531,6 @@ span.fc_list_icon {
       left: 100px;
    }
 
-   #plugin_formcreator_wizard_categories {
-      height: inherit;
-      width: 100%;
-      position: initial;
-      min-height: initial;
-   }
-
-   #plugin_formcreator_wizard_categories .slinky-menu {
-      position: static;
-   }
-
    #plugin_formcreator_wizard_right {
       width: 94%;
       height: inherit;
@@ -1559,4 +1550,9 @@ span.fc_list_icon {
 
 .ui-dialog .ui-dialog-content {
     max-height: 80vh !important;
+}
+
+form[name="plugin_formcreator_form"] {
+   min-height: calc(100vh - 100px);
+   padding-bottom: 80px;
 }

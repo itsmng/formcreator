@@ -118,6 +118,9 @@ class RadiosField extends PluginFormcreatorAbstractField
                      'id' => $domId . '_' . $i,
                      'value' => $value,
                      'checked' => ($this->value == $value),
+                     'col_lg' => 12,
+                     'col_md' => 12,
+                     'col_sm' => 12,
                   ]
                ]);
                $html .= ob_get_clean();

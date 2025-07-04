@@ -228,6 +228,18 @@ CREATE TABLE IF NOT EXISTS `glpi_plugin_formcreator_targettickets` (
   INDEX `tickettemplates_id` (`tickettemplates_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `glpi_plugin_formcreator_targetworkflows` (
+  `id`                          int(11) NOT NULL AUTO_INCREMENT,
+  `name`                        varchar(255) NOT NULL DEFAULT '',
+  `plugin_formcreator_forms_id` int(11) NOT NULL DEFAULT '0',
+  `target_name`                 varchar(255) NOT NULL DEFAULT '',
+  `type_rule`                   int(11) NOT NULL DEFAULT '0',
+  `type_question`               int(11) NOT NULL DEFAULT '0',
+  `content`                     longtext,
+  `uuid`                        varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `glpi_plugin_formcreator_targets_actors` (
   `id`               int(11) NOT NULL AUTO_INCREMENT,
   `itemtype`         varchar(255) DEFAULT NULL,
