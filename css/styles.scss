@@ -1551,3 +1551,8 @@ span.fc_list_icon {
 .ui-dialog .ui-dialog-content {
     max-height: 80vh !important;
 }
+
+form[name="plugin_formcreator_form"] {
+   min-height: calc(100vh - 100px);
+   padding-bottom: 80px;
+}
