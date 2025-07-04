@@ -872,17 +872,14 @@ var plugin_formcreator = new function() {
       var form = $('form[data-itemtype="PluginFormcreatorQuestion"]');
       var questionId = form.find('[name="id"]').val();
       var that = this;
-
-      const editors = form.find('textarea[type="richtextarea"]');
-      editors.each(function(index, editor) {
-      try {
-         if (window.CKEDITOR && window.CKEDITOR.instances && window.CKEDITOR.instances[editor.id]) {
-            window.CKEDITOR.instances[editor.id].updateSourceElement();
-         }
-         } catch (e) {
-         console.warn('Erreur lors de la mise à jour de CKEditor:', e);
-            }
-      });
+   
+      const editorContent = document.querySelector('.ck-editor__editable[contenteditable="true"]');
+      const textarea = document.getElementById('description');
+      
+      if (editorContent && textarea) {
+         textarea.value = editorContent.innerHTML;
+      }
+   
       $.ajax({
          url: formcreatorRootDoc + '/ajax/question_update.php',
          type: "POST",
