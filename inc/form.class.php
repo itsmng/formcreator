@@ -680,60 +680,70 @@ PluginFormcreatorTranslatableInterface
    }
 
    public function showTargets($ID, $options = []) {
-      echo '<table class="tab_cadrehov">';
-
-      echo '<tr>';
-      echo '<th colspan="3">'._n('Target', 'Targets', 2, 'formcreator').'</th>';
-      echo '</tr>';
-
-      $allTargets = $this->getTargetsFromForm();
-      $token = Session::getNewCSRFToken();
-      $i = 0;
-      foreach ($allTargets as $targetType => $targets) {
-         foreach ($targets as $targetId => $target) {
+    echo '<table class="tab_cadrehov">';
+    
+    echo '<tr>';
+    echo '<th>'._n('Target', 'Targets', 1, 'formcreator').'</th>';
+    echo '<th>'.__('Workflow', 'workflows').'</th>';
+    echo '<th colspan="2">'.__('Actions').'</th>';
+    echo '</tr>';
+    
+    $allTargets = $this->getTargetsFromForm();
+    $token = Session::getNewCSRFToken();
+    $i = 0;
+    
+    foreach ($allTargets as $targetType => $targets) {
+        foreach ($targets as $targetId => $target) {
             $i++;
             echo '<tr class="tab_bg_'.($i % 2).'">';
+            
             $targetItemUrl = Toolbox::getItemTypeFormURL($targetType) . '?id=' . $targetId;
-            // echo '<td onclick="document.location=\'' . $targetItemUrl . '\'" style="cursor: pointer">';
             $onclick = "plugin_formcreator_editTarget('$targetType', $targetId)";
-            echo '<td onclick="' . $onclick . '" style="cursor: pointer">';
-
+            echo '<td onclick="' . $onclick . '" style="cursor: pointer; font-weight: bold;">';
             echo $target->fields['name'];
             echo '</td>';
-
-            echo '<td align="center" width="32">';
-            echo '<img src="'.FORMCREATOR_ROOTDOC.'/pics/edit.png"
-                     alt="*" title="'.__('Edit').'" ';
-            echo 'onclick="document.location=\'' . $targetItemUrl . '\'" align="absmiddle" style="cursor: pointer" /> ';
+            
+            echo '<td>';
+            if (!empty($target->fields['workflows_id'])) {
+                $workflow = new PluginWorkflowsWorkflow();
+                if ($workflow->getFromDB($target->fields['workflows_id'])) {
+                    echo $workflow->fields['name'];
+                } else {
+                    echo '<span style="color: #ff0000;">'.__('Workflow not found').'</span>';
+                }
+            } else {
+                echo '<span style="color: #666;">'.__('No workflow').'</span>';
+            }
             echo '</td>';
-
+            
             echo '<td align="center" width="32">';
             echo '<img src="'.FORMCREATOR_ROOTDOC.'/pics/delete.png"
                      alt="*" title="'.__('Delete', 'formcreator').'"
-                     onclick="plugin_formcreator_deleteTarget(\''. $target->getType() . '\', '.$targetId.', \''.$token.'\')" align="absmiddle" style="cursor: pointer" /> ';
+                     onclick="plugin_formcreator_deleteTarget(\''. $target->getType() . '\', '.$targetId.', \''.$token.'\')" 
+                     align="absmiddle" style="cursor: pointer" /> ';
             echo '</td>';
-
+            
             echo '</tr>';
-         }
-      }
-
-      // Display add target link...
-      echo '<tr class="tab_bg_'.(($i + 1) % 2).'" id="add_target_row">';
-      echo '<td colspan="3">';
-      echo '<a href="javascript:plugin_formcreator_addTarget('.$ID.', \''.$token.'\');">
-                <i class="fa fa-plus"></i>
-                '.__('Add a target', 'formcreator').'
-            </a>';
-      echo '</td>';
-      echo '</tr>';
-
-      // OR display add target form
-      echo '<tr class="line'.(($i + 1) % 2).'" id="add_target_form" style="display: none;">';
-      echo '<td colspan="3" id="add_target_form_td"></td>';
-      echo '</tr>';
-
-      echo "</table>";
-   }
+        }
+    }
+    
+    // Display add target link
+    echo '<tr class="tab_bg_'.(($i + 1) % 2).'" id="add_target_row">';
+    echo '<td colspan="4">';
+    echo '<a href="javascript:plugin_formcreator_addTarget('.$ID.', \''.$token.'\');">
+             <i class="fa fa-plus"></i>
+             '.__('Add a target', 'formcreator').'
+         </a>';
+    echo '</td>';
+    echo '</tr>';
+    
+    // OR display add target form
+    echo '<tr class="line'.(($i + 1) % 2).'" id="add_target_form" style="display: none;">';
+    echo '<td colspan="4" id="add_target_form_td"></td>';
+    echo '</tr>';
+    
+    echo "</table>";
+}
 
    public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
       switch ($item->getType()) {
