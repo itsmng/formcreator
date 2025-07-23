@@ -28,7 +28,7 @@
  * @link      http://plugins.glpi-project.org/#/plugin/formcreator
  * ---------------------------------------------------------------------
  */
-class PluginFormcreatorUpgradeTo3_1_1 {
+class PluginFormcreatorUpgradeTo2_16 {
    /** @var Migration */
    protected $migration;
 
