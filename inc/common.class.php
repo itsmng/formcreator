@@ -583,7 +583,7 @@ JAVASCRIPT;
       // Avoid php notice when validating the regular expression
       set_error_handler(function ($errno, $errstr, $errfile, $errline, $errcontext) {
       });
-      $isValid = !(preg_match($regex, null) === false);
+      $isValid = !(preg_match($regex, "") === false);
       restore_error_handler();
 
       return $isValid;
