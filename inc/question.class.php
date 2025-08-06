@@ -854,6 +854,9 @@ PluginFormcreatorTranslatableInterface
       }
       $linker->linkPostponed();
 
+
+      PluginFormcreatorConditionCloner::cloneForQuestion($this, $newQuestionId);
+
       return $newQuestionId;
    }
 
