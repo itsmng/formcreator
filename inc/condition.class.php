@@ -150,16 +150,13 @@ class PluginFormcreatorCondition extends CommonDBChild implements PluginFormcrea
       }
 
       // set ID for linked objects
+      // Try to resolve through the linker first (preferred during duplication/import)
       $linked = $linker->getObject($input['plugin_formcreator_questions_id'], PluginFormcreatorQuestion::class);
       if ($linked === false) {
-         $linked = new PluginFormcreatorQuestion();
-         $linked->getFromDBByCrit([
-            $idKey => $input['plugin_formcreator_questions_id']
-         ]);
-         if ($linked->isNewItem()) {
-            $linker->postpone($input[$idKey], $item->getType(), $input, $containerId);
-            return false;
-         }
+         // Do NOT bind to the original question directly. Postpone so it remaps to the duplicated question
+         // once the linker has all mappings registered. This fixes a bug with conditions not duplicating correctly
+         $linker->postpone($input[$idKey], $item->getType(), $input, $containerId);
+         return false;
       }
       $input['plugin_formcreator_questions_id'] = $linked->getID();
 
