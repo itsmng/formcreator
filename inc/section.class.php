@@ -207,6 +207,11 @@ PluginFormcreatorTranslatableInterface
       }
       $linker->linkPostponed();
 
+      PluginFormcreatorConditionCloner::cloneForSection(
+         $this->getID(),
+         $newSectionId
+      );
+
       return $newSectionId;
    }
 

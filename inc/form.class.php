@@ -1697,6 +1697,8 @@ PluginFormcreatorTranslatableInterface
       ]);
       $linker->linkPostponed();
 
+      PluginFormcreatorConditionCloner::cloneForForm($this->getID(), $new_form_id);     
+
       return $new_form_id;
    }
 
