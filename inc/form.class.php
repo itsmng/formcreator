@@ -528,9 +528,53 @@ PluginFormcreatorTranslatableInterface
                   __('Form icon', 'formcreator') => [
                      'type' => 'select',
                      'name' => 'icon',
+                     'id'   => 'SelectForFormIcon',
                      'values' => PluginFormcreatorCommon::getFontAwesomePictoNames(),
                      'value' => $this->fields['icon'],
                      'col_lg' => 6,
+                     'noLib' => true,
+                     'init' => <<<JS
+                        (function enhanceIconSelect(){
+                           var sel = $('#SelectForFormIcon');
+                           function applyTemplates() {
+                              if (!$.fn.select2 || !sel.length) { return false; }
+                              try {
+                                 if (sel.hasClass('select2-hidden-accessible')) {
+                                    sel.select2('destroy');
+                                 }
+                              } catch (e) {}
+                              sel.select2({
+                                 theme: 'bootstrap-5',
+                                 templateResult: function (data) {
+                                    if (!data.id) { return data.text; }
+                                    var cls = data.id || '';
+                                    if ((cls.indexOf('fa-') === -1 && data.text && data.text.indexOf('fa-') !== -1)) {
+                                       cls = data.text;
+                                    }
+                                    return '<span><i class="' + cls + '"></i>&nbsp;' + data.text + '</span>';
+                                 },
+                                 templateSelection: function (data) {
+                                    if (!data.id) { return data.text; }
+                                    var cls = data.id || '';
+                                    if ((cls.indexOf('fa-') === -1 && data.text && data.text.indexOf('fa-') !== -1)) {
+                                       cls = data.text;
+                                    }
+                                    return '<span><i class="' + cls + '"></i>&nbsp;' + data.text + '</span>';
+                                 },
+                                 escapeMarkup: function (m) { return m; }
+                              });
+                              sel.trigger('change');
+                              return true;
+                           }
+                           if (!applyTemplates()) {
+                              var tries = 0;
+                              var t = setInterval(function(){
+                                 tries++;
+                                 if (applyTemplates() || tries > 50) { clearInterval(t); }
+                              }, 100);
+                           }
+                        })();
+                     JS,
                      $isIcon ? 'disabled' : '' => true,
                   ],
                   __('Icon color', 'formcreator') => [
