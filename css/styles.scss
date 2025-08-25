@@ -917,7 +917,7 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
    color: #555;
    font-size: 1em;
    text-decoration: none;
-   transition: all 0.3s;
+   transition: background-color 0.3s, color 0.3s;
    position: relative;
    display: flex;
    align-items: center;
@@ -927,7 +927,6 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
 #plugin_formcreator_wizard_categories .slinky-menu a:hover {
    background-color: #f0f0f0;
    color: #d9534f;
-   padding-left: 25px;
 }
 
 #plugin_formcreator_wizard_categories div > a::before,
