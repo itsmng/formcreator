@@ -847,7 +847,7 @@ PluginFormcreatorTranslatableInterface
       echo '<div id="plugin_formcreator_wizard_categories">';
       echo '<div><h2>'._n("Category", "Categories", 2, 'formcreator').'</h2></div>';
       if ($config['see_all']) {
-         echo '<div><a href="#" id="wizard_seeall">' . __('see all', 'formcreator') . '</a></div>';
+         echo '<div><a href="#" id="wizard_seeall">' . __('See all', 'formcreator') . '</a></div>';
       }
       echo '</div>';
 

@@ -553,12 +553,21 @@ function buildTiles(list) {
                         </i>`
                   }
                   </div>
-                  <div style=";width:90%;height:2.5rem">           
+                  <div style="flex: 1; display: flex; flex-direction: column; padding: 10px; overflow: hidden;">           
                      <a href="${url}"
-                        class="plugin_formcreator_formTile_title">
+                        class="plugin_formcreator_formTile_title"
+                        style="font-weight: 500; line-height: 1.3; flex-shrink: 0;">
                         ${item.name}
                      </a>
-                     ${description}
+                     ${description ? `<div class="plugin_formcreator_formTile_description" 
+                                          style="flex: 1; overflow: hidden; 
+                                                 display: -webkit-box; 
+                                                 -webkit-line-clamp: 2; 
+                                                 -webkit-box-orient: vertical; 
+                                                 line-height: 1.4; font-size: 0.9em; color: #666;
+                                                 word-wrap: break-word;">
+                                         ${item.description}
+                                      </div>` : ''}
                   </div>
                </div>
             `);
