@@ -882,7 +882,7 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
 }
 
 /* KB page and forms page*/
-#plugin_formcreator_wizard_categories {
+#plugin_formcreator_wizard_categories, #plugin_formcreator_kb_categories {
    width: 275px;
    top: 0;
    bottom: 0;
@@ -898,7 +898,7 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
    flex-direction: column;
 }
 
-#plugin_formcreator_wizard_categories h2 {
+#plugin_formcreator_wizard_categories h2, #plugin_formcreator_kb_categories h2 {
    padding: 1em;
    margin: 0;
    border-bottom: 1px solid #DDD;
@@ -909,7 +909,9 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
 }
 
 #plugin_formcreator_wizard_categories div > a,
-#plugin_formcreator_wizard_categories .slinky-menu a {
+#plugin_formcreator_wizard_categories .slinky-menu a,
+#plugin_formcreator_kb_categories div > a,
+#plugin_formcreator_kb_categories .slinky-menu a {
    display: block;
    width: 100%;
    padding: 12px 20px;
@@ -924,13 +926,17 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
 }
 
 #plugin_formcreator_wizard_categories div > a:hover,
-#plugin_formcreator_wizard_categories .slinky-menu a:hover {
+#plugin_formcreator_wizard_categories .slinky-menu a:hover,
+#plugin_formcreator_kb_categories div > a:hover,
+#plugin_formcreator_kb_categories .slinky-menu a:hover {
    background-color: #f0f0f0;
    color: #d9534f;
 }
 
 #plugin_formcreator_wizard_categories div > a::before,
-#plugin_formcreator_wizard_categories .slinky-menu a::before {
+#plugin_formcreator_wizard_categories .slinky-menu a::before,
+#plugin_formcreator_kb_categories div > a::before,
+#plugin_formcreator_kb_categories .slinky-menu a::before {
    content: '•';
    font-size: 1.2em;
    color: #d9534f;
@@ -939,45 +945,51 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
 }
 
 #plugin_formcreator_wizard_categories div > a.category_active::before,
-#plugin_formcreator_wizard_categories .slinky-menu a.category_active::before {
+#plugin_formcreator_wizard_categories .slinky-menu a.category_active::before,
+#plugin_formcreator_kb_categories div > a.category_active::before,
+#plugin_formcreator_kb_categories .slinky-menu a.category_active::before {
    transform: translateX(5px);
 }
 
 @media (max-width: 768px) {
-   #plugin_formcreator_wizard_categories {
+   #plugin_formcreator_wizard_categories, #plugin_formcreator_kb_categories {
       width: 220px;
    }
 
-   #plugin_formcreator_wizard_categories h2 {
+   #plugin_formcreator_wizard_categories h2, #plugin_formcreator_kb_categories h2 {
       font-size: 1em;
       padding: 0.8em;
    }
 
    #plugin_formcreator_wizard_categories div > a,
-   #plugin_formcreator_wizard_categories .slinky-menu a {
+   #plugin_formcreator_wizard_categories .slinky-menu a,
+   #plugin_formcreator_kb_categories div > a,
+   #plugin_formcreator_kb_categories .slinky-menu a {
       font-size: 0.9em;
       padding: 10px 15px;
    }
 }
 
 @media (max-width: 480px) {
-   #plugin_formcreator_wizard_categories {
+   #plugin_formcreator_wizard_categories, #plugin_formcreator_kb_categories {
       width: 180px;
    }
 
-   #plugin_formcreator_wizard_categories h2 {
+   #plugin_formcreator_wizard_categories h2, #plugin_formcreator_kb_categories h2 {
       font-size: 0.9em;
       padding: 0.6em;
    }
 
    #plugin_formcreator_wizard_categories div > a,
-   #plugin_formcreator_wizard_categories .slinky-menu a {
+   #plugin_formcreator_wizard_categories .slinky-menu a,
+   #plugin_formcreator_kb_categories div > a,
+   #plugin_formcreator_kb_categories .slinky-menu a {
       font-size: 0.8em;
       padding: 8px 10px;
    }
 }
 
-#plugin_formcreator_formlist {
+#plugin_formcreator_formlist, #plugin_formcreator_faqlist {
    margin-top: 10px;
 }
 
@@ -1460,7 +1472,7 @@ span.fc_list_icon {
             height: max-content;
          }
 
-         #plugin_formcreator_formlist {
+         #plugin_formcreator_formlist, #plugin_formcreator_faqlist {
             position: relative;
          }
       }
@@ -1556,11 +1568,23 @@ form[name="plugin_formcreator_form"] {
    padding-bottom: 80px;
 }
 
-#plugin_formcreator_wizard_categories li::marker {
+#plugin_formcreator_wizard_categories li::marker,
+#plugin_formcreator_kb_categories li::marker {
    display: none;
    content: none;
 }
 
-#plugin_formcreator_wizard_categories li {
+#plugin_formcreator_wizard_categories li,
+#plugin_formcreator_kb_categories li {
    list-style-type: none;
+}
+
+#plugin_formcreator_wizard_categories ul,
+#plugin_formcreator_kb_categories ul {
+   list-style: none;
+   list-style-type: none;
+   margin: 0;
+   padding: 0;
+   margin-left: 0;
+   padding-left: 0;
 }
