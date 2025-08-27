@@ -587,7 +587,7 @@ function buildTiles(list) {
                      </i>`
                }
                </div>
-               <div style="display:flex;align-items:center;width:90%;height:2.5rem">
+               <div style="display:flex;align-items:center;width:90%;">
                   <a href="${url}"
                      class="plugin_formcreator_formTile_title">
                      ${item.name}
