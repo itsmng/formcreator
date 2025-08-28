@@ -562,9 +562,9 @@ function buildTiles(list) {
                      ${description ? `<div class="plugin_formcreator_formTile_description" 
                                           style="flex: 1; overflow: hidden; 
                                                  display: -webkit-box; 
-                                                 -webkit-line-clamp: 2; 
+                                                 -webkit-line-clamp: 4; 
                                                  -webkit-box-orient: vertical; 
-                                                 line-height: 1.4; font-size: 0.9em; color: #666;
+                                                 line-height: 1.4; font-size: 0.8em; color: #666;
                                                  word-wrap: break-word;">
                                          ${item.description}
                                       </div>` : ''}

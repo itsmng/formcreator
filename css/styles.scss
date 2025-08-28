@@ -1055,8 +1055,6 @@ tr[data-itemtype="PluginFormcreatorCondition"] ~ tr[data-itemtype="PluginFormcre
 }
 
 a.plugin_formcreator_formTile_title {
-   font-size: 1.1em;
-   padding: 10px 40px 15px 10px;
    display: block;
 }
 
@@ -1065,8 +1063,6 @@ a.plugin_formcreator_formTile_title {
 }
 
 .plugin_formcreator_formTile_description {
-   padding: 0 15px 5px 15px;
-   height: 2rem;
    overflow-y: auto;
    overflow-wrap: break-word;
 }
@@ -1587,4 +1583,8 @@ form[name="plugin_formcreator_form"] {
    padding: 0;
    margin-left: 0;
    padding-left: 0;
+}
+
+.plugin_formcreator_formTile_title {
+   font-size: 1rem;
 }
