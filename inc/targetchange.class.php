@@ -367,178 +367,125 @@ class PluginFormcreatorTargetChange extends PluginFormcreatorAbstractTarget
       return $tab;
    }
 
-   public function showForm($ID, $options = []) {
-      if ($ID == 0) {
-         // Not used for now
-         $title =  __('Add a target ', 'formcreator');
-      } else {
-         $title =  __('Edit a target', 'formcreator');
-      }
-      $rand = mt_rand();
-
-      $form = $this->getForm();
-
-      // TODO: remive the fixed width
-      echo '<div class="center" style="width: 950px; margin: 0 auto;">';
-      echo '<form name="form_"'
-      . ' method="post"'
-      . ' action="' . self::getFormURL() . '"'
-      . ' data-itemtype="' . self::class . '"'
-      . '>';
-
-      // General information: target_name
-      echo '<table class="tab_cadre_fixe">';
-      echo '<tr><th colspan="2">' . $title . '</th></tr>';
-      echo '<tr>';
-      echo '<td width="15%"><strong>' . __('Name') . ' <span style="color:red;">*</span></strong></td>';
-      // TODO: remive the fixed width
-      echo '<td width="85%"><input type="text" name="name" style="width:704px;" value="' . $this->fields['name'] . '" /></td>';
-      echo '</tr>';
-      echo '</table>';
-
-      // change information: title, template...
-      echo '<table class="tab_cadre_fixe">';
-
-      echo '<tr><th colspan="4">' . _n('Target change', 'Target changes', 1, 'formcreator') . '</th></tr>';
-
-      echo '<tr>';
-      echo '<td><strong>' . __('Change title', 'formcreator') . ' <span style="color:red;">*</span></strong></td>';
-      echo '<td colspan="3"><input type="text" name="target_name" style="width:704px;" value="' . $this->fields['target_name'] . '"></td>';
-      echo '</tr>';
-
-      echo '<tr>';
-      echo '<td><strong>' . __('Description') . ' <span style="color:red;">*</span></strong></td>';
-      echo '<td colspan="3">';
-      echo Html::textarea([
-         'name'    => 'content',
-         'value'   => $this->fields['content'],
-         'display' => false,
-      ]);
-      echo '</td>';
-      echo '</tr>';
-
-      echo '<tr>';
-      echo '<td><strong>' . __('Impacts') . ' </strong></td>';
-      echo '<td colspan="3">';
-      echo Html::textarea([
-         'name'    => 'impactcontent',
-         'value'   => $this->fields['impactcontent'],
-         'display' => false,
-      ]);
-      echo '</td>';
-      echo '</tr>';
-
-      echo '<tr>';
-      echo '<td><strong>' . __('Control list') . ' </strong></td>';
-      echo '<td colspan="3">';
-      echo Html::textarea([
-         'name'    => 'controlistcontent',
-         'value'   => $this->fields['controlistcontent'],
-         'display' => false,
-      ]);
-      echo '</td>';
-      echo '</tr>';
-
-      echo '<tr>';
-      echo '<td><strong>' . __('Deployment plan') . ' </strong></td>';
-      echo '<td colspan="3">';
-      echo Html::textarea([
-         'name'    => 'rolloutplancontent',
-         'value'   => $this->fields['rolloutplancontent'],
-         'display' => false,
-      ]);
-      echo '</td>';
-      echo '</tr>';
-
-      echo '<tr>';
-      echo '<td><strong>' . __('Backup plan') . ' </strong></td>';
-      echo '<td colspan="3">';
-      echo Html::textarea([
-         'name'    => 'backoutplancontent',
-         'value'   => $this->fields['backoutplancontent'],
-         'display' => false,
-      ]);
-      echo '</td>';
-      echo '</tr>';
-
-      echo '<tr>';
-      echo '<td><strong>' . __('Checklist') . ' </strong></td>';
-      echo '<td colspan="3">';
-      echo Html::textarea([
-         'name'   => 'checklistcontent',
-         'value'  => $this->fields['checklistcontent'],
-         'display' => false,
-      ]);
-      echo '</td>';
-      echo '</tr>';
-
-      $rand = mt_rand();
-      $this->showDestinationEntitySetings($rand);
-
-      echo '<tr>';
-      $this->showTemplateSettings($rand);
-      $this->showDueDateSettings($rand);
-      echo '</tr>';
-
-      $this->showSLASettings();
-      $this->showOLASettings();
-
-      // -------------------------------------------------------------------------------------------
-      //  category of the target
-      // -------------------------------------------------------------------------------------------
-      $this->showCategorySettings($rand);
-
-      // -------------------------------------------------------------------------------------------
-      // Urgency selection
-      // -------------------------------------------------------------------------------------------
-      $this->showUrgencySettings($rand);
-
-      // -------------------------------------------------------------------------------------------
-      //  Tags
-      // -------------------------------------------------------------------------------------------
-      $this->showPluginTagsSettings($rand);
-
-      // -------------------------------------------------------------------------------------------
-      //  Conditions to generate the target
-      // -------------------------------------------------------------------------------------------
-      echo '<tr>';
-      echo '<th colspan="4">';
-      echo __('Condition to create the target', 'formcreator');
-      echo '</label>';
-      echo '</th>';
-      echo '</tr>';
-      $this->showConditionsSettings($rand);
-
-      echo '</table>';
-
-      // Buttons
-      echo '<table class="tab_cadre_fixe">';
-
-      echo '<tr>';
-      echo '<td colspan="4" class="center">';
-      $formFk = PluginFormcreatorForm::getForeignKeyField();
-      echo Html::hidden('id', ['value' => $ID]);
-      echo Html::hidden($formFk, ['value' => $this->fields[$formFk]]);
-      echo '</td>';
-      echo '</tr>';
-
-      echo '<tr>';
-      echo '<td colspan="5" class="center">';
-      echo Html::submit(_x('button', 'Save'), ['name' => 'update']);
-      echo '</td>';
-      echo '</tr>';
-
-      echo '</table>';
-
-      Html::closeForm();
-
-      $this->showActorsSettings();
-
-      // List of available tags
-
-      $this->showTagsList();
-      echo '</div>';
+public function showForm($ID, $options = []) {
+   if ($ID == 0) {
+      // Not used for now
+      $title =  __('Add a target ', 'formcreator');
+   } else {
+      $title =  __('Edit a target', 'formcreator');
    }
+
+   $rand = mt_rand();
+
+   $form = [
+      'action' => self::getFormURL(),
+      'buttons' => [
+         [
+            'name' => 'update',
+            'type' => 'submit',
+            'value' => _x('button', 'Save'),
+            'class' => 'btn btn-secondary'
+         ]
+      ],
+      'content' => [
+         $title => [
+            'visible' => true,
+            'inputs' => [
+               __('Name') => [
+                  'type' => 'text',
+                  'name' => 'name',
+                  'value' => $this->fields['name'],
+                  'required' => true,
+                  'col_lg' => 12,
+               ]
+            ]
+         ],
+         _n('Target change', 'Target changes', 1, 'formcreator') => [
+            'visible' => true,
+            'inputs' => [
+               __('Change title', 'formcreator') => [
+                  'type' => 'text',
+                  'name' => 'target_name',
+                  'value' => $this->fields['target_name'],
+                  'required' => true,
+                  'col_lg' => 12,
+               ],
+               __('Description') => [
+                  'type' => 'richtextarea',
+                  'name' => 'content',
+                  'value' => $this->fields['content'],
+                  'required' => true,
+                  'col_lg' => 12,
+                  'col_md' => 12,
+               ],
+               __('Impacts') => [
+                  'type' => 'richtextarea',
+                  'name' => 'impactcontent',
+                  'value' => $this->fields['impactcontent'],
+                  'col_lg' => 12,
+                  'col_md' => 12,
+               ],
+               __('Control list') => [
+                  'type' => 'richtextarea',
+                  'name' => 'controlistcontent',
+                  'value' => $this->fields['controlistcontent'],
+                  'col_lg' => 12,
+                  'col_md' => 12,
+               ],
+               __('Deployment plan') => [
+                  'type' => 'richtextarea',
+                  'name' => 'rolloutplancontent',
+                  'value' => $this->fields['rolloutplancontent'],
+                  'col_lg' => 12,
+                  'col_md' => 12,
+               ],
+               __('Backup plan') => [
+                  'type' => 'richtextarea',
+                  'name' => 'backoutplancontent',
+                  'value' => $this->fields['backoutplancontent'],
+                  'col_lg' => 12,
+                  'col_md' => 12,
+               ],
+               __('Checklist') => [
+                  'type' => 'richtextarea',
+                  'name' => 'checklistcontent',
+                  'value' => $this->fields['checklistcontent'],
+                  'col_lg' => 12,
+                  'col_md' => 12,
+               ]
+            ]
+         ],
+         __('Destination entity') => $this->showDestinationEntitySetings($rand),
+         $this->getTemplateItemtypeName()::getTypeName(1) ?? __('Template') => $this->showTemplateSettings($rand),
+         __('Due Date', 'formcreator') => $this->showDueDateSettings($rand),
+         __('SLA') => $this->showSLASettings(),
+         __('OLA') => $this->showOLASettings(),
+         __('Category') => $this->showCategorySettings($rand),
+         __('Urgency') => $this->showUrgencySettings($rand),
+         __('Tags', 'formcreator') => $this->showPluginTagsSettings($rand),
+         __('Condition to create the target', 'formcreator') => $this->showConditionsSettings($rand),
+         '' => [
+            'visible' => false,
+            'inputs' => [
+               [
+                  'type' => 'hidden',
+                  'name' => 'id',
+                  'value' => $ID
+               ],
+               [
+                  'type' => 'hidden',
+                  'name' => PluginFormcreatorForm::getForeignKeyField(),
+                  'value' => $this->fields[PluginFormcreatorForm::getForeignKeyField()]
+               ]
+            ]
+         ]
+      ]
+   ];
+   
+   renderTwigForm($form);
+   $this->showActorsSettings();
+   $this->showTagsList();
+}
 
    public function prepareInputForAdd($input) {
       $input = parent::prepareInputForAdd($input);
