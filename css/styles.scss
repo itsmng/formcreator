@@ -1588,3 +1588,45 @@ form[name="plugin_formcreator_form"] {
 .plugin_formcreator_formTile_title {
    font-size: 1rem;
 }
+
+#plugin_formcreator_form {
+   max-width: 100%;
+   margin: 10px auto 50px !important;
+   
+   > ol {
+      list-style-type: none;
+      padding-left: 0;
+      max-width: 100%;
+      margin: 0;
+      
+      > li {
+         width: 100%;
+         margin-bottom: 25px;
+      }
+   }
+}
+
+@media (max-width: 768px) {
+   #plugin_formcreator_form.plugin_formcreator_form [data-itemtype = "PluginFormcreatorSection"] > div {
+      grid-template-columns: 1fr;
+      gap: 15px;
+      padding: 15px;
+   }
+   
+   #plugin_formcreator_form div.checkbox,
+   .plugin_formcreator_form div.radio {
+      display: block;
+      margin-right: 0;
+      margin-bottom: 10px;
+   }
+   
+   #plugin_formcreator_form.plugin_formcreator_form [data-itemtype = "PluginFormcreatorSection"] > h2 {
+      padding: 12px 15px;
+      font-size: 1.1em;
+   }
+}
+
+.plugin_formcreator_form [data-itemtype="PluginFormcreatorQuestion"] {
+   min-width: 350px;
+   box-sizing: border-box;
+}

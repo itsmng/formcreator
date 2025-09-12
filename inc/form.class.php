@@ -1308,30 +1308,102 @@ PluginFormcreatorTranslatableInterface
    public function displayUserForm() : void {
       global $TRANSLATE;
 
-      // Print css media
-      $css = '/' . Plugin::getWebDir('formcreator', false) . '/css/print_form.css';
-      echo Html::css($css, ['media' => 'print']);
-
-      $style = "<style>";
-      // force colums width
-      $width_percent = 100 / PluginFormcreatorSection::COLUMNS;
-      for ($i = 0; $i < PluginFormcreatorSection::COLUMNS; $i++) {
-         $width = ($i+1) * $width_percent;
-         $style.= '
-         #plugin_formcreator_form.plugin_formcreator_form [data-itemtype = "PluginFormcreatorQuestion"][data-gs-width="' . ($i+1) . '"],
-         #plugin_formcreator_form.plugin_formcreator_form .plugin_formcreator_gap[data-gs-width="' . ($i+1) . '"]
-         {
-            min-width: ' . $width_percent . '%;
-            width: ' . $width . '%;
-         }
-         ';
+      $customStyle = "
+      <style>
+      .plugin_formcreator_form .card {
+         margin-bottom: 1rem;
+         border: 1px solid #dee2e6;
+         border-radius: 0.375rem;
+         box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
       }
-      $style.= "</style>";
-      echo $style;
+      
+      .plugin_formcreator_form .card-header {
+         background-color: #1B2F62;
+         color: white;
+         padding: 0.75rem 1.25rem;
+         margin-bottom: 0;
+         border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+         border-top-left-radius: calc(0.375rem - 1px);
+         border-top-right-radius: calc(0.375rem - 1px);
+         font-weight: 600;
+         text-align: center;
+      }
+      
+      .plugin_formcreator_form .card-body {
+         padding: 1.5rem;
+         background-color: #f8f9fa;
+      }
+      
+      .plugin_formcreator_form .form-group {
+         margin-bottom: 1rem;
+      }
+      
+      .plugin_formcreator_form .form-label {
+         font-weight: 500;
+         margin-bottom: 0.5rem;
+         color: #495057;
+      }
+      
+      .plugin_formcreator_form .form-control,
+      .plugin_formcreator_form .form-select {
+         border: 1px solid #ced4da;
+         border-radius: 0.375rem;
+         padding: 0.5rem 0.75rem;
+         background-color: white;
+      }
+      
+      .plugin_formcreator_form .form-control:focus,
+      .plugin_formcreator_form .form-select:focus {
+         border-color: #66afe9;
+         box-shadow: 0 0 0 0.2rem rgba(102, 175, 233, 0.25);
+      }
+      
+      .plugin_formcreator_form .form-check {
+         margin-bottom: 0.5rem;
+      }
+      
+      .plugin_formcreator_form .form-check-input {
+         margin-top: 0.25rem;
+      }
+      
+      .plugin_formcreator_form .form-check-label {
+         margin-left: 0.5rem;
+      }
+      
+      .plugin_formcreator_form .btn-primary {
+         background-color: #1B2F62;
+         border-color: #1B2F62;
+         padding: 0.75rem 1.5rem;
+         font-weight: 500;
+      }
+      
+      .plugin_formcreator_form .btn-primary:hover {
+         background-color: #164a7b;
+         border-color: #164a7b;
+      }
+      
+      .plugin_formcreator_form h1.form-title {
+         text-align: center;
+         color: #1B2F62;
+         margin-bottom: 2rem;
+         font-weight: 600;
+      }
+      
+      .plugin_formcreator_form .required {
+         color: #dc3545;
+      }
+      
+      @media (max-width: 768px) {
+         .plugin_formcreator_form .card-body {
+            padding: 1rem;
+         }
+      }
+      </style>";
+      
+      echo $customStyle;
 
       $formName = 'plugin_formcreator_form';
       $formId = $this->getID();
-      self::getFormURL();
 
       $domain = self::getTranslationDomain($formId);
       $phpfile = self::getTranslationFile($formId, $_SESSION['glpilanguage']);
@@ -1349,66 +1421,50 @@ PluginFormcreatorTranslatableInterface
       }
       $sections = (new PluginFormcreatorSection)->getSectionsFromForm($formId);
 
-      $form = [
-         'action' => self::getFormURL(),
-         'attributes' => [
-            'name' => $formName,
-            'role' => 'form',
-            'enctype' => 'multipart/form-data',
-            'class' => 'plugin_formcreator_form',
-            'id' => 'plugin_formcreator_form',
-            'data-itemtype' => PluginFormcreatorForm::class,
-            'data-id' => $formId,
-         ],
-         'buttons' => [
-            [
-               'type' => 'submit',
-               'name' => 'submit_formcreator',
-               'value' => _x('button', 'Send'),
-               'class' => 'btn btn-secondary',
-            ]
-         ],
-         'content' => [
-            '' => [
-               'visible' => true,
-               'inputs' => [
-                  '' => [
-                     'content' => html_entity_decode(__($this->fields['content'], $domain)),
-                  ],
-                  [
-                     'type' => 'hidden',
-                     'name' => 'plugin_formcreator_forms_id',
-                     'value' => $this->getID(),
-                  ],
-                  [
-                     'type' => 'hidden',
-                     'name' => 'uuid',
-                     'value' => $this->fields['uuid'],
-                  ],
-               ]
-            ]
-         ]
-      ];
+      echo '<form name="' . $formName . '" method="post" action="' . self::getFormURL() . '" enctype="multipart/form-data" class="plugin_formcreator_form" id="plugin_formcreator_form" data-itemtype="' . PluginFormcreatorForm::class . '" data-id="' . $formId . '">';
+      
+      echo '<input type="hidden" name="plugin_formcreator_forms_id" value="' . $this->getID() . '">';
+      echo '<input type="hidden" name="uuid" value="' . $this->fields['uuid'] . '">';
+      
+      if (!empty($this->fields['content'])) {
+         echo '<div class="form-content mb-4">' . html_entity_decode(__($this->fields['content'], $domain)) . '</div>';
+      }
 
       foreach ($sections as $section) {
          $sectionId = $section->getID();
-
-         $newSection = [
-            'visible' => true,
-            'attributes' => [
-               'data-itemtype' => PluginFormcreatorSection::class,
-               'data-id' => $sectionId,
-            ],
-            'inputs' => []
-         ];
-         // Display all fields of the section
+         $sectionName = empty($section->fields['name']) ? '(' . $sectionId . ')' : __($section->fields['name'], $domain);
+         
          $questions = (new PluginFormcreatorQuestion())->getQuestionsFromSection($section->getID());
-         foreach ($questions as $question) {
-            $newSection['inputs'] = $newSection['inputs'] + $question->getRenderedHtml($domain, true, $_SESSION['formcreator']['data']);
+         
+         if (!empty($questions)) {
+            echo '<div class="card" data-itemtype="' . PluginFormcreatorSection::class . '" data-id="' . $sectionId . '">';
+            echo '<div class="card-header">' . $sectionName . '</div>';
+            echo '<div class="card-body">';
+            
+            foreach ($questions as $question) {
+               $questionHtml = $question->getRenderedHtml($domain, true, $_SESSION['formcreator']['data']);
+               
+               if (is_array($questionHtml)) {
+                  foreach ($questionHtml as $label => $config) {
+                     echo '<div class="form-group mb-3" data-itemtype="' . PluginFormcreatorQuestion::class . '" data-id="' . $question->getID() . '">';
+                     
+                     if (!empty($label)) {
+                        echo '<label class="form-label">' . $label . '</label>';
+                     }
+                     
+                     if (isset($config['content'])) {
+                        echo '<div class="field-content">' . $config['content'] . '</div>';
+                     }
+                     
+                     echo '</div>';
+                  }
+               }
+            }
+            
+            echo '</div>';
+            echo '</div>';
          }
-         $form['content'][empty($section->fields['name']) ? '(' . $sectionId . ')' : __($section->fields['name'], $domain)] = $newSection;
       }
-      renderTwigForm($form);
 
       // Captcha for anonymous forms
       if ($this->fields['access_rights'] == PluginFormcreatorForm::ACCESS_PUBLIC
@@ -1416,20 +1472,22 @@ PluginFormcreatorTranslatableInterface
          $captchaTime = time();
          $captchaId = md5($captchaTime . $this->getID());
          $captcha = PluginFormcreatorCommon::getCaptcha($captchaId);
-         echo '<li class="plugin_formcreator_section" id="plugin_formcreator_captcha_section">';
-         echo '<h2>' . __('Are you a robot ?', 'formcreator') . '</h2>';
-         echo '<div class="form-group line1"><label for="plugin_formcreator_captcha">' . __('Are you a robot ?', 'formcreator') . '</label>';
-         echo '<div><i onclick="plugin_formcreator_refreshCaptcha()" class="fas fa-sync-alt"></i>&nbsp;<img src="' . $captcha['img'] . '">';
-         echo '<div style="width: 50%; float: right" class="form_field"><span class="no-wrap">';
-         echo Html::input('plugin_formcreator_captcha');
-         echo Html::hidden('plugin_formcreator_captcha_id', ['value' => $captchaId]);
-         echo '</div></div>';
+         
+         echo '<div class="card mt-3">';
+         echo '<div class="card-header">' . __('Are you a robot ?', 'formcreator') . '</div>';
+         echo '<div class="card-body">';
+         echo '<div class="form-group">';
+         echo '<label for="plugin_formcreator_captcha" class="form-label">' . __('Are you a robot ?', 'formcreator') . '</label>';
+         echo '<div class="d-flex align-items-center">';
+         echo '<i onclick="plugin_formcreator_refreshCaptcha()" class="fas fa-sync-alt me-2" style="cursor: pointer;"></i>';
+         echo '<img src="' . $captcha['img'] . '" class="me-2">';
+         echo '<input type="text" name="plugin_formcreator_captcha" id="plugin_formcreator_captcha" class="form-control" style="width: 150px;">';
+         echo '<input type="hidden" name="plugin_formcreator_captcha_id" value="' . $captchaId . '">';
          echo '</div>';
-         echo '</li>';
+         echo '</div>';
+         echo '</div>';
+         echo '</div>';
       }
-
-      // Delete saved answers if any
-      unset($_SESSION['formcreator']['data']);
 
       // Show validator selector
       if ($this->fields['validation_required'] != PluginFormcreatorForm_Validator::VALIDATION_NONE) {
@@ -1456,22 +1514,34 @@ PluginFormcreatorTranslatableInterface
          if ($resultCount == 1) {
             reset($validators);
             $validatorId = key($validators);
-            echo Html::hidden('formcreator_validator', ['value' => $validatorId]);
+            echo '<input type="hidden" name="formcreator_validator" value="' . $validatorId . '">';
          } else if ($resultCount > 1) {
             $validators = [0 => Dropdown::EMPTY_VALUE] + $validators;
-            echo '<h2>' . __('Validation', 'formcreator') . '</h2>';
-            echo '<div class="form-group required liste" id="form-validator">';
-            echo '<label>' . __('Choose a validator', 'formcreator') . ' <span class="red">*</span></label>';
-            Dropdown::showFromArray('formcreator_validator', $validators);
+            echo '<div class="card mt-3">';
+            echo '<div class="card-header">' . __('Validation', 'formcreator') . '</div>';
+            echo '<div class="card-body">';
+            echo '<div class="form-group">';
+            echo '<label class="form-label">' . __('Choose a validator', 'formcreator') . ' <span class="required">*</span></label>';
+            Dropdown::showFromArray('formcreator_validator', $validators, ['class' => 'form-select']);
+            echo '</div>';
+            echo '</div>';
             echo '</div>';
          }
       }
+      echo '<div class="text-center mt-4">';
+      echo '<button type="submit" name="submit_formcreator" class="btn btn-primary">';
+      echo _x('button', 'Send');
+      echo '</button>';
+      echo '</div>';
+
+      echo '</form>';
+
+      // Delete saved answers if any
+      unset($_SESSION['formcreator']['data']);
 
       echo Html::scriptBlock('$(function() {
          plugin_formcreator.showFields($("form[name=\'' . $formName . '\']"));
       })');
-
-      Html::closeForm();
    }
 
    /**

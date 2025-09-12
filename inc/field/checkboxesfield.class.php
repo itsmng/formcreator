@@ -131,6 +131,7 @@ class CheckboxesField extends PluginFormcreatorAbstractField
                      'content' => htmlentities($value, ENT_QUOTES),
                      'value' => htmlentities($value, ENT_QUOTES),
                      'title' => htmlentities($value, ENT_QUOTES),
+                     'col_lg' => 8,
                   ]
                ]);
                $html .= ob_get_clean();
