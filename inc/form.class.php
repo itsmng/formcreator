@@ -1422,7 +1422,7 @@ PluginFormcreatorTranslatableInterface
       $sections = (new PluginFormcreatorSection)->getSectionsFromForm($formId);
 
       echo '<form name="' . $formName . '" method="post" action="' . self::getFormURL() . '" enctype="multipart/form-data" class="plugin_formcreator_form" id="plugin_formcreator_form" data-itemtype="' . PluginFormcreatorForm::class . '" data-id="' . $formId . '">';
-      
+      echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
       echo '<input type="hidden" name="plugin_formcreator_forms_id" value="' . $this->getID() . '">';
       echo '<input type="hidden" name="uuid" value="' . $this->fields['uuid'] . '">';
       
