@@ -109,21 +109,18 @@ class RadiosField extends PluginFormcreatorAbstractField
          foreach ($values as $value) {
             if ((trim($value) != '')) {
                $i++;
-               ob_start();
-               renderTwigTemplate('macros/wrappedInput.twig', [
-                  'title' => __($value, $domain),
-                  'input' => [
-                     'type' => 'radio',
-                     'name' => $fieldName,
-                     'id' => $domId . '_' . $i,
-                     'value' => $value,
-                     'checked' => ($this->value == $value),
-                     'col_lg' => 12,
-                     'col_md' => 12,
-                     'col_sm' => 12,
-                  ]
-               ]);
-               $html .= ob_get_clean();
+               $isChecked = ($this->value == $value) ? 'checked="checked"' : '';
+               
+               $html .= '<div class="radio-item" style="display: flex; align-items: center; margin-bottom: 8px;">';
+               $html .= '<input type="radio" ';
+               $html .= 'name="' . $fieldName . '" ';
+               $html .= 'id="' . $domId . '_' . $i . '" ';
+               $html .= 'value="' . htmlentities($value, ENT_QUOTES) . '" ';
+               $html .= 'style="margin-right: 8px;" ' . $isChecked . ' />';
+               $html .= '<label for="' . $domId . '_' . $i . '" style="margin-bottom: 0; cursor: pointer;">';
+               $html .= __($value, $domain);
+               $html .= '</label>';
+               $html .= '</div>';
             }
          }
          $html .= '</div>';

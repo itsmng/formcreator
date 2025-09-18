@@ -120,23 +120,21 @@ class CheckboxesField extends PluginFormcreatorAbstractField
          foreach ($values as $value) {
             if ((trim($value) != '')) {
                $i++;
-               ob_start();
-               renderTwigTemplate('macros/wrappedInput.twig', [
-                  'title' => __($value, $domain),
-                  'input' => [
-                     'type' => 'checkbox',
-                     'no_zero' => true,
-                     'name' => htmlentities($fieldName, ENT_QUOTES) . '[]',
-                     'id' => $domId . '_' . $i,
-                     'content' => htmlentities($value, ENT_QUOTES),
-                     'value' => htmlentities($value, ENT_QUOTES),
-                     'title' => htmlentities($value, ENT_QUOTES),
-                     'col_lg' => 8,
-                  ]
-               ]);
-               $html .= ob_get_clean();
+               $isChecked = in_array($value, $this->value) ? 'checked="checked"' : '';
+            
+               $html .= '<div class="checkbox-item" style="display: flex; align-items: center; margin-bottom: 8px;">';
+               $html .= '<input type="checkbox" ';
+               $html .= 'name="' . htmlentities($fieldName, ENT_QUOTES) . '[]" ';
+               $html .= 'id="' . $domId . '_' . $i . '" ';
+               $html .= 'value="' . htmlentities($value, ENT_QUOTES) . '" ';
+               $html .= 'style="margin-right: 8px;" ' . $isChecked . ' />';
+               $html .= '<label for="' . $domId . '_' . $i . '" style="margin-bottom: 0; cursor: pointer;">';
+               $html .= __($value, $domain);
+               $html .= '</label>';
+               $html .= '</div>';
             }
          }
+         $html .= '</div>';
       }
       $html .= Html::scriptBlock("$(function() {
          pluginFormcreatorInitializeCheckboxes('$fieldName', '$rand');
