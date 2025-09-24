@@ -1630,3 +1630,15 @@ form[name="plugin_formcreator_form"] {
    min-width: 350px;
    box-sizing: border-box;
 }
+
+@media print
+{    
+    .no-print, .no-print *
+    {
+        display: none !important;
+    }
+
+    * {
+      overflow: hidden !important;
+    }
+}

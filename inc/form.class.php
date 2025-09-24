@@ -1413,7 +1413,7 @@ PluginFormcreatorTranslatableInterface
 
       echo "<h1 class='form-title'>";
       echo __($this->fields['name'], $domain) . "&nbsp;";
-      echo '<i class="fas fa-print" style="cursor: pointer;" onclick="window.print();"></i>';
+      echo '<i class="no-print fas fa-print" style="cursor: pointer;" onclick="window.print();"></i>';
       echo '</h1>';
 
       if (!isset($_SESSION['formcreator']['data'])) {
