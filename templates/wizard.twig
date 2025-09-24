@@ -30,7 +30,7 @@
             </div>
 
             {% if show_ticket_summary %}
-                <span id='formcreator_servicecatalogue_ticket_summary'>
+                <span id='formcreator_servicecatalogue_ticket_summary' class="no-print">
                     <span class='status status_incoming'>
                         <a href='{{incoming_href}}'>
                             <span class='status_number'>
@@ -67,7 +67,7 @@
                     </span>
                 </span>
             {% endif %}
-            <div id="c_menu">
+            <div id="c_menu" class="no-print">
                 <ul class="plugin_formcreator_services">
                     {% for title, item in c_menu %}
                         {% if not item.condition or item.condition == true %}
@@ -82,7 +82,7 @@
                 </ul>
             </div>
 
-            <div class="plugin_formcreator_userCard">
+            <div class="no-print plugin_formcreator_userCard">
                 <ul class="plugin_formcreator_userMenu_icons">
                     {% if profile_info %}
                         <li id="plugin_formcreator_avatar">
