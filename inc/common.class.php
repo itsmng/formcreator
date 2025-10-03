@@ -581,7 +581,7 @@ JAVASCRIPT;
     */
    public static function checkRegex($regex) {
       // Avoid php notice when validating the regular expression
-      set_error_handler(function ($errno, $errstr, $errfile, $errline, $errcontext) {
+      set_error_handler(function ($errno, $errstr, $errfile, $errline) {
       });
       $isValid = !(preg_match($regex, "") === false);
       restore_error_handler();
