@@ -33,314 +33,328 @@ use GlpiPlugin\Formcreator\Exception\ImportFailureException;
 use GlpiPlugin\Formcreator\Exception\ExportFailureException;
 
 if (!defined('GLPI_ROOT')) {
-   die("Sorry. You can't access this file directly");
+    die("Sorry. You can't access this file directly");
 }
 
 class PluginFormcreatorCondition extends CommonDBChild implements PluginFormcreatorExportableInterface
 {
-   use PluginFormcreatorExportableTrait;
+    use PluginFormcreatorExportableTrait;
 
-   static public $itemtype = 'itemtype';
-   static public $items_id = 'items_id';
+    static public $itemtype = 'itemtype';
+    static public $items_id = 'items_id';
 
-   const SHOW_RULE_ALWAYS = 1;
-   const SHOW_RULE_HIDDEN = 2;
-   const SHOW_RULE_SHOWN = 3;
+    const SHOW_RULE_ALWAYS = 1;
+    const SHOW_RULE_HIDDEN = 2;
+    const SHOW_RULE_SHOWN = 3;
 
-   const SHOW_LOGIC_AND = 1;
-   const SHOW_LOGIC_OR = 2;
+    const SHOW_LOGIC_AND = 1;
+    const SHOW_LOGIC_OR = 2;
 
-   const SHOW_CONDITION_EQ = 1;
-   const SHOW_CONDITION_NE = 2;
-   const SHOW_CONDITION_LT = 3;
-   const SHOW_CONDITION_GT = 4;
-   const SHOW_CONDITION_LE = 5;
-   const SHOW_CONDITION_GE = 6;
-   const SHOW_CONDITION_QUESTION_VISIBLE = 7;
-   const SHOW_CONDITION_QUESTION_INVISIBLE = 8;
-   const SHOW_CONDITION_REGEX = 9;
+    const SHOW_CONDITION_EQ = 1;
+    const SHOW_CONDITION_NE = 2;
+    const SHOW_CONDITION_LT = 3;
+    const SHOW_CONDITION_GT = 4;
+    const SHOW_CONDITION_LE = 5;
+    const SHOW_CONDITION_GE = 6;
+    const SHOW_CONDITION_QUESTION_VISIBLE = 7;
+    const SHOW_CONDITION_QUESTION_INVISIBLE = 8;
+    const SHOW_CONDITION_REGEX = 9;
 
-   public static function getTypeName($nb = 0) {
-      return _n('Condition', 'Conditions', $nb, 'formcreator');
-   }
-
-
-   public function prepareInputForAdd($input) {
-      // generate a unique id
-      if (!isset($input['uuid'])
-            || empty($input['uuid'])) {
-         $input['uuid'] = plugin_formcreator_getUuid();
-      }
-
-      return $input;
-   }
-
-   /**
-    * Undocumented function
-    *
-    * @return array
-    */
-   public static function getEnumShowLogic() : array {
-      return [
-         self::SHOW_LOGIC_AND => 'AND',
-         self::SHOW_LOGIC_OR  => 'OR',
-      ];
-   }
-
-   /**
-    * Undocumented function
-    *
-    * @return array
-    */
-   public static function getEnumShowCondition() : array {
-      return [
-        self::SHOW_CONDITION_EQ => '=',
-        self::SHOW_CONDITION_NE => '≠',
-        self::SHOW_CONDITION_LT => '<',
-        self::SHOW_CONDITION_GT => '>',
-        self::SHOW_CONDITION_LE => '≤',
-        self::SHOW_CONDITION_GE => '≥',
-        self::SHOW_CONDITION_QUESTION_VISIBLE => __('is visible', 'formcreator'),
-        self::SHOW_CONDITION_QUESTION_INVISIBLE => __('is not visible', 'formcreator'),
-        self::SHOW_CONDITION_REGEX => __('regular expression matches', 'formcreator'),
-      ];
-   }
-
-   /**
-    * Undocumented function
-    *
-    * @return array
-    */
-   public function getEnumShowRule() : array {
-      return [
-        self::SHOW_RULE_ALWAYS => __('Always displayed', 'formcreator'),
-        self::SHOW_RULE_HIDDEN => __('Hidden unless', 'formcreator'),
-        self::SHOW_RULE_SHOWN  => __('Displayed unless', 'formcreator'),
-      ];
-   }
-
-   public static function import(PluginFormcreatorLinker $linker, array $input = [], int $containerId = 0) {
-      global $DB;
-
-      if (!isset($input['uuid']) && !isset($input['id'])) {
-         throw new ImportFailureException(sprintf('UUID or ID is mandatory for %1$s', static::getTypeName(1)));
-      }
-
-      // restore key and FK
-      $input['items_id'] = $containerId;
-
-      $item = new self();
-      // Find an existing condition to update, only if an UUID is available
-      $itemId = false;
-      /** @var string $idKey key to use as ID (id or uuid) */
-      $idKey = 'id';
-      if (isset($input['uuid'])) {
-         // Try to find an existing item to update
-         $idKey = 'uuid';
-         $itemId = plugin_formcreator_getFromDBByField(
-            $item,
-            'uuid',
-            $input['uuid']
-         );
-      }
-
-      // escape text fields
-      foreach (['show_value'] as $key) {
-         $input[$key] = $DB->escape($input[$key]);
-      }
-
-      // set ID for linked objects
-      // Try to resolve through the linker first (preferred during duplication/import)
-      $linked = $linker->getObject($input['plugin_formcreator_questions_id'], PluginFormcreatorQuestion::class);
-      if ($linked === false) {
-         // Do NOT bind to the original question directly. Postpone so it remaps to the duplicated question
-         // once the linker has all mappings registered. This fixes a bug with conditions not duplicating correctly
-         $linker->postpone($input[$idKey], $item->getType(), $input, $containerId);
-         return false;
-      }
-      $input['plugin_formcreator_questions_id'] = $linked->getID();
-
-      // Add or update condition
-      $originalId = $input[$idKey];
-      if ($itemId !== false) {
-         $input['id'] = $itemId;
-         $item->update($input);
-      } else {
-         unset($input['id']);
-         $itemId = $item->add($input);
-      }
-      if ($itemId === false) {
-         $typeName = strtolower(self::getTypeName());
-         throw new ImportFailureException(sprintf(__('Failed to add or update the %1$s %2$s', 'formceator'), $typeName, $input['name']));
-      }
-
-      // add the question to the linker
-      $linker->addObject($originalId, $item);
-
-      return $itemId;
-   }
+    public static function getTypeName($nb = 0)
+    {
+        return _n('Condition', 'Conditions', $nb, 'formcreator');
+    }
 
 
-   public static function countItemsToImport(array $input) : int {
-      return 1;
-   }
+    public function prepareInputForAdd($input)
+    {
+        // generate a unique id
+        if (
+            !isset($input['uuid'])
+            || empty($input['uuid'])
+        ) {
+            $input['uuid'] = plugin_formcreator_getUuid();
+        }
 
-   /**
-    * Export in an array all the data of the current instanciated condition
-    * @param bool $remove_uuid remove the uuid key
-    *
-    * @return array the array with all data (with sub tables)
-    */
-   public function export(bool $remove_uuid = false) : array {
-      if ($this->isNewItem()) {
-         throw new ExportFailureException(sprintf(__('Cannot export an empty object: %s', 'formcreator'), $this->getTypeName()));
-      }
+        return $input;
+    }
 
-      $condition = $this->fields;
+    /**
+     * Undocumented function
+     *
+     * @return array
+     */
+    public static function getEnumShowLogic(): array
+    {
+        return [
+            self::SHOW_LOGIC_AND => 'AND',
+            self::SHOW_LOGIC_OR => 'OR',
+        ];
+    }
 
-      unset($condition['items_id']);
+    /**
+     * Undocumented function
+     *
+     * @return array
+     */
+    public static function getEnumShowCondition(): array
+    {
+        return [
+            self::SHOW_CONDITION_EQ => '=',
+            self::SHOW_CONDITION_NE => '≠',
+            self::SHOW_CONDITION_LT => '<',
+            self::SHOW_CONDITION_GT => '>',
+            self::SHOW_CONDITION_LE => '≤',
+            self::SHOW_CONDITION_GE => '≥',
+            self::SHOW_CONDITION_QUESTION_VISIBLE => __('is visible', 'formcreator'),
+            self::SHOW_CONDITION_QUESTION_INVISIBLE => __('is not visible', 'formcreator'),
+            self::SHOW_CONDITION_REGEX => __('regular expression matches', 'formcreator'),
+        ];
+    }
 
-      // remove ID or UUID
-      $idToRemove = 'id';
-      if ($remove_uuid) {
-         $idToRemove = 'uuid';
-      } else {
-         // Convert IDs into UUIDs
-         $question = new PluginFormcreatorQuestion();
-         $question->getFromDB($condition['plugin_formcreator_questions_id']);
-         $condition['plugin_formcreator_questions_id'] = $question->fields['uuid'];
-      }
-      unset($condition[$idToRemove]);
+    /**
+     * Undocumented function
+     *
+     * @return array
+     */
+    public function getEnumShowRule(): array
+    {
+        return [
+            self::SHOW_RULE_ALWAYS => __('Always displayed', 'formcreator'),
+            self::SHOW_RULE_HIDDEN => __('Hidden unless', 'formcreator'),
+            self::SHOW_RULE_SHOWN => __('Displayed unless', 'formcreator'),
+        ];
+    }
 
-      return $condition;
-   }
+    public static function import(PluginFormcreatorLinker $linker, array $input = [], int $containerId = 0)
+    {
+        global $DB;
 
-   /**
-    * get conditions applied to an item
-    *
-    * @param CommonDBTM $item
-    * @return PluginFormcreatorCondition[]
-    */
-   public function getConditionsFromItem(CommonDBTM $item) : array {
-      global $DB;
+        if (!isset($input['uuid']) && !isset($input['id'])) {
+            throw new ImportFailureException(sprintf('UUID or ID is mandatory for %1$s', static::getTypeName(1)));
+        }
 
-      if ($item->isNewItem()) {
-         return [];
-      }
+        // restore key and FK
+        $input['items_id'] = $containerId;
 
-      $conditions = [];
-      $rows = $DB->request([
-         'FROM'   => self::getTable(),
-         'WHERE'  => [
-            'itemtype' => $item->getType(),
-            'items_id' => $item->getID()
-         ],
-         'ORDER'  => 'order ASC'
-      ]);
-      foreach ($rows as $row) {
-         $condition = new static();
-         $condition->getFromResultSet($row);
-         $conditions[] = $condition;
-      }
+        $item = new self();
+        // Find an existing condition to update, only if an UUID is available
+        $itemId = false;
+        /** @var string $idKey key to use as ID (id or uuid) */
+        $idKey = 'id';
+        if (isset($input['uuid'])) {
+            // Try to find an existing item to update
+            $idKey = 'uuid';
+            $itemId = plugin_formcreator_getFromDBByField(
+                $item,
+                'uuid',
+                $input['uuid']
+            );
+        }
 
-      return $conditions;
-   }
+        // escape text fields
+        foreach (['show_value'] as $key) {
+            $input[$key] = $DB->escape($input[$key]);
+        }
 
-   /**
-    * Display HTML for conditions applied on an item
-    *
-    * @param CommonDBTM $item item where conditions applies to
-    * @return void
-    */
-   public function showConditionsForItem(CommonDBTM $item) {
-      $question = new PluginFormcreatorQuestion();
-      $conditions = $this->getConditionsFromItem($item);
-      $values = [];
-      foreach ($conditions as $condition) {
-         $question->getFromDB($condition->fields['plugin_formcreator_questions_id']);
-         $values[] = [
-            '_conditions[show_logic]' => [
-               'value' => $condition->fields['show_logic'],
-               'title' => $condition->fields['show_logic'] == self::SHOW_LOGIC_AND ? 'AND' : 'OR',
+        // set ID for linked objects
+        // Try to resolve through the linker first (preferred during duplication/import)
+        $linked = $linker->getObject($input['plugin_formcreator_questions_id'], PluginFormcreatorQuestion::class);
+        if ($linked === false) {
+            // Do NOT bind to the original question directly. Postpone so it remaps to the duplicated question
+            // once the linker has all mappings registered. This fixes a bug with conditions not duplicating correctly
+            $linker->postpone($input[$idKey], $item->getType(), $input, $containerId);
+            return false;
+        }
+        $input['plugin_formcreator_questions_id'] = $linked->getID();
+
+        // Add or update condition
+        $originalId = $input[$idKey];
+        if ($itemId !== false) {
+            $input['id'] = $itemId;
+            $item->update($input);
+        } else {
+            unset($input['id']);
+            $itemId = $item->add($input);
+        }
+        if ($itemId === false) {
+            $typeName = strtolower(self::getTypeName());
+            throw new ImportFailureException(sprintf(__('Failed to add or update the %1$s %2$s', 'formceator'), $typeName, $input['name']));
+        }
+
+        // add the question to the linker
+        $linker->addObject($originalId, $item);
+
+        return $itemId;
+    }
+
+
+    public static function countItemsToImport(array $input): int
+    {
+        return 1;
+    }
+
+    /**
+     * Export in an array all the data of the current instanciated condition
+     * @param bool $remove_uuid remove the uuid key
+     *
+     * @return array the array with all data (with sub tables)
+     */
+    public function export(bool $remove_uuid = false): array
+    {
+        if ($this->isNewItem()) {
+            throw new ExportFailureException(sprintf(__('Cannot export an empty object: %s', 'formcreator'), $this->getTypeName()));
+        }
+
+        $condition = $this->fields;
+
+        unset($condition['items_id']);
+
+        // remove ID or UUID
+        $idToRemove = 'id';
+        if ($remove_uuid) {
+            $idToRemove = 'uuid';
+        } else {
+            // Convert IDs into UUIDs
+            $question = new PluginFormcreatorQuestion();
+            $question->getFromDB($condition['plugin_formcreator_questions_id']);
+            $condition['plugin_formcreator_questions_id'] = $question->fields['uuid'];
+        }
+        unset($condition[$idToRemove]);
+
+        return $condition;
+    }
+
+    /**
+     * get conditions applied to an item
+     *
+     * @param CommonDBTM $item
+     * @return PluginFormcreatorCondition[]
+     */
+    public function getConditionsFromItem(CommonDBTM $item): array
+    {
+        global $DB;
+
+        if ($item->isNewItem()) {
+            return [];
+        }
+
+        $conditions = [];
+        $rows = $DB->request([
+            'FROM' => self::getTable(),
+            'WHERE' => [
+                'itemtype' => $item->getType(),
+                'items_id' => $item->getID()
             ],
-            '_conditions[plugin_formcreator_questions_id]' => [
-               'value' => $condition->fields['plugin_formcreator_questions_id'],
-               'title' => $question->fields['name'],
-            ],
-            '_conditions[show_condition]' => [
-               'value' => $condition->fields['show_condition'],
-               'title' => self::getEnumShowCondition()[$condition->fields['show_condition']],
-            ],
-            '_conditions[show_value]' => [
-               'value' => $condition->fields['show_value'],
-               'title' => $condition->fields['show_value'],
-            ],
-         ];
-      }
-      if ($item->fields['show_rule'] == '') {
-         $item->fields['show_rule'] = self::SHOW_RULE_ALWAYS;
-      }
-      $rand = mt_rand();
-      $block = [
-         'visible' => 'true',
-         'inputs' => [
-            '' => [
-               'type' => 'select',
-               'id' => 'show_rule'. $rand,
-               'name' => 'show_rule',
-               'values' => $this->getEnumShowRule(),
-               'value' => $item->fields['show_rule'],
-               'hooks' => [
-                  'change' => <<<JS
-                  const val = this.value;
-                  if (val == 1) {
-                     $('#multiSelectConditions' + $rand).attr('style', 'display: none !important');
-                  } else {
-                     $('#multiSelectConditions' + $rand).attr('style', 'display: flex !important');
-                  }
-                  JS,
-               ]
-            ],
-            __('Conditions') => [
-               'type' => 'multiSelect',
-               'id' => 'multiSelectConditions' . $rand,
-               'style' => $item->fields['show_rule'] == self::SHOW_RULE_ALWAYS ? 'display: none !important' : '',
-               'inputs' => [
-                  [
-                     'type' => 'select',
-                     'name' => 'show_logic',
-                     'values' => [
-                        self::SHOW_LOGIC_AND => __('AND', 'formcreator'),
-                        self::SHOW_LOGIC_OR => __('OR', 'formcreator'),
-                     ],
-                  ],
-                  [
-                     'type' => 'select',
-                     'name' => 'plugin_formcreator_questions_id',
-                     'values' => $question->getQuestionsFromFormBySection($item->getID()),
-                  ],
-                  [
-                     'type' => 'select',
-                     'name' => 'show_condition',
-                     'values' => [
-                        self::SHOW_CONDITION_EQ => '=',
-                        self::SHOW_CONDITION_NE => '≠',
-                        self::SHOW_CONDITION_LT => '<',
-                        self::SHOW_CONDITION_GT => '>',
-                        self::SHOW_CONDITION_LE => '≤',
-                        self::SHOW_CONDITION_GE => '≥',
-                        self::SHOW_CONDITION_QUESTION_VISIBLE => __('is visible', 'formcreator'),
-                        self::SHOW_CONDITION_QUESTION_INVISIBLE => __('is not visible', 'formcreator'),
-                        self::SHOW_CONDITION_REGEX => __('regular expression matches', 'formcreator'),
-                     ],
-                  ],
-                  [
-                     'type' => 'text',
-                     'name' => 'show_value',
-                  ],
-               ],
-               'isList' => true,
-               'getInputAdd' => <<<JS
+            'ORDER' => 'order ASC'
+        ]);
+        foreach ($rows as $row) {
+            $condition = new static();
+            $condition->getFromResultSet($row);
+            $conditions[] = $condition;
+        }
+
+        return $conditions;
+    }
+
+    /**
+     * Display HTML for conditions applied on an item
+     *
+     * @param CommonDBTM $item item where conditions applies to
+     * @return array
+     */
+    public function showConditionsForItem(CommonDBTM $item)
+    {
+        $question = new PluginFormcreatorQuestion();
+        $conditions = $this->getConditionsFromItem($item);
+        $values = [];
+        foreach ($conditions as $condition) {
+            $question->getFromDB($condition->fields['plugin_formcreator_questions_id']);
+            $values[] = [
+                '_conditions[show_logic]' => [
+                    'value' => $condition->fields['show_logic'],
+                    'title' => $condition->fields['show_logic'] == self::SHOW_LOGIC_AND ? 'AND' : 'OR',
+                ],
+                '_conditions[plugin_formcreator_questions_id]' => [
+                    'value' => $condition->fields['plugin_formcreator_questions_id'],
+                    'title' => $question->fields['name'],
+                ],
+                '_conditions[show_condition]' => [
+                    'value' => $condition->fields['show_condition'],
+                    'title' => self::getEnumShowCondition()[$condition->fields['show_condition']],
+                ],
+                '_conditions[show_value]' => [
+                    'value' => $condition->fields['show_value'],
+                    'title' => $condition->fields['show_value'],
+                ],
+            ];
+        }
+        if ($item->fields['show_rule'] == '') {
+            $item->fields['show_rule'] = self::SHOW_RULE_ALWAYS;
+        }
+        $rand = mt_rand();
+        $block = [
+            'visible' => 'true',
+            'inputs' => [
+                __('Condition to show the question', 'formcreator') => [
+                    'type' => 'select',
+                    'id' => 'show_rule' . $rand,
+                    'name' => 'show_rule',
+                    'values' => $this->getEnumShowRule(),
+                    'value' => $item->fields['show_rule'],
+                    'col_lg' => 12,
+                    'col_md' => 12,
+                    'hooks' => [
+                        'change' => <<<JS
+                        const val = this.value;
+                        if (val == 1) {
+                            $('#multiSelectConditions' + $rand).attr('style', 'display: none !important');
+                        } else {
+                            $('#multiSelectConditions' + $rand).attr('style', 'display: flex !important');
+                        }
+                        JS,
+                    ]
+                ],
+                __('Conditions') => [
+                    'type' => 'multiSelect',
+                    'id' => 'multiSelectConditions' . $rand,
+                    'style' => $item->fields['show_rule'] == self::SHOW_RULE_ALWAYS ? 'display: none !important' : '',
+                    'inputs' => [
+                        [
+                            'type' => 'select',
+                            'name' => 'show_logic',
+                            'values' => [
+                                self::SHOW_LOGIC_AND => __('AND', 'formcreator'),
+                                self::SHOW_LOGIC_OR => __('OR', 'formcreator'),
+                            ],
+                        ],
+                        [
+                            'type' => 'select',
+                            'name' => 'plugin_formcreator_questions_id',
+                            'values' => $this->getConditionQuestionChoices($item),
+                        ],
+                        [
+                            'type' => 'select',
+                            'name' => 'show_condition',
+                            'values' => [
+                                self::SHOW_CONDITION_EQ => '=',
+                                self::SHOW_CONDITION_NE => '≠',
+                                self::SHOW_CONDITION_LT => '<',
+                                self::SHOW_CONDITION_GT => '>',
+                                self::SHOW_CONDITION_LE => '≤',
+                                self::SHOW_CONDITION_GE => '≥',
+                                self::SHOW_CONDITION_QUESTION_VISIBLE => __('is visible', 'formcreator'),
+                                self::SHOW_CONDITION_QUESTION_INVISIBLE => __('is not visible', 'formcreator'),
+                                self::SHOW_CONDITION_REGEX => __('regular expression matches', 'formcreator'),
+                            ],
+                        ],
+                        [
+                            'type' => 'text',
+                            'name' => 'show_value',
+                        ],
+                    ],
+                    'isList' => true,
+                    'getInputAdd' => <<<JS
                function () {
                   const values = {
                      "_conditions[show_logic]": $('#multiSelectConditions' + $rand + ' select[name="show_logic"]').val(),
@@ -355,168 +369,259 @@ class PluginFormcreatorCondition extends CommonDBChild implements PluginFormcrea
                   return {values, title};
                }
                JS,
-               'values' => $values,
-               'col_lg' => 12,
-               'col_md' => 12,
+                    'values' => $values,
+                    'col_lg' => 12,
+                    'col_md' => 12,
+                ]
             ]
-         ]
-      ];
-      return $block;
-   }
+        ];
+        return $block;
+    }
 
-   /**
-    * return HTML to show a condition line for a question
-    *
-    * @param array $input
-    *
-    * @return string HTML to insert in a rendered web page
-    */
-   public function getConditionHtml(array $input) : string {
-      if ($this->isNewItem()) {
-         $this->getEmpty();
-         $itemtype       = $input['itemtype'];
-         $itemId         = $input['items_id'];
-         $questionId     = '';
-         $show_condition = self::SHOW_CONDITION_EQ;
-         $show_value     = '';
-         $show_logic     = '';
-      } else {
-         $itemtype       = $this->fields['itemtype'];
-         $itemId         = $this->fields['items_id'];
-         $questionId     = $this->fields['plugin_formcreator_questions_id'];
-         $show_condition = $this->fields['show_condition'];
-         $show_value     = $this->fields['show_value'];
-         $show_logic     = $this->fields['show_logic'];
-      }
-      $item              = new $itemtype();
+    /**
+     * return HTML to show a condition line for a question
+     *
+     * @param array $input
+     *
+     * @return string HTML to insert in a rendered web page
+     */
+    public function getConditionHtml(array $input): string
+    {
+        if ($this->isNewItem()) {
+            $this->getEmpty();
+            $itemtype = $input['itemtype'];
+            $itemId = $input['items_id'];
+            $questionId = '';
+            $show_condition = self::SHOW_CONDITION_EQ;
+            $show_value = '';
+            $show_logic = '';
+        } else {
+            $itemtype = $this->fields['itemtype'];
+            $itemId = $this->fields['items_id'];
+            $questionId = $this->fields['plugin_formcreator_questions_id'];
+            $show_condition = $this->fields['show_condition'];
+            $show_value = $this->fields['show_value'];
+            $show_logic = $this->fields['show_logic'];
+        }
+        $item = new $itemtype();
 
-      // Get list of question in the form of the item
-      if (!is_subclass_of($item, PluginFormcreatorConditionnableInterface::class)) {
-         throw new Exception("$itemtype is not a " . PluginFormcreatorConditionnableInterface::class);
-      }
+        // Get list of question in the form of the item
+        if (!is_subclass_of($item, PluginFormcreatorConditionnableInterface::class)) {
+            throw new Exception("$itemtype is not a " . PluginFormcreatorConditionnableInterface::class);
+        }
 
-      $rand = mt_rand();
-      $html  = '';
-      $html .= '<tr'
-      . ' data-itemtype="' . self::class . '"'
-      . ' data-id="' . $this->getID() . '"'
-      . '">';
-      $html .= '<td colspan="4">';
-      $html .= '<div class="div_show_condition">';
+        $rand = mt_rand();
+        $html = '';
+        $html .= '<tr'
+            . ' data-itemtype="' . self::class . '"'
+            . ' data-id="' . $this->getID() . '"'
+            . '">';
+        $html .= '<td colspan="4">';
+        $html .= '<div class="div_show_condition">';
 
-      // Boolean operator
-      $html.= '<div class="div_show_condition_logic">';
-      $html.= Dropdown::showFromArray('_conditions[show_logic][]',
+        // Boolean operator
+        $html .= '<div class="div_show_condition_logic">';
+        $html .= Dropdown::showFromArray(
+            '_conditions[show_logic][]',
             self::getEnumShowLogic(),
             [
-               'display'               => false,
-               'value'                 => $show_logic,
-               'display_emptychoice'   => false,
-               'rand'                  => $rand,
-            ]);
-      $html.= '</div>';
+                'display' => false,
+                'value' => $show_logic,
+                'display_emptychoice' => false,
+                'rand' => $rand,
+            ]
+        );
+        $html .= '</div>';
 
-      // dropdown of questions
-      $form = new PluginFormcreatorForm();
-      $questionListExclusion = [];
-      switch ($itemtype) {
-         case PluginFormcreatorForm::class:
-            $form->getFromDB($itemId);
-            break;
+        // dropdown of questions
+        $form = new PluginFormcreatorForm();
+        $questionListExclusion = [];
+        switch ($itemtype) {
+            case PluginFormcreatorForm::class:
+                $form->getFromDB($itemId);
+                break;
 
-         case PluginFormcreatorSection::class:
-            $sectionFk = PluginFormcreatorSection::getForeignKeyField();
-            $questionListExclusion = [PluginFormcreatorQuestion::getTable() . '.' . $sectionFk => ['<>', $itemId]];
-         case PluginFormcreatorTargetTicket::class:
-         case PluginFormcreatorTargetChange::class:
-            $form->getFromDB($input['plugin_formcreator_forms_id']);
-            break;
+            case PluginFormcreatorSection::class:
+                $sectionFk = PluginFormcreatorSection::getForeignKeyField();
+                $questionListExclusion = [PluginFormcreatorQuestion::getTable() . '.' . $sectionFk => ['<>', $itemId]];
+            case PluginFormcreatorTargetTicket::class:
+            case PluginFormcreatorTargetChange::class:
+                $form->getFromDB($input['plugin_formcreator_forms_id']);
+                break;
 
-         case PluginFormcreatorQuestion::class:
-            if ($item->isNewID($itemId)) {
-               $parentItemtype = $item::$itemtype;;
-               $section = new $parentItemtype();
-               $section->getFromDB($input[$parentItemtype::getForeignKeyField()]);
-               $form->getFromDBBySection($section);
-            } else {
-               $item->getFromDB($itemId);
-               $form->getFromDBByQuestion($item);
-               $questionListExclusion = [PluginFormcreatorQuestion::getTable() . '.id' => ['<>', $itemId]];
-            }
-            break;
+            case PluginFormcreatorQuestion::class:
+                if ($item->isNewID($itemId)) {
+                    $parentItemtype = $item::$itemtype;
+                    ;
+                    $section = new $parentItemtype();
+                    $section->getFromDB($input[$parentItemtype::getForeignKeyField()]);
+                    $form->getFromDBBySection($section);
+                } else {
+                    $item->getFromDB($itemId);
+                    $form->getFromDBByQuestion($item);
+                    $questionListExclusion = [PluginFormcreatorQuestion::getTable() . '.id' => ['<>', $itemId]];
+                }
+                break;
 
-         default:
-            throw new RuntimeException("Unsupported conditionnable");
+            default:
+                throw new RuntimeException("Unsupported conditionnable");
 
-      }
-      $sections = (new PluginFormcreatorSection())->getSectionsFromForm($form->getID());
-      $sectionsList = [];
-      foreach ($sections as $section) {
-         $sectionsList[] = $section->getID();
-      }
-      if (count($sectionsList) > 0) {
-         $questionListExclusion[] = [
-            PluginFormcreatorSection::getForeignKeyField() => $sectionsList,
-         ];
-      }
-      $html.= '<div class="div_show_condition_field">';
-      $html .= PluginFormcreatorQuestion::dropdownForForm(
-         $form->getID(),
-         $questionListExclusion,
-         '_conditions[plugin_formcreator_questions_id][]',
-         $questionId,
-         [
-            'display' => false,
-         ]
-      );
-      $html.= '</div>';
+        }
+        $sections = (new PluginFormcreatorSection())->getSectionsFromForm($form->getID());
+        $sectionsList = [];
+        foreach ($sections as $section) {
+            $sectionsList[] = $section->getID();
+        }
+        if (count($sectionsList) > 0) {
+            $questionListExclusion[] = [
+                PluginFormcreatorSection::getForeignKeyField() => $sectionsList,
+            ];
+        }
+        $html .= '<div class="div_show_condition_field">';
+        $html .= PluginFormcreatorQuestion::dropdownForForm(
+            $form->getID(),
+            $questionListExclusion,
+            '_conditions[plugin_formcreator_questions_id][]',
+            $questionId,
+            [
+                'display' => false,
+            ]
+        );
+        $html .= '</div>';
 
-      // Equality / inequality operator
-      $html.= '<div class="div_show_condition_operator">';
+        // Equality / inequality operator
+        $html .= '<div class="div_show_condition_operator">';
 
-      $html.= Dropdown::showFromArray(
-         '_conditions[show_condition][]',
-         self::getEnumShowCondition(), [
-            'display'      => false,
-            'value'        => $show_condition,
-            'rand'         => $rand,
-         ]
-      );
-      $html.= '</div>';
+        $html .= Dropdown::showFromArray(
+            '_conditions[show_condition][]',
+            self::getEnumShowCondition(),
+            [
+                'display' => false,
+                'value' => $show_condition,
+                'rand' => $rand,
+            ]
+        );
+        $html .= '</div>';
 
-      // Value of comparison
-      $html.= '<div class="div_show_condition_value">';
-      $html.= Html::input('_conditions[show_value][]', [
-         'class' => 'small_text',
-         'size'  => '8',
-         'value' => $show_value,
-      ]);
-      $html.= '</div>';
+        // Value of comparison
+        $html .= '<div class="div_show_condition_value">';
+        $html .= Html::input('_conditions[show_value][]', [
+            'class' => 'small_text',
+            'size' => '8',
+            'value' => $show_value,
+        ]);
+        $html .= '</div>';
 
-      // Buttons to add a new comparison or remove the curent one
-      $onclick = 'plugin_formcreator_addEmptyCondition(this, \'' . $itemtype . '\', ' . $itemId . ')';
-      $html.= '<div class="div_show_condition_add">';
-      $html.= '<i class="fas fa-plus-circle" style="cursor: pointer;" onclick="' . $onclick . '"></i>&nbsp;</div>';
+        // Buttons to add a new comparison or remove the curent one
+        $onclick = 'plugin_formcreator_addEmptyCondition(this, \'' . $itemtype . '\', ' . $itemId . ')';
+        $html .= '<div class="div_show_condition_add">';
+        $html .= '<i class="fas fa-plus-circle" style="cursor: pointer;" onclick="' . $onclick . '"></i>&nbsp;</div>';
 
-      $onclick = 'plugin_formcreator_removeNextCondition(this, \'' . $itemtype . '\', ' . $itemId . ')';
-      $html.= '<div class="div_show_condition_remove">';
-      $html.= '<i class="fas fa-minus-circle"  style="cursor: pointer;" onclick="' . $onclick . '"></i>&nbsp;</div>';
+        $onclick = 'plugin_formcreator_removeNextCondition(this, \'' . $itemtype . '\', ' . $itemId . ')';
+        $html .= '<div class="div_show_condition_remove">';
+        $html .= '<i class="fas fa-minus-circle"  style="cursor: pointer;" onclick="' . $onclick . '"></i>&nbsp;</div>';
 
-      $html.= '</div>';
-      $html.= '</td>';
-      $html.= '</tr>';
+        $html .= '</div>';
+        $html .= '</td>';
+        $html .= '</tr>';
 
-      return $html;
-   }
+        return $html;
+    }
 
-   public function deleteObsoleteItems(CommonDBTM $container, array $exclude) : bool {
-      $keepCriteria = [
-         'itemtype' => $container->getType(),
-         'items_id' => $container->getID(),
-      ];
-      if (count($exclude) > 0) {
-         $keepCriteria[] = ['NOT' => ['id' => $exclude]];
-      }
-      return $this->deleteByCriteria($keepCriteria);
-   }
+    public function deleteObsoleteItems(CommonDBTM $container, array $exclude): bool
+    {
+        $keepCriteria = [
+            'itemtype' => $container->getType(),
+            'items_id' => $container->getID(),
+        ];
+        if (count($exclude) > 0) {
+            $keepCriteria[] = ['NOT' => ['id' => $exclude]];
+        }
+        return $this->deleteByCriteria($keepCriteria);
+    }
+
+    /**
+     * Build the choices list for the condition question dropdown.
+     */
+    private function getConditionQuestionChoices(CommonDBTM $item): array
+    {
+        $formId = null;
+        $crit = [];
+
+        switch ($item->getType()) {
+            case PluginFormcreatorForm::class:
+                $formId = $item->getID();
+                break;
+
+            case PluginFormcreatorSection::class:
+                $formFk = PluginFormcreatorForm::getForeignKeyField();
+                if (isset($item->fields[$formFk])) {
+                    $formId = (int) $item->fields[$formFk];
+                    $crit = [
+                        PluginFormcreatorQuestion::getTable() . '.' . PluginFormcreatorSection::getForeignKeyField() => ['<>', $item->getID()],
+                    ];
+                }
+                break;
+
+            case PluginFormcreatorQuestion::class:
+                /** @var PluginFormcreatorQuestion $item */
+                $questionItem = $item;
+                $form = new PluginFormcreatorForm();
+                if (!$questionItem->isNewItem()) {
+                    if ($form->getFromDBByQuestion($questionItem)) {
+                        $formId = $form->getID();
+                        $crit = [
+                            PluginFormcreatorQuestion::getTable() . '.id' => ['<>', $questionItem->getID()],
+                        ];
+                    }
+                } else {
+                    $sectionId = $this->guessSectionIdForQuestion($questionItem);
+                    if ($sectionId !== null) {
+                        $section = new PluginFormcreatorSection();
+                        if ($section->getFromDB($sectionId)) {
+                            $formFk = PluginFormcreatorForm::getForeignKeyField();
+                            $formId = (int) $section->fields[$formFk];
+                        }
+                    }
+                }
+                break;
+
+            case PluginFormcreatorTargetTicket::class:
+            case PluginFormcreatorTargetChange::class:
+                if (isset($item->fields['plugin_formcreator_forms_id'])) {
+                    $formId = (int) $item->fields['plugin_formcreator_forms_id'];
+                }
+                break;
+
+            default:
+                return [];
+        }
+
+        if ($formId === null || $formId <= 0) {
+            return [];
+        }
+
+        $question = new PluginFormcreatorQuestion();
+        return $question->getQuestionsFromFormBySection($formId, $crit);
+    }
+
+    private function guessSectionIdForQuestion(PluginFormcreatorQuestion $question): ?int
+    {
+        $sectionId = $question->fields['plugin_formcreator_sections_id'] ?? null;
+
+        if (!$sectionId && isset($question->input) && isset($question->input['plugin_formcreator_sections_id'])) {
+            $sectionId = $question->input['plugin_formcreator_sections_id'];
+        }
+
+        if (!$sectionId && isset($_REQUEST['section_id'])) {
+            $sectionId = (int) $_REQUEST['section_id'];
+        }
+
+        if (!$sectionId) {
+            return null;
+        }
+
+        $sectionId = (int) $sectionId;
+        return $sectionId > 0 ? $sectionId : null;
+    }
 }
