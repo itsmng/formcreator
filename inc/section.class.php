@@ -431,15 +431,16 @@ PluginFormcreatorTranslatableInterface
          $action = 'plugin_formcreator.editSection()';
       }
       $condition = new PluginFormcreatorCondition();
-      $conditionInput = $condition->showConditionsForItem($this);
-      ob_start();
-      foreach ($conditionInput['inputs'] as $title => $input) {
-         renderTwigTemplate('macros/wrappedInput.twig', [
-            'title' => $title,
-            'input' => $input,
-         ]);
+      $conditionInputs = $condition->showConditionsForItem($this)['inputs'] ?? [];
+      $questionLabel = __('Condition to show the question', 'formcreator');
+      if (isset($conditionInputs[$questionLabel])) {
+         $sectionLabel = __('Condition to show the section', 'formcreator');
+         $renamedInputs = [];
+         foreach ($conditionInputs as $label => $input) {
+            $renamedInputs[$label === $questionLabel ? $sectionLabel : $label] = $input;
+         }
+         $conditionInputs = $renamedInputs;
       }
-      $conditionContent = ob_get_clean();
       $form = [
          'action' => $action,
          'attributes' => [
@@ -469,28 +470,26 @@ PluginFormcreatorTranslatableInterface
             ],
             __('Condition to show the section', 'formcreator') => [
                'visible' => true,
-               'inputs' => [
-                  'conditions' => [
-                     'content' => $conditionContent,
-                     'col_lg' => 12,
-                     'col_md' => 12,
-                  ],
+               'inputs' => array_merge(
+                  $conditionInputs,
                   [
-                     'type' => 'hidden',
-                     'name' => 'id',
-                     'value' => $ID,
-                  ],
-                  [
-                     'type' => 'hidden',
-                     'name' => 'uuid',
-                     'value' => $this->fields['uuid'],
-                  ],
-                  [
-                     'type' => 'hidden',
-                     'name' => PluginFormcreatorForm::getForeignKeyField(),
-                     'value' => $this->fields['plugin_formcreator_forms_id'],
-                  ],
-               ],
+                     [
+                        'type' => 'hidden',
+                        'name' => 'id',
+                        'value' => $ID,
+                     ],
+                     [
+                        'type' => 'hidden',
+                        'name' => 'uuid',
+                        'value' => $this->fields['uuid'],
+                     ],
+                     [
+                        'type' => 'hidden',
+                        'name' => PluginFormcreatorForm::getForeignKeyField(),
+                        'value' => $this->fields['plugin_formcreator_forms_id'],
+                     ],
+                  ]
+               ),
             ],
          ]
       ];
