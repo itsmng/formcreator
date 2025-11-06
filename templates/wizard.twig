@@ -70,7 +70,7 @@
             <div id="c_menu" class="no-print">
                 <ul class="plugin_formcreator_services">
                     {% for title, item in c_menu %}
-                        {% if not item.condition or item.condition == true %}
+                        {% if item.condition is not defined or item.condition %}
                             <li class="{{item.selected ? 'plugin_formcreator_selectedMenuItem' : ''}}">
                                 <a href="{{item.href}}" {% if item.id %} id="{{item.id}}" {% endif %} {% if item.target %} target="{{item.target}}" {% endif %}>
                                     <span class="{{item.icon}}" title="{{title}}"></span>
