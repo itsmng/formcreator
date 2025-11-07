@@ -47,9 +47,14 @@ class RadiosField extends PluginFormcreatorAbstractField
       $label = '';
       $field = '';
 
-      $value = json_decode($this->question->fields['values'] ?? '[]');
-      if ($value === null || !is_array($value)) {
-         $value = [];
+      $questionFields = [];
+      if ($this->question instanceof \PluginFormcreatorQuestion && is_array($this->question->fields)) {
+         $questionFields = $this->question->fields;
+      }
+
+      $values = json_decode($questionFields['values'] ?? '[]', true);
+      if (!is_array($values)) {
+         $values = [];
       }
 
       $additions = '<div class="plugin_formcreator_question_specific row">';
@@ -58,6 +63,7 @@ class RadiosField extends PluginFormcreatorAbstractField
             'type' => 'textarea',
             'name' => 'default_values',
             'id' => 'default_values',
+            'value' => Html::entities_deep($this->getValueForDesign()),
             'cols' => '50',
             'col_lg' => 6,
          ],
@@ -65,9 +71,8 @@ class RadiosField extends PluginFormcreatorAbstractField
             'type' => 'textarea',
             'name' => 'values',
             'id' => 'values',
-            'value' => implode("\r\n", $value),
             'cols' => '50',
-            'value' => Html::entities_deep($this->getValueForDesign()),
+            'value' => implode("\r\n", $values),
             'col_lg' => 6,
          ],
       ];
