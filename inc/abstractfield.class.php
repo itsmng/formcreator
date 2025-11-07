@@ -38,7 +38,7 @@ require_once(realpath(dirname(__FILE__) . '/../../../inc/includes.php'));
 
 abstract class PluginFormcreatorAbstractField implements PluginFormcreatorFieldInterface
 {
-   /** @var array $fields Fields of an instance of PluginFormcreatorQuestion */
+   /** @var PluginFormcreatorQuestion|null $question Question associated with the field */
    protected $question = null;
 
    /** @var mixed $answer Value of the field */
@@ -170,8 +170,14 @@ abstract class PluginFormcreatorAbstractField implements PluginFormcreatorFieldI
       $classname = array_pop($classname);
       $matches = null;
 
-      preg_match("#^(.+)Field$#", $classname, $matches);
-      return strtolower($matches[1]);
+      if (preg_match("#^(.+)Field$#", $classname, $matches)) {
+         $matchedName = $matches[1] ?? null;
+         if ($matchedName !== null) {
+            return strtolower($matchedName);
+         }
+      }
+
+      return strtolower($classname);
    }
 
    public function getEmptyParameters(): array {
