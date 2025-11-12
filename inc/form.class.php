@@ -1330,9 +1330,9 @@ class PluginFormcreatorForm extends CommonDBTM implements
     *
     * @return void
     */
-    public function displayUserForm(): void
-    {
-       global $TRANSLATE;
+   public function displayUserForm(): void
+   {
+      global $TRANSLATE;
 
       $formName = 'plugin_formcreator_form';
       $formId = $this->getID();
@@ -2590,10 +2590,127 @@ class PluginFormcreatorForm extends CommonDBTM implements
 
    public function showAddTargetForm()
    {
+      $workflowPluginActive = class_exists('PluginWorkflowsWorkflow')
+         && (new Plugin())->isActivated('workflows');
+
       $targetTypes = [];
       foreach (PluginFormcreatorForm::getTargetTypes() as $targetType) {
+         if ($targetType === PluginFormcreatorTargetWorkflow::class && !$workflowPluginActive) {
+            continue;
+         }
          $targetTypes[$targetType] = $targetType::getTypeName(1);
       }
+
+      $rand = mt_rand();
+
+      $inputs = [
+         __('Name') => [
+            'type' => 'text',
+            'name' => 'name',
+            'required' => true,
+            'col_lg' => 6,
+         ],
+         _n('Type', 'Types', 1) => [
+            'type' => 'select',
+            'name' => 'itemtype',
+            'id' => 'SelectForTargetType' . $rand,
+            'values' => [Dropdown::EMPTY_VALUE] + $targetTypes,
+            'required' => true,
+            'col_lg' => 6,
+            'hooks' => [
+               'change' => <<<JS
+               const workflowSelect = $('#SelectForWorkflow$rand');
+               if (!workflowSelect.length) {
+                  return;
+               }
+               const findWorkflowWrapper = () => {
+                  const selectors = [
+                     '[data-glpi-form-field-wrapper]',
+                     '.form-group',
+                     '.mb-3',
+                     '[class*=col]'
+                  ];
+                  for (const selector of selectors) {
+                     const candidate = workflowSelect.closest(selector);
+                     if (candidate.length) {
+                        return candidate.first();
+                     }
+                  }
+                  return workflowSelect.parent();
+               };
+               const workflowWrapper = findWorkflowWrapper();
+               if (!workflowWrapper.length) {
+                  return;
+               }
+               const isWorkflow = $(this).val() === 'PluginFormcreatorTargetWorkflow';
+               const toggleWorkflowField = (show) => {
+                  workflowWrapper.toggle(show);
+                  workflowSelect.prop('disabled', !show);
+                  workflowSelect.prop('required', show);
+                  if (!show) {
+                     workflowSelect.val('');
+                     if (workflowSelect.hasClass('select2-hidden-accessible')) {
+                        workflowSelect.trigger('change.select2');
+                     }
+                  }
+               };
+               toggleWorkflowField(isWorkflow);
+               JS,
+            ],
+            'init' => <<<JS
+               (function(){
+                  const targetTypeSelect = $('#SelectForTargetType$rand');
+                  if (!targetTypeSelect.length) { return; }
+                  setTimeout(function(){
+                     targetTypeSelect.trigger('change');
+                  }, 0);
+               })();
+            JS,
+         ],
+      ];
+
+      if ($workflowPluginActive) {
+         $inputs[__('Workflow', 'workflows')] = [
+            'type' => 'select',
+            'name' => 'workflows_id',
+            'id' => 'SelectForWorkflow' . $rand,
+            'values' => getOptionForItems(PluginWorkflowsWorkflow::class),
+            'col_lg' => 6,
+            'init' => <<<JS
+               (function(){
+                  const workflowSelect = $('#SelectForWorkflow$rand');
+                  if (!workflowSelect.length) { return; }
+                  const findWorkflowWrapper = () => {
+                     const selectors = [
+                        '[data-glpi-form-field-wrapper]',
+                        '.form-group',
+                        '.mb-3',
+                        '[class*=col]'
+                     ];
+                     for (const selector of selectors) {
+                        const candidate = workflowSelect.closest(selector);
+                        if (candidate.length) {
+                           return candidate.first();
+                        }
+                     }
+                     return workflowSelect.parent();
+                  };
+                  const workflowWrapper = findWorkflowWrapper();
+                  if (workflowWrapper.length) {
+                     workflowWrapper.hide();
+                  }
+                  workflowSelect.prop('disabled', true);
+                  workflowSelect.prop('required', false);
+               })();
+            JS,
+         ];
+      }
+
+      $inputs[] = [
+         'type' => 'hidden',
+         'name' => 'plugin_formcreator_forms_id',
+         'value' => $this->getID()
+      ];
 
       $form = [
          'action' => static::getFormURL(),
@@ -2608,26 +2725,7 @@ class PluginFormcreatorForm extends CommonDBTM implements
          'content' => [
             __('Add a target', 'formcreator') => [
                'visible' => true,
-               'inputs' => [
-                  __('Name') => [
-                     'type' => 'text',
-                     'name' => 'name',
-                     'required' => true,
-                     'col_lg' => 6,
-                  ],
-                  _n('Type', 'Types', 1) => [
-                     'type' => 'select',
-                     'name' => 'itemtype',
-                     'values' => [Dropdown::EMPTY_VALUE] + $targetTypes,
-                     'required' => true,
-                     'col_lg' => 6,
-                  ],
-                  [
-                     'type' => 'hidden',
-                     'name' => 'plugin_formcreator_forms_id',
-                     'value' => $this->getID()
-                  ],
-               ]
+               'inputs' => $inputs
             ]
          ]
       ];
@@ -2642,7 +2740,7 @@ class PluginFormcreatorForm extends CommonDBTM implements
     */
    public function addTarget($input)
    {
-      $itemtype = $input['itemtype'];
+      $itemtype = $input['itemtype'] ?? '';
       if (!in_array($itemtype, PluginFormcreatorForm::getTargetTypes())) {
          Session::addMessageAfterRedirect(
             __('Unsupported target type.', 'formcreator'),
@@ -2650,6 +2748,31 @@ class PluginFormcreatorForm extends CommonDBTM implements
             ERROR
          );
          return false;
+      }
+
+      if ($itemtype === PluginFormcreatorTargetWorkflow::class) {
+         $workflowsPluginEnabled = class_exists('PluginWorkflowsWorkflow')
+            && (new Plugin())->isActivated('workflows');
+         if (!$workflowsPluginEnabled) {
+            Session::addMessageAfterRedirect(
+               __('The workflows plugin must be enabled to use this target type.', 'formcreator'),
+               false,
+               ERROR
+            );
+            return false;
+         }
+
+         $workflowId = isset($input['workflows_id']) ? (int) $input['workflows_id'] : 0;
+         if ($workflowId <= 0) {
+            Session::addMessageAfterRedirect(
+               __('Please select a workflow before adding this target.', 'formcreator'),
+               false,
+               ERROR
+            );
+            return false;
+         }
+      } else {
+         unset($input['workflows_id']);
       }
 
       // Create the target
