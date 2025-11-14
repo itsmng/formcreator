@@ -39,6 +39,8 @@ use Toolbox;
 use Session;
 use DBUtils;
 use Dropdown;
+use CommonDBTM;
+use Document;
 use CommonITILActor;
 use CommonITILObject;
 use CommonTreeDropdown;
@@ -57,6 +59,8 @@ use SLM;
 use OLA;
 use QuerySubQuery;
 use QueryUnion;
+use Plugin;
+use OperatingSystem;
 use GlpiPlugin\Formcreator\Exception\ComparisonException;
 
 class DropdownField extends PluginFormcreatorAbstractField
@@ -65,6 +69,12 @@ class DropdownField extends PluginFormcreatorAbstractField
    const ENTITY_RESTRICT_USER = 1;
    const ENTITY_RESTRICT_FORM = 2;
    const ENTITY_RESTRICT_BOTH = 3;
+
+   /** @var array<string,?array> Cached metadata for Fields plugin columns */
+   private $fieldsPluginFieldCache = [];
+
+   /** @var array<int,array>|null */
+   private $fieldsPluginFieldList = null;
 
    public function getEnumEntityRestriction() {
       return [
@@ -855,39 +865,23 @@ class DropdownField extends PluginFormcreatorAbstractField
       // For each placeholder found
       foreach ($matches["property"] as $property) {
          $placeholder = "##answer_$questionID.$property##";
-         // Convert Property_Name to Property Name
-         $property = str_replace("_", " ", $property);
-         $searchOption = $item->getSearchOptionByField("name", $property);
-
-         // Execute search
-         $data = Search::prepareDatasForSearch(get_class($item), [
-            'criteria' => [
-               [
-                  'field'      => $searchOption['id'],
-                  'searchtype' => "contains",
-                  'value'      => "",
-               ],
-               [
-                  'field'      => 2,
-                  'searchtype' => "equals",
-                  'value'      => $answer,
-               ]
-            ]
-         ]);
-         Search::constructSQL($data);
-         Search::constructData($data);
-
-         // Handle search result, there may be multiple values
-         $propertyValue = "";
-         foreach ($data['data']['rows'] as $row) {
-            $targetKey = get_class($item) . "_" . $searchOption['id'];
-            // Add each result
-            for ($i = 0; $i < $row[$targetKey]['count']; $i++) {
-               $propertyValue .= $row[$targetKey][$i]['name'];
-               if ($i + 1 < $row[$targetKey]['count']) {
-                  $propertyValue .= ", ";
-               }
+         if ($this->isFieldsPluginPlaceholder($property)) {
+            $fieldIdentifier = $this->extractFieldsPluginField($property);
+            if ($fieldIdentifier === '') {
+               continue;
             }
+            $propertyValue = $this->getFieldsPluginValue($item, $fieldIdentifier, $answer);
+            if ($propertyValue === null) {
+               continue;
+            }
+         } else {
+            // Convert Property_Name to Property Name
+            $propertyName = str_replace("_", " ", $property);
+            $searchOption = $item->getSearchOptionByField("name", $propertyName);
+            if (empty($searchOption)) {
+               continue;
+            }
+            $propertyValue = $this->getSearchOptionValue($item, $searchOption, $answer);
          }
 
          // Replace placeholder in content
@@ -900,6 +894,241 @@ class DropdownField extends PluginFormcreatorAbstractField
       // Put the old locales on succes or if an expection was thrown
       $TRANSLATE->setLocale($oldLocale);
       return $content;
+   }
+
+   private function getSearchOptionValue(CommonDBTM $item, array $searchOption, $answer): string {
+      $data = Search::prepareDatasForSearch(get_class($item), [
+         'criteria' => [
+            [
+               'field'      => $searchOption['id'],
+               'searchtype' => "contains",
+               'value'      => "",
+            ],
+            [
+               'field'      => 2,
+               'searchtype' => "equals",
+               'value'      => $answer,
+            ]
+         ]
+      ]);
+      Search::constructSQL($data);
+      Search::constructData($data);
+
+      $propertyValue = "";
+      $targetKey = get_class($item) . "_" . $searchOption['id'];
+      if (!isset($data['data']['rows'])) {
+         return $propertyValue;
+      }
+
+      foreach ($data['data']['rows'] as $row) {
+         if (!isset($row[$targetKey])) {
+            continue;
+         }
+         for ($i = 0; $i < $row[$targetKey]['count']; $i++) {
+            $propertyValue .= $row[$targetKey][$i]['name'];
+            if ($i + 1 < $row[$targetKey]['count']) {
+               $propertyValue .= ", ";
+            }
+         }
+      }
+
+      return $propertyValue;
+   }
+
+   private function isFieldsPluginPlaceholder(string $property): bool {
+      return stripos($property, 'fields_plugin.') === 0;
+   }
+
+   private function extractFieldsPluginField(string $property): string {
+      $parts = explode('.', $property, 2);
+      if (count($parts) < 2) {
+         return '';
+      }
+      return $parts[1];
+   }
+
+   private function getFieldsPluginValue(CommonDBTM $item, string $fieldIdentifier, $answer): ?string {
+      if (!(new Plugin())->isActivated('fields')) {
+         return null;
+      }
+
+      if (!class_exists('PluginFieldsField') || !class_exists('PluginFieldsContainer')) {
+         return null;
+      }
+
+      $normalizedIdentifier = $this->sanitizeFieldIdentifier($fieldIdentifier);
+      if ($normalizedIdentifier === '') {
+         return null;
+      }
+
+      $itemtype = get_class($item);
+      $field = $this->findFieldsPluginField($itemtype, $normalizedIdentifier);
+      if ($field === null) {
+         return null;
+      }
+
+      $rawValue = $this->fetchFieldsPluginRawValue($field, $itemtype, $answer);
+      if ($rawValue === null) {
+         return '';
+      }
+
+      return $this->formatFieldsPluginValue($field, $rawValue);
+   }
+
+   private function findFieldsPluginField(string $itemtype, string $identifier): ?array {
+      $cacheKey = $itemtype . '|' . $identifier;
+      if (array_key_exists($cacheKey, $this->fieldsPluginFieldCache)) {
+         return $this->fieldsPluginFieldCache[$cacheKey];
+      }
+
+      $chosenField = null;
+      $records = $this->loadFieldsPluginFields();
+      foreach ($records as $record) {
+         $itemtypes = json_decode($record['itemtypes'], true) ?? [];
+         if (!in_array($itemtype, $itemtypes)) {
+            continue;
+         }
+
+         $nameMatch = $this->sanitizeFieldIdentifier($record['name']) === $identifier;
+         $labelMatch = $this->sanitizeFieldIdentifier($record['label']) === $identifier;
+         if (!$nameMatch && !$labelMatch) {
+            continue;
+         }
+
+         $chosenField = $record;
+         if ($nameMatch) {
+            break;
+         }
+      }
+
+      $this->fieldsPluginFieldCache[$cacheKey] = $chosenField;
+      return $chosenField;
+   }
+
+   private function loadFieldsPluginFields(): array {
+      if ($this->fieldsPluginFieldList !== null) {
+         return $this->fieldsPluginFieldList;
+      }
+
+      $this->fieldsPluginFieldList = [];
+
+      global $DB;
+      if (!class_exists('PluginFieldsField') || !class_exists('PluginFieldsContainer')) {
+         return $this->fieldsPluginFieldList;
+      }
+
+      $fieldTable = \PluginFieldsField::getTable();
+      $containerTable = \PluginFieldsContainer::getTable();
+
+      $iterator = $DB->request([
+         'SELECT' => [
+            $fieldTable . '.id AS field_id',
+            $fieldTable . '.name',
+            $fieldTable . '.label',
+            $fieldTable . '.type',
+            $fieldTable . '.plugin_fields_containers_id',
+            $containerTable . '.id AS container_id',
+            $containerTable . '.name AS container_name',
+            $containerTable . '.itemtypes',
+         ],
+         'FROM' => $fieldTable,
+         'INNER JOIN' => [
+            $containerTable => [
+               'ON' => [
+                  $fieldTable     => 'plugin_fields_containers_id',
+                  $containerTable => 'id',
+               ],
+            ],
+         ],
+         'WHERE' => [
+            $fieldTable . '.is_active'     => 1,
+            $containerTable . '.is_active' => 1,
+         ],
+      ]);
+
+      foreach ($iterator as $record) {
+         $this->fieldsPluginFieldList[] = $record;
+      }
+
+      return $this->fieldsPluginFieldList;
+   }
+
+   private function fetchFieldsPluginRawValue(array $field, string $itemtype, $answer) {
+      global $DB;
+
+      $classname = \PluginFieldsContainer::getClassname($itemtype, $field['container_name']);
+      $table = getTableForItemType($classname);
+      if (!$DB->tableExists($table)) {
+         return null;
+      }
+
+      $iterator = $DB->request([
+         'SELECT' => ['*'],
+         'FROM' => $table,
+         'WHERE' => [
+            'items_id' => (int) $answer,
+            'itemtype' => $itemtype,
+            'plugin_fields_containers_id' => $field['plugin_fields_containers_id'],
+         ],
+         'LIMIT' => 1,
+      ]);
+
+      if ($iterator->count() === 0) {
+         return null;
+      }
+
+      $iterator->rewind();
+      $row = $iterator->current();
+      if ($row === null) {
+         return null;
+      }
+      $column = $field['type'] === 'dropdown'
+         ? 'plugin_fields_' . $field['name'] . 'dropdowns_id'
+         : $field['name'];
+
+      return $row[$column] ?? null;
+   }
+
+   private function formatFieldsPluginValue(array $field, $value): string {
+      if ($value === null || $value === '') {
+         return '';
+      }
+
+      switch ($field['type']) {
+         case 'dropdown':
+            $dropdownTable = 'glpi_plugin_fields_' . $field['name'] . 'dropdowns';
+            return Dropdown::getDropdownName($dropdownTable, $value);
+         case 'dropdownuser':
+            return (string) \getUserName($value, false);
+         case 'dropdownoperatingsystems':
+            $os = new OperatingSystem();
+            if ($os->getFromDB($value)) {
+               return $os->fields['name'];
+            }
+            return '';
+         case 'yesno':
+            return Dropdown::getYesNo($value);
+         case 'date':
+            return Html::convDate($value);
+         case 'datetime':
+            return Html::convDateTime($value);
+         default:
+            return (string) $value;
+      }
+   }
+
+   private function sanitizeFieldIdentifier(string $value): string {
+      $value = trim($value);
+      if ($value === '') {
+         return '';
+      }
+
+      $transliterated = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $value);
+      if ($transliterated !== false) {
+         $value = $transliterated;
+      }
+
+      return preg_replace('/[^a-z0-9_]/', '', strtolower($value));
    }
 
    public function getHtmlIcon() {
@@ -919,8 +1148,12 @@ class DropdownField extends PluginFormcreatorAbstractField
     *
     * @return string
     */
-   public function getSubItemtype() {
-      return self::getSubItemtypeForValues($this->question->fields['values']);
+   public function getSubItemtype($values = null) {
+      if ($values === null) {
+         $values = $this->question->fields['values'];
+      }
+
+      return self::getSubItemtypeForValues($values);
    }
 
    /**
@@ -971,7 +1204,7 @@ class DropdownField extends PluginFormcreatorAbstractField
    /**
     * Get the entity restriction for item availability in the field
     *
-    * @return void
+    * @return array
     */
    protected function getEntityRestriction() {
       $decodedValues = json_decode($this->question->fields['values'], JSON_OBJECT_AS_ARRAY);
@@ -989,7 +1222,6 @@ class DropdownField extends PluginFormcreatorAbstractField
                $formEntities = $formEntities + (new DBUtils())->getSonsof(Entity::getTable(), $form->fields['entities_id']);
             }
             return $formEntities;
-            break;
 
          case self::ENTITY_RESTRICT_BOTH:
             $form = new PluginFormcreatorForm();
@@ -1000,7 +1232,6 @@ class DropdownField extends PluginFormcreatorAbstractField
             }
             // If no entityes are in common, the result will be empty
             return array_intersect_key($_SESSION['glpiactiveentities'], $formEntities);
-            break;
       }
 
       return $_SESSION['glpiactiveentities'];
