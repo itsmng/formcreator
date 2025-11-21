@@ -63,5 +63,21 @@ if (isset($_POST['profiles_id']) && isset($_POST[$formFk])) {
          ]);
       }
    }
+
+   if (isset($_POST['groups_id'])) {
+      global $DB;
+      $DB->delete('glpi_plugin_formcreator_forms_groups', [
+         $formFk => (int) $_POST[$formFk],
+      ]);
+
+      foreach ($_POST['groups_id'] as $group_id) {
+         if ($group_id != 0) {
+            $DB->insert('glpi_plugin_formcreator_forms_groups', [
+               'plugin_formcreator_forms_id' => (int) $_POST[$formFk],
+               'groups_id'                   => (int) $group_id,
+            ]);
+         }
+      }
+   }
 }
 Html::back();
