@@ -95,6 +95,11 @@ class PluginFormcreatorForm_Profile extends CommonDBRelation implements PluginFo
          $linkContent .= __('Please activate the form to view the link', 'formcreator');
       }
 
+      $profile_options = [];
+      $profile_values = [];
+      $group_options = [];
+      $group_values = [];
+
       if ($item->fields["access_rights"] == PluginFormcreatorForm::ACCESS_RESTRICTED) {
          $formProfileTable = getTableForItemType(__CLASS__);
          $profileTable     = getTableForItemType(Profile::class);
@@ -120,13 +125,34 @@ class PluginFormcreatorForm_Profile extends CommonDBRelation implements PluginFo
                ]
             ],
          ]);
-         $options = [];
-         $values = [];
          foreach ($result as $row) {
             if ($row['is_enabled'] == '1') {
-               $values[] = $row['id'];
+               $profile_values[] = $row['id'];
             }
-            $options[$row['id']] = $row['name'];
+            $profile_options[$row['id']] = $row['name'];
+         }
+
+         $groupTable = getTableForItemType(Group::class);
+         $formGroupTable = 'glpi_plugin_formcreator_forms_groups';
+
+         $selected_groups = $DB->request([
+            'SELECT' => ['groups_id'],
+            'FROM' => $formGroupTable,
+            'WHERE' => [$formFk => $item->getID()]
+         ]);
+         foreach ($selected_groups as $row) {
+            $group_values[] = $row['groups_id'];
+         }
+
+         $result = $DB->request([
+            'SELECT' => [
+               $groupTable => ['id', 'name'],
+            ],
+            'FROM' => $groupTable,
+            'ORDER' => ['name ASC']
+         ]);
+         foreach ($result as $row) {
+            $group_options[$row['id']] = $row['name'];
          }
       }
       $form = [
@@ -161,14 +187,27 @@ class PluginFormcreatorForm_Profile extends CommonDBRelation implements PluginFo
                   self::getTypeName(2) => ($item->fields["access_rights"] == PluginFormcreatorForm::ACCESS_RESTRICTED) ? [
                      'type' => 'checklist',
                      'name' => 'profiles_id',
-                     'options' => $options,
-                     'values' => $values,
+                     'options' => $profile_options,
+                     'values' => $profile_values,
+                     'col_lg' => 12,
+                     'col_md' => 12,
+                  ] : [],
+                  __('Groups', 'formcreator') => ($item->fields["access_rights"] == PluginFormcreatorForm::ACCESS_RESTRICTED) ? [
+                     'type' => 'checklist',
+                     'name' => 'groups_id',
+                     'options' => $group_options,
+                     'values' => $group_values,
                      'col_lg' => 12,
                      'col_md' => 12,
                   ] : [],
                   [
                      'type' => 'hidden',
                      'name' => 'profiles_id[]',
+                     'value' => '0',
+                  ],
+                  [
+                     'type' => 'hidden',
+                     'name' => 'groups_id[]',
                      'value' => '0',
                   ],
                   [
