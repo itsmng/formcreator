@@ -1223,10 +1223,10 @@ PluginFormcreatorTranslatableInterface
                'hooks' => [
                   'change' => <<<JS
                      const val = this.value;
-                     // PluginFormcreatorAbstractTarget::CATEGORY_RULE_ANSWER
-                     $('#selectFormcreatorCategoryQuestion').attr('disabled', val != 2);
                      // PluginFormcreatorAbstractTarget::CATEGORY_RULE_SPECIFIC
-                     $('#selectFormcreatorCategorySpecific').attr('disabled', val != 3);
+                     $('#selectFormcreatorCategorySpecific').attr('disabled', val != 2);
+                     // PluginFormcreatorAbstractTarget::CATEGORY_RULE_ANSWER
+                     $('#selectFormcreatorCategoryQuestion').attr('disabled', val != 3);
                   JS,
                ]
             ],
