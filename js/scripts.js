@@ -927,7 +927,6 @@ var plugin_formcreator = new function() {
    };
 
    this.showFields = function (form) {
-      console.log(form);
       $.ajax({
          url: formcreatorRootDoc + '/ajax/showfields.php',
          type: "POST",

@@ -248,7 +248,8 @@ class PluginFormcreatorFields
                         return self::$visibility[$itemtype][$itemId];
                      }
                      try {
-                        $value = $conditionField->notEquals($condition->fields['show_value']);
+                        $conditionValue = html_entity_decode($condition->fields['show_value'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                        $value = $conditionField->notEquals($conditionValue);
                      } catch (ComparisonException $e) {
                         $value = false;
                      }
@@ -260,7 +261,9 @@ class PluginFormcreatorFields
                         return self::$visibility[$itemtype][$itemId];
                      }
                      try {
-                        $value = $conditionField->equals($condition->fields['show_value']);
+                        $conditionValue = $condition->fields['show_value'];
+                        $conditionValue = html_entity_decode($conditionValue, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                        $value = $conditionField->equals($conditionValue);
                      } catch (ComparisonException $e) {
                         $value = false;
                      }
@@ -272,7 +275,8 @@ class PluginFormcreatorFields
                         return self::$visibility[$itemtype][$itemId];
                      }
                      try {
-                        $value = $conditionField->greaterThan($condition->fields['show_value']);
+                        $conditionValue = html_entity_decode($condition->fields['show_value'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                        $value = $conditionField->greaterThan($conditionValue);
                      } catch (ComparisonException $e) {
                         $value = false;
                      }
@@ -284,7 +288,8 @@ class PluginFormcreatorFields
                         return self::$visibility[$itemtype][$itemId];
                      }
                      try {
-                        $value = $conditionField->lessThan($condition->fields['show_value']);
+                        $conditionValue = html_entity_decode($condition->fields['show_value'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                        $value = $conditionField->lessThan($conditionValue);
                      } catch (ComparisonException $e) {
                         $value = false;
                      }
@@ -296,8 +301,9 @@ class PluginFormcreatorFields
                         return self::$visibility[$itemtype][$itemId];
                      }
                      try {
-                        $value = ($conditionField->greaterThan($condition->fields['show_value'])
-                                 || $conditionField->equals($condition->fields['show_value']));
+                        $conditionValue = html_entity_decode($condition->fields['show_value'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                        $value = ($conditionField->greaterThan($conditionValue)
+                                 || $conditionField->equals($conditionValue));
                      } catch (ComparisonException $e) {
                         $value = false;
                      }
@@ -309,8 +315,9 @@ class PluginFormcreatorFields
                         return self::$visibility[$itemtype][$itemId];
                      }
                      try {
-                        $value = ($conditionField->lessThan($condition->fields['show_value'])
-                                 || $conditionField->equals($condition->fields['show_value']));
+                        $conditionValue = html_entity_decode($condition->fields['show_value'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                        $value = ($conditionField->lessThan($conditionValue)
+                                 || $conditionField->equals($conditionValue));
                      } catch (ComparisonException $e) {
                         $value = false;
                      }
@@ -322,7 +329,8 @@ class PluginFormcreatorFields
                         return self::$visibility[$itemtype][$itemId];
                      }
                      try {
-                        $value = $conditionField->regex($condition->fields['show_value']);
+                        $conditionValue = html_entity_decode($condition->fields['show_value'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                        $value = $conditionField->regex($conditionValue);
                      } catch (ComparisonException $e) {
                         $value = false;
                      }

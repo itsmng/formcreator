@@ -225,6 +225,7 @@ class TextField extends PluginFormcreatorAbstractField
       }
 
       $this->value = Toolbox::stripslashes_deep($input[$key]);
+      $this->value = html_entity_decode($this->value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
       return true;
    }
 
