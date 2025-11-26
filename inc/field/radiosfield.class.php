@@ -174,6 +174,7 @@ class RadiosField extends PluginFormcreatorAbstractField
       }
 
       $this->value = Toolbox::stripslashes_deep($input[$key]);
+      $this->value = html_entity_decode($this->value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
       return true;
    }
 
@@ -247,7 +248,7 @@ class RadiosField extends PluginFormcreatorAbstractField
    }
 
    public function equals($value): bool {
-      return $this->value == $value;
+      return $this->value === $value;
    }
 
    public function notEquals($value): bool {

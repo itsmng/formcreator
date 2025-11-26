@@ -115,11 +115,11 @@ class SelectField extends RadiosField
    }
 
    public function equals($value): bool {
-      if ($value == '') {
+      if ($value === '') {
          // empty string means no selection
          $value = '0';
       }
-      return $this->value == $value;
+      return $this->value === $value;
    }
 
 
