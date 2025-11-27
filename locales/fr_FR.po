@@ -270,7 +270,7 @@ msgstr "Lieu spécifique"
 
 #: inc/abstracttarget.class.php:226
 msgid "Request source from template or none"
-msgstr "Source de la demande à partir d'un gabarit ou aucune
+msgstr "Source de la demande à partir d'un gabarit ou aucune"
 
 #: inc/abstracttarget.class.php:227
 msgid "Specific request source"
