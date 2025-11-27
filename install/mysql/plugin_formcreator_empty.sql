@@ -223,6 +223,8 @@ CREATE TABLE IF NOT EXISTS `glpi_plugin_formcreator_targettickets` (
   `ola_rule`                    int(11) NOT NULL DEFAULT '1',
   `ola_question_tto`            int(11) NOT NULL DEFAULT '0',
   `ola_question_ttr`            int(11) NOT NULL DEFAULT '0',
+  `requestsource_rule`          int(11) NOT NULL DEFAULT '1',
+  `requestsource_question`      int(11) NOT NULL DEFAULT '0',
   `uuid`                        varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `tickettemplates_id` (`tickettemplates_id`)

@@ -229,6 +229,12 @@ class PluginFormcreatorTargetTicket extends PluginFormcreatorAbstractTarget
       // Location selection
       // -------------------------------------------------------------------------------------------
       $this->showLocationSettings($rand);
+
+      // -------------------------------------------------------------------------------------------
+      // Request source selection
+      // -------------------------------------------------------------------------------------------
+      $this->showRequestSourceSettings($rand);
+
       // -------------------------------------------------------------------------------------------
       //  Tags
       // -------------------------------------------------------------------------------------------
@@ -546,6 +552,17 @@ class PluginFormcreatorTargetTicket extends PluginFormcreatorAbstractTarget
                $input['location_question'] = '0';
          }
 
+         switch ($input['requestsource_rule']) {
+            case self::REQUESTSOURCE_RULE_ANSWER:
+               $input['requestsource_question'] = $input['_requestsource_question'];
+               break;
+            case self::REQUESTSOURCE_RULE_SPECIFIC:
+               $input['requestsource_question'] = $input['_requestsource_specific'];
+               break;
+            default:
+               $input['requestsource_question'] = '0';
+         }
+
          $plugin = new Plugin();
          if ($plugin->isActivated('tag')) {
             $input['tag_questions'] = (!empty($input['_tag_questions']))
@@ -773,6 +790,7 @@ class PluginFormcreatorTargetTicket extends PluginFormcreatorAbstractTarget
       $data = $this->setOLA($data, $formanswer);
       $data = $this->setTargetUrgency($data, $formanswer);
       $data = $this->setTargetLocation($data, $formanswer);
+      $data = $this->setTargetRequestSource($data, $formanswer);
       $data = $this->setTargetAssociatedItem($data, $formanswer);
 
       // There is always at least one requester
@@ -896,6 +914,35 @@ class PluginFormcreatorTargetTicket extends PluginFormcreatorAbstractTarget
       return $data;
    }
 
+   protected function setTargetRequestSource($data, $formanswer) {
+      global $DB;
+
+      $requestSource = null;
+      switch ($this->fields['requestsource_rule']) {
+         case self::REQUESTSOURCE_RULE_ANSWER:
+            $requestSource = $DB->request([
+               'SELECT' => ['answer'],
+               'FROM'   => PluginFormcreatorAnswer::getTable(),
+               'WHERE'  => [
+                  'plugin_formcreator_formanswers_id' => $formanswer->fields['id'],
+                  'plugin_formcreator_questions_id'   => $this->fields['requestsource_question']
+               ]
+            ])->next();
+            if (ctype_digit($requestSource['answer'])) {
+               $requestSource = $requestSource['answer'];
+            }
+            break;
+         case self::REQUESTSOURCE_RULE_SPECIFIC:
+            $requestSource = $this->fields['requestsource_question'];
+            break;
+      }
+      if (!is_null($requestSource)) {
+         $data['requesttypes_id'] = $requestSource;
+      }
+
+      return $data;
+   }
+
    protected function setTargetType(array $data, PluginFormcreatorFormAnswer $formanswer) {
       global $DB;
 
@@ -927,7 +974,7 @@ class PluginFormcreatorTargetTicket extends PluginFormcreatorAbstractTarget
 
    protected  function showTypeSettings($rand) {
       echo '<tr>';
-      echo '<td width="15%">' . __('Request type') . '</td>';
+      echo '<td width="15%">' . __('Request type', 'formcreator') . '</td>';
       echo '<td width="25%">';
       Dropdown::showFromArray('type_rule', static::getEnumRequestTypeRule(), [
             'value' => $this->fields['type_rule'],
@@ -939,7 +986,7 @@ class PluginFormcreatorTargetTicket extends PluginFormcreatorAbstractTarget
       echo '</td>';
       echo '<td width="15%">';
       echo '<span id="requesttype_question_title" style="display: none">' . __('Question', 'formcreator') . '</span>';
-      echo '<span id="requesttype_specific_title" style="display: none">' . __('Type ', 'formcreator') . '</span>';
+      echo '<span id="requesttype_specific_title" style="display: none">' . __('Type', 'formcreator') . '</span>';
       echo '</td>';
       echo '<td width="25%">';
       echo '<div id="requesttype_specific_value" style="display: none">';
@@ -967,7 +1014,7 @@ class PluginFormcreatorTargetTicket extends PluginFormcreatorAbstractTarget
       global $CFG_GLPI;
 
       echo '<tr>';
-      echo '<td width="15%">' . __('Associated elements') . '</td>';
+      echo '<td width="15%">' . _n('Associated element', 'Associated elements', Session::getPluralNumber()) . '</td>';
       echo '<td width="45%">';
       Dropdown::showFromArray('associate_rule', static::getEnumAssociateRule(), [
          'value'                 => $this->fields['associate_rule'],
@@ -1209,6 +1256,7 @@ class PluginFormcreatorTargetTicket extends PluginFormcreatorAbstractTarget
          'category_rule'      => ['values' => self::CATEGORY_RULE_ANSWER, 'field' => 'category_question'],
          'associate_rule'     => ['values' => self::ASSOCIATE_RULE_ANSWER, 'field' => 'associate_question'],
          'location_rule'      => ['values' => self::LOCATION_RULE_ANSWER, 'field' => 'location_question'],
+         'requestsource_rule' => ['values' => self::REQUESTSOURCE_RULE_ANSWER, 'field' => 'requestsource_question'],
          'destination_entity' => [
             'values' => [
                self::DESTINATION_ENTITY_ENTITY,
@@ -1323,6 +1371,7 @@ class PluginFormcreatorTargetTicket extends PluginFormcreatorAbstractTarget
             'category_rule'      => ['values' => self::CATEGORY_RULE_ANSWER, 'field' => 'category_question'],
             'associate_rule'     => ['values' => self::ASSOCIATE_RULE_ANSWER, 'field' => 'associate_question'],
             'location_rule'      => ['values' => self::LOCATION_RULE_ANSWER, 'field' => 'location_question'],
+            'requestsource_rule' => ['values' => self::REQUESTSOURCE_RULE_ANSWER, 'field' => 'requestsource_question'],
             'destination_entity' => [
                'values' => [
                   self::DESTINATION_ENTITY_ENTITY,

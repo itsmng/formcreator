@@ -754,6 +754,14 @@ msgstr "Location from template or none"
 msgid "Specific location"
 msgstr "Specific location"
 
+#: inc/targetbase.class.php:226
+msgid "Request source from template or none"
+msgstr "Request source from template or none"
+
+#: inc/targetbase.class.php:227
+msgid "Specific request source"
+msgstr "Specific request source"
+
 #: inc/targetbase.class.php:667
 msgid "User type question"
 msgstr "User type question"
