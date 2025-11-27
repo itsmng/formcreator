@@ -195,6 +195,10 @@ PluginFormcreatorTranslatableInterface
    const LOCATION_RULE_SPECIFIC = 2;
    const LOCATION_RULE_ANSWER = 3;
 
+   const REQUESTSOURCE_RULE_NONE = 1;
+   const REQUESTSOURCE_RULE_SPECIFIC = 2;
+   const REQUESTSOURCE_RULE_ANSWER = 3;
+
    const OLA_RULE_NONE = 1;
    const OLA_RULE_SPECIFIC = 2;
    const OLA_RULE_FROM_ANWSER = 3;
@@ -273,6 +277,14 @@ PluginFormcreatorTranslatableInterface
          self::LOCATION_RULE_NONE      => __('Location from template or none', 'formcreator'),
          self::LOCATION_RULE_SPECIFIC  => __('Specific location', 'formcreator'),
          self::LOCATION_RULE_ANSWER    => __('Equals to the answer to the question', 'formcreator'),
+      ];
+   }
+
+   public static function getEnumRequestSourceRule() {
+      return [
+         self::REQUESTSOURCE_RULE_NONE      => __('Request source from template or none', 'formcreator'),
+         self::REQUESTSOURCE_RULE_SPECIFIC  => __('Specific request source', 'formcreator'),
+         self::REQUESTSOURCE_RULE_ANSWER    => __('Equals to the answer to the question', 'formcreator'),
       ];
    }
 
@@ -1484,6 +1496,73 @@ SCRIPT;
       }
       Dropdown::showFromArray('_location_question', $users_questions, [
          'value' => $this->fields['location_question'],
+      ]);
+
+      echo '</div>';
+      echo '</td>';
+      echo '</tr>';
+   }
+
+   protected function showRequestSourceSettings($rand) {
+      global $DB;
+
+      echo '<tr>';
+      echo '<td width="15%">' . __('Request source') . '</td>';
+      echo '<td width="45%">';
+      Dropdown::showFromArray('requestsource_rule', static::getEnumRequestSourceRule(), [
+         'value'                 => $this->fields['requestsource_rule'],
+         'on_change'             => "plugin_formcreator_change_request_source($rand)",
+         'rand'                  => $rand
+      ]);
+
+      echo Html::scriptBlock("plugin_formcreator_change_request_source($rand)");
+      echo '</td>';
+      echo '<td width="15%">';
+      echo '<span id="requestsource_question_title" style="display: none">' . __('Question', 'formcreator') . '</span>';
+      echo '<span id="requestsource_specific_title" style="display: none">' . __('Request source') . '</span>';
+      echo '</td>';
+      echo '<td width="25%">';
+
+      echo '<div id="requestsource_specific_value" style="display: none">';
+      RequestType::dropdown([
+         'name' => '_requestsource_specific',
+         'value' => $this->fields["requestsource_question"],
+      ]);
+      echo '</div>';
+      echo '<div id="requestsource_question_value" style="display: none">';
+      // select all user questions (GLPI Object)
+      $questionTable = PluginFormcreatorQuestion::getTable();
+      $sectionTable = PluginFormcreatorSection::getTable();
+      $sectionFk = PluginFormcreatorSection::getForeignKeyField();
+      $formFk = PluginFormcreatorForm::getForeignKeyField();
+      $result = $DB->request([
+         'SELECT' => [
+            $questionTable => ['id', 'name', 'values'],
+            $sectionTable => ['name as sname'],
+         ],
+         'FROM' => $questionTable,
+         'INNER JOIN' => [
+            $sectionTable => [
+               'FKEY' => [
+                  $sectionTable => 'id',
+                  $questionTable => $sectionFk
+               ]
+            ],
+         ],
+         'WHERE' => [
+            "$formFk" => $this->getForm()->getID(),
+            "$questionTable.fieldtype" => 'dropdown'
+         ]
+      ]);
+      $users_questions = [];
+      foreach ($result as $question) {
+         $decodedValues = json_decode($question['values'], JSON_OBJECT_AS_ARRAY);
+         if (isset($decodedValues['itemtype']) && $decodedValues['itemtype'] === 'RequestType') {
+            $users_questions[$question['sname']][$question['id']] = $question['name'];
+         }
+      }
+      Dropdown::showFromArray('_requestsource_question', $users_questions, [
+         'value' => $this->fields['requestsource_question'],
       ]);
 
       echo '</div>';
