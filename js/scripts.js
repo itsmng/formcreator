@@ -2092,6 +2092,24 @@ function plugin_formcreator_change_location(rand) {
    }
 }
 
+function plugin_formcreator_change_request_source(rand) {
+   $('#requestsource_specific_title').hide();
+   $('#requestsource_specific_value').hide();
+   $('#requestsource_question_title').hide();
+   $('#requestsource_question_value').hide();
+
+   switch($('#dropdown_requestsource_rule' + rand).val()) {
+      case '3' :
+         $('#requestsource_question_title').show();
+         $('#requestsource_question_value').show();
+         break;
+      case '2' :
+         $('#requestsource_specific_title').show();
+         $('#requestsource_specific_value').show();
+         break;
+   }
+}
+
 function plugin_formcreator_change_entity(rand) {
    $('#entity_specific_title').hide();
    $('#entity_user_title').hide();
