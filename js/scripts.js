@@ -634,6 +634,17 @@ var plugin_formcreator = new function() {
 
    this.setupGridStack = function (group) {
       var that = this;
+
+      // Check if questions are locked
+      var formContainer = $('#plugin_formcreator_form');
+      var isQuestionsLocked = formContainer.attr('data-questions-locked') == '1';
+
+      // If questions are locked, disable drag and drop
+      if (isQuestionsLocked) {
+         group.data('gridstack').disable();
+         return;
+      }
+
       group
       .on('resizestart', this.startChangeItem)
       .on('dragstart', this.startChangeItem)
@@ -807,6 +818,13 @@ var plugin_formcreator = new function() {
 }
 
    this.moveQuestion = function (target, action) {
+      // Check if questions are locked
+      var formContainer = $('#plugin_formcreator_form');
+      var isQuestionsLocked = formContainer.attr('data-questions-locked') == '1';
+      if (isQuestionsLocked) {
+         return;
+      }
+
       var item = $(target).closest('.formcreator-question');
       var id = item.attr('data-id');
       if (typeof(id) === 'undefined') {

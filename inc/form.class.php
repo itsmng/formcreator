@@ -725,6 +725,12 @@ class PluginFormcreatorForm extends CommonDBTM implements
                      'value' => $this->fields['is_default'],
                      'col_lg' => 6,
                   ],
+                  __('Lock question positions', 'formcreator') => [
+                     'type' => 'checkbox',
+                     'name' => 'is_questions_locked',
+                     'value' => $this->fields['is_questions_locked'],
+                     'col_lg' => 6,
+                  ],
                   (!$this->canPurgeItem()) ? [
                      'content' => '<i class="fas fa-exclamation-triangle"></i>&nbsp;'
                         . __('To delete this form you must delete all its answers first.', 'formcreator'),
