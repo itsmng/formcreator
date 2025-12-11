@@ -178,8 +178,9 @@ class PluginFormcreatorQuestion extends CommonDBChild implements
     public static function showForForm(CommonDBTM $item, $withtemplate = '')
     {
         $formId = $item->getID();
+        $isQuestionsLocked = isset($item->fields['is_questions_locked']) ? $item->fields['is_questions_locked'] : 0;
 
-        echo '<div id="plugin_formcreator_form" class="plugin_formcreator_form_design" data-itemtype="' . PluginFormcreatorForm::class . '" data-id="' . $formId . '">';
+        echo '<div id="plugin_formcreator_form" class="plugin_formcreator_form_design" data-itemtype="' . PluginFormcreatorForm::class . '" data-id="' . $formId . '" data-questions-locked="' . $isQuestionsLocked . '">';
         echo '<ol>';
         $sections = (new PluginFormcreatorSection)->getSectionsFromForm($formId);
         foreach ($sections as $section) {

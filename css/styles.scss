@@ -1838,6 +1838,17 @@ form[name="plugin_formcreator_form"] {
     box-sizing: border-box;
 }
 
+#plugin_formcreator_form[data-questions-locked="1"] {
+    .moveUp,
+    .moveDown {
+        display: none !important;
+    }
+
+    .grid-stack-item {
+        cursor: default !important;
+    }
+}
+
 @media print {
 
     .no-print,
