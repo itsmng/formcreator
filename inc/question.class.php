@@ -207,6 +207,7 @@ class PluginFormcreatorQuestion extends CommonDBChild implements
         echo '</th>';
         echo '</tr>';
         $condition = new PluginFormcreatorCondition();
+        echo "<div class='px-2'>";
         $conditionInputs = $condition->showConditionsForItem($item);
         foreach ($conditionInputs['inputs'] as $title => $input) {
             renderTwigTemplate('macros/wrappedInput.twig', [
@@ -214,6 +215,7 @@ class PluginFormcreatorQuestion extends CommonDBChild implements
                 'input' => $input,
             ]);
         }
+        echo "</div>";
 
         echo '</table>';
 
