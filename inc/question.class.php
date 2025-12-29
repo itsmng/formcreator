@@ -236,8 +236,6 @@ class PluginFormcreatorQuestion extends CommonDBChild implements
             return '';
         }
 
-        $html = '';
-
         $questionId = $this->getID();
         $sectionId = $this->fields[PluginFormcreatorSection::getForeignKeyField()];
         $fieldType = PluginFormcreatorFields::getFieldClassname($this->fields['fieldtype']);
@@ -248,24 +246,14 @@ class PluginFormcreatorQuestion extends CommonDBChild implements
             'items_id' => $this->getID(),
         ]);
 
-        $lastQuestionOrder = PluginFormcreatorCommon::getMax(
-            new PluginFormcreatorQuestion(),
-            [PluginFormcreatorSection::getForeignKeyField() => $sectionId],
-            'row'
-        );
-
-
         ob_start();
         renderTwigTemplate('questionDesign.twig', [
             'id' => $questionId,
             'sectionId' => $sectionId,
             'name' => $this->fields['name'] == '' ? '(' . $questionId . ')' : $this->fields['name'],
             'count' => $nb,
-            'icon' => $field->getHTmlIcon(),
+            'icon' => $field->getHtmlIcon(),
             'requiredIcon' => $required,
-            'first' => $this->fields['row'] == 0,
-            'last' => $this->fields['row'] == $lastQuestionOrder,
-            'order' => $this->fields['row'],
         ], '/plugins/formcreator/templates/');
         return ob_get_clean();
     }

@@ -1,30 +1,60 @@
-<li  data-itemtype="PluginFormcreatorSection" data-id="{{id}}">
+{#
+ # GridStack-compatible section template for form designer
+ # Sections contain a 4-column grid where questions are loaded via AJAX
+ #}
+<li data-itemtype="PluginFormcreatorSection" data-id="{{id}}">
     <div class="px-3 d-flex justify-content-between align-items-center bg-secondary text-light">
         <a class="link-light" href="#" onclick="plugin_formcreator.showSectionForm({{formId}}, {{id}})">
             {{name}}
-            <sup class="plugin_formcreator_count" title="{{"Count of conditions" | transd('formcreator')}}">{{conditionCount}}</sup>
+            <sup class="plugin_formcreator_count"
+                 title="{{"Count of conditions" | transd("formcreator")}}">
+                {{conditionCount}}
+            </sup>
         </a>
+
         <div>
             <span class='form_control pointer btn btn-sm btn-outline-light m-1'>
-                <i class="far fa-trash-alt" onclick="plugin_formcreator.deleteSection(this)"></i>
+                <i class="far fa-trash-alt"
+                   onclick="plugin_formcreator.deleteSection(this)"></i>
             </span>
+
             <span class='form_control pointer btn btn-sm btn-outline-light m-1'>
-                <i class="far fa-clone" onclick="plugin_formcreator.duplicateSection(this)"></i>
+                <i class="far fa-clone"
+                   onclick="plugin_formcreator.duplicateSection(this)"></i>
             </span>
-            <span class='form_control pointer btn btn-sm btn-outline-light m-1 moveUpSection'>
-                <i class="fas fa-arrow-up" onclick="plugin_formcreator.moveSection(this, 'up')"></i>
+
+            <span class='form_control pointer btn btn-sm btn-outline-light m-1 moveDown'
+                  {% if last %}style="display: none"{% endif %}>
+                <i class="fas fa-sort-down"
+                   onclick="plugin_formcreator.moveSection(this, 'down')"></i>
             </span>
-            <span class='form_control pointer btn btn-sm btn-outline-light m-1 moveDownSection'>
-                <i class="fas fa-arrow-down" onclick="plugin_formcreator.moveSection(this, 'down')"></i>
+
+            <span class='form_control pointer btn btn-sm btn-outline-light m-1 moveUp'
+                  {% if first %}style="display: none"{% endif %}>
+                <i class="fas fa-sort-up"
+                   onclick="plugin_formcreator.moveSection(this, 'up')"></i>
             </span>
         </div>
     </div>
-    <div class="plugin_formcreator_sectionContent" data-id="{{id}}">
-        {{questionList|raw}}
+
+    {# GridStack container - questions loaded via AJAX #}
+    <div class="grid-stack grid-stack-{{columns}}"
+         data-gs-animate="yes"
+         data-gs-width="{{columns}}"
+         data-id="{{id}}">
     </div>
+
     <div class="p-2">
         <a href="#" onclick="plugin_formcreator.showQuestionForm({{id}});">
-        <i class="fas fa-plus"></i>&nbsp;{{"Add a question" | transd('formcreator')}}
+            <i class="fas fa-plus"></i>&nbsp;{{"Add a question" | transd("formcreator")}}
         </a>
     </div>
+
+    {# Initialize GridStack for this section #}
+    <script>
+        // Use setTimeout to ensure DOM is fully updated before initializing GridStack
+        setTimeout(function() {
+            plugin_formcreator.initGridStack({{id}});
+        }, 50);
+    </script>
 </li>

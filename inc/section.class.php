@@ -556,15 +556,9 @@ PluginFormcreatorTranslatableInterface
       $sectionId = $this->getID();
 
       $nb = (new DBUtils())->countElementsInTable(PluginFormcreatorCondition::getTable(), [
-        'itemtype' => PluginFormcreatorSection::getType(),
-        'items_id' => $this->getID(),
+         'itemtype' => PluginFormcreatorSection::getType(),
+         'items_id' => $this->getID(),
       ]);
-      $question = new PluginFormcreatorQuestion();
-      $questions = $question->getQuestionsFromSection($sectionId);
-      $questionList = '';
-      foreach ($questions as $question) {
-         $questionList .= $question->getDesignHtml();
-      }
 
       $lastSectionOrder = PluginFormcreatorCommon::getMax(
          new PluginFormcreatorSection(),
@@ -578,7 +572,7 @@ PluginFormcreatorTranslatableInterface
          'formId' => $formId,
          'name' => $this->fields['name'],
          'conditionCount' => $nb,
-         'questionList' => $questionList,
+         'columns' => self::COLUMNS,  // GridStack column count
          'first' => ($this->fields['order'] == 1),
          'last' => ($this->fields['order'] == $lastSectionOrder),
       ], '/plugins/formcreator/templates/');

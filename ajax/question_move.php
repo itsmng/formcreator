@@ -57,6 +57,15 @@ $error = false;
 foreach ($questions as $id => $item) {
    $question = $questions[$id];
    $question->fields['row'] = (int) $_REQUEST['move'][$id]['y'];
+
+   // Add x and width handling for GridStack
+   if (isset($_REQUEST['move'][$id]['x'])) {
+      $question->fields['col'] = (int) $_REQUEST['move'][$id]['x'];
+   }
+   if (isset($_REQUEST['move'][$id]['width'])) {
+      $question->fields['width'] = (int) $_REQUEST['move'][$id]['width'];
+   }
+
    if (isset($_REQUEST['move'][$id]['plugin_formcreator_sections_id'])) {
       $question->fields['plugin_formcreator_sections_id'] = (int) $_REQUEST['move'][$id]['plugin_formcreator_sections_id'];
    }
