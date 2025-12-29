@@ -105,8 +105,6 @@ if (isset($_POST['add'])) {
       'option'
    );
 
-   Html::requireJs('fileupload');
-
    $form->showImportForm();
    Html::footer();
 
