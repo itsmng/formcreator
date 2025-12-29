@@ -725,8 +725,6 @@ class PluginFormcreator {
     };
 
     setupGridStack(grid) {
-        const that = this;
-
         // Check if questions are locked
         const formContainer = $('#plugin_formcreator_form');
         const isQuestionsLocked = formContainer.attr('data-questions-locked') == '1';
@@ -741,7 +739,6 @@ class PluginFormcreator {
             .on('resizestart', this.startChangeItem)
             .on('dragstart', this.startChangeItem)
             .on('resizestop', (event, item) => {
-                console.log(item);
                 if (item.el) {
                     $(item.el).find('a').off('click.prevent');
                 }
@@ -749,12 +746,9 @@ class PluginFormcreator {
                 this.saveItemPosition(event, item);
             })
             .on('dragstop', (event, item) => {
-                console.log(item);
-                setTimeout(() => {
-                    if (item.el) {
-                        $(item.el).find('a').off('click.prevent');
-                    }
-                }, 300);
+                if (item.el) {
+                    $(item.el).find('a').off('click.prevent');
+                }
                 // Save position after drag
                 this.saveItemPosition(event, item);
             });
@@ -795,8 +789,6 @@ class PluginFormcreator {
             }
         }).fail(function () {
             console.error('Failed to save question position');
-        }).done(function (response) {
-            console.log('Question position saved:', changes);
         });
     };
 
@@ -804,13 +796,13 @@ class PluginFormcreator {
      * Event handler : when an item is about to move or resize
      */
     startChangeItem(event, item) {
-        if (item) {
-            $(item).find('a').on('click.prevent', function (e) {
+        if (item && item.el) {
+            $(item.el).find('a').on('click.prevent', function (e) {
                 e.preventDefault();
                 return false;
             });
         }
-        this.changingItemId = $(item).attr('gs-id');
+        this.changingItemId = $(item.el).attr('gs-id');
     }
 
     /**
