@@ -1069,7 +1069,8 @@ class PluginFormcreator {
                     w: Number(data.width),
                     h: Number(data.height),
                     minW: 1,
-                    maxW: 4
+                    maxW: 4,
+                    maxH: 1
                 });
             }
         });

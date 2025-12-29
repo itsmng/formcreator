@@ -1379,12 +1379,22 @@ class PluginFormcreatorForm extends CommonDBTM implements
             echo '<div class="card-header">' . $sectionName . '</div>';
             echo '<div class="card-body">';
 
+            $lastQuestion = null;
+            echo '<div class="row">'; 
+
             foreach ($questions as $question) {
+               if ($lastQuestion !== null && $lastQuestion->fields['row'] < $question->fields['row']) {
+                  echo '</div><div class="row">';  
+               }
+
                $questionHtml = $question->getRenderedHtml($domain, true, $_SESSION['formcreator']['data']);
 
                if (is_array($questionHtml)) {
                   foreach ($questionHtml as $label => $config) {
-                     echo '<div class="form-group mb-3" data-itemtype="' . PluginFormcreatorQuestion::class . '" data-id="' . $question->getID() . '">';
+                     $colLg = $config['col_lg'] ?? 12;
+                     $colMd = $config['col_md'] ?? 12;
+
+                     echo '<div class="col-lg-' . $colLg . ' col-md-' . $colMd . ' form-group mb-3" data-itemtype="' . PluginFormcreatorQuestion::class . '" data-id="' . $question->getID() . '">';
 
                      if (!empty($label)) {
                         echo '<label class="form-label">' . $label . '</label>';
@@ -1397,8 +1407,10 @@ class PluginFormcreatorForm extends CommonDBTM implements
                      echo '</div>';
                   }
                }
+               $lastQuestion = $question;
             }
 
+            echo '</div>'; 
             echo '</div>';
             echo '</div>';
          }
