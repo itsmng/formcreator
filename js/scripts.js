@@ -1106,9 +1106,9 @@ class PluginFormcreator {
                 questionId = parseInt(questionKey.replace('formcreator_field_', ''));
                 if (!isNaN(questionId)) {
                     if (questionToShow[questionKey]) {
-                        $('#plugin_formcreator_form.plugin_formcreator_form [data-itemtype = "PluginFormcreatorQuestion"][gs-id="' + questionKey + '"]').removeAttr('hidden', '');
+                        $('#plugin_formcreator_form.plugin_formcreator_form [data-itemtype = "PluginFormcreatorQuestion"][data-id="' + questionKey + '"]').removeAttr('hidden', '');
                     } else {
-                        $('#plugin_formcreator_form.plugin_formcreator_form [data-itemtype = "PluginFormcreatorQuestion"][gs-id="' + questionKey + '"]').attr('hidden', '');
+                        $('#plugin_formcreator_form.plugin_formcreator_form [data-itemtype = "PluginFormcreatorQuestion"][data-id="' + questionKey + '"]').attr('hidden', '');
                     }
                 }
             }
