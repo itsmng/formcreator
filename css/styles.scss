@@ -331,6 +331,32 @@ body {
         height: 16px;
     }
 
+    .grid-stack>.grid-stack-item>.ui-resizable-e {
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 8px;
+        height: 32px;
+        background-color: rgba(0, 0, 0, 0.1);
+        border-left: 2px solid #999;
+        cursor: ew-resize;
+        transition: background-color 0.2s;
+    }
+
+    .grid-stack>.grid-stack-item>.ui-resizable-e:hover {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-left-color: #666;
+    }
+
+    .grid-stack-item {
+        border: 1px solid transparent;
+        transition: border-color 0.2s;
+    }
+
+    .grid-stack-item:hover {
+        border: 1px solid #ccc;
+    }
+
     .plugin_formcreator_question {
         background: #F0F0F0;
         margin: 5px 2px;

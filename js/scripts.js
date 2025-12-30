@@ -691,8 +691,10 @@ class PluginFormcreator {
             float: true,
             acceptWidgets: true,
             resizable: {
-                handles: 'se'
-            }
+                handles: 'e'
+            },
+            minW: 1,
+            minRow: 1,
         }, gridEl);
 
         // Load questions via AJAX
@@ -714,7 +716,8 @@ class PluginFormcreator {
                     w: Number(question.width),
                     h: Number(question.height),
                     minW: 1,
-                    maxW: 4
+                    maxW: 4,
+                    maxH: 1
                 });
             });
             that.dirty = false;
