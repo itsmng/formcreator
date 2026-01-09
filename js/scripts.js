@@ -738,6 +738,8 @@ class PluginFormcreator {
             return;
         }
 
+        this.grid = grid;
+
         grid
             .on('resizestart', this.startChangeItem)
             .on('dragstart', this.startChangeItem)
@@ -764,18 +766,28 @@ class PluginFormcreator {
         if (this.dirty === true || !item) {
             return;
         }
-        
-        const $item = $(item);
-        const id = $item.attr('gs-id');
+
+        const el = item.el || item;
+        const $el = $(el);
+        const id = $el.attr('gs-id');
         if (typeof (id) === 'undefined') {
             console.log("incorrect id");
             return;
         }
 
-        const section = $item.closest('[data-itemtype="PluginFormcreatorSection"]');
-        const x = $item.attr('gs-x');
-        const y = $item.attr('gs-y');
-        const w = $item.attr('gs-w');
+        const section = $el.closest('[data-itemtype="PluginFormcreatorSection"]');
+
+        let x, y, w;
+        if (this.grid && this.grid.engine) {
+            const node = this.grid.engine.nodes.find(n => n.el === el);
+            if (node) {
+                console.log(node);
+                x = node.x;
+                y = node.y;
+                w = node.w;
+            }
+        }
+
         let changes = {};
         changes[id] = {
             plugin_formcreator_sections_id: section.attr('data-id'),
@@ -799,13 +811,14 @@ class PluginFormcreator {
      * Event handler : when an item is about to move or resize
      */
     startChangeItem(event, item) {
-        if (item && item.el) {
-            $(item.el).find('a').on('click.prevent', function (e) {
+        const el = item && item.el ? item.el : item;
+        if (el) {
+            $(el).find('a').on('click.prevent', function (e) {
                 e.preventDefault();
                 return false;
             });
+            this.changingItemId = $(el).attr('gs-id');
         }
-        this.changingItemId = $(item.el).attr('gs-id');
     }
 
     /**
