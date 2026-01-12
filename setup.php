@@ -352,6 +352,11 @@ function plugin_init_formcreator()
             $PLUGIN_HOOKS['add_javascript']['formcreator'][] = 'js/scripts.js';
         }
 
+        // Fix logo redirecting to /front/central.php when in helpdesk replacement mode
+        if (plugin_formcreator_replaceHelpdesk() == PluginFormcreatorEntityconfig::CONFIG_EXTENDED_SERVICE_CATALOG) {
+            $PLUGIN_HOOKS['add_javascript']['formcreator'][] = 'js/logo_home_fix.js';
+        }
+
         //Html::requireJs('gridstack');
         $CFG_GLPI['javascript']['admin'][PluginFormcreatorForm::class] = 'gridstack';
         $CFG_GLPI['javascript']['helpdesk'][PluginFormcreatorFormlist::class] = 'gridstack';
