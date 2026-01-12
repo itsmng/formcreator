@@ -76,9 +76,10 @@ class PluginFormcreatorWizard {
       renderTwigTemplate('headers/utils/accessibility_buttons.twig', []);
       $accessibilityButtons = ob_get_clean();
 
-      renderTwigTemplate('wizard.twig', [
-         'root_doc' => $CFG_GLPI['root_doc'],
-         'c_menu' => [
+       renderTwigTemplate('wizard.twig', [
+          'root_doc' => $CFG_GLPI['root_doc'],
+          'page_tabs' => $_SESSION['plugin_formcreator_page_tabs'] ?? [],
+          'c_menu' => [
             __('Seek assistance', 'formcreator') => [
                'selected' => self::findActiveMenuItem() == self::MENU_CATALOG,
                'href' => FORMCREATOR_ROOTDOC . '/front/wizard.php',
