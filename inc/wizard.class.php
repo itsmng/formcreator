@@ -76,10 +76,14 @@ class PluginFormcreatorWizard {
       renderTwigTemplate('headers/utils/accessibility_buttons.twig', []);
       $accessibilityButtons = ob_get_clean();
 
-       renderTwigTemplate('wizard.twig', [
-          'root_doc' => $CFG_GLPI['root_doc'],
-          'page_tabs' => $_SESSION['plugin_formcreator_page_tabs'] ?? [],
-          'c_menu' => [
+      $user = new User();
+      $user->getFromDB(Session::getLoginUserID());
+      $user_picture = $user->fields['picture'] ?? '';
+
+      renderTwigTemplate('wizard.twig', [
+         'root_doc' => $CFG_GLPI['root_doc'],
+         'page_tabs' => $_SESSION['plugin_formcreator_page_tabs'] ?? [],
+         'c_menu' => [
             __('Seek assistance', 'formcreator') => [
                'selected' => self::findActiveMenuItem() == self::MENU_CATALOG,
                'href' => FORMCREATOR_ROOTDOC . '/front/wizard.php',
@@ -132,7 +136,7 @@ class PluginFormcreatorWizard {
          'profile_info' => $config['enable_profile_info'] == 1,
          'extauth' => isset($_SESSION['glpiextauth']) && $_SESSION['glpiextauth'],
          'username' => formatUserName(0, $_SESSION["glpiname"], $_SESSION["glpirealname"], $_SESSION["glpifirstname"], 0, 20),
-         'userPic' => User::getThumbnailURLForPicture(Session::getLoginUserID()),
+         'userPic' => User::getThumbnailURLForPicture($user_picture),
          'profileSelector' => $profileSelector,
          'accessibilityButtons' => $accessibilityButtons,
       ], '/plugins/formcreator/templates');
