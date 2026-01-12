@@ -291,10 +291,16 @@ function updateKbCategoriesView() {
         slinkyCategories = $('.slinky-menu').slinky({
             label: true
         });
+
+        document.querySelectorAll('#plugin_formcreator_kb_categories .slinky-menu a.back').forEach(item => {
+            var parentLabel = item.closest('ul').closest('li').querySelector('a').innerText;
+            item.innerText = parentLabel;
+        });
+
         $('#plugin_formcreator_kb_categories a.back').click(
             function (event) {
-                parentItem = $(event.target).parentsUntil('#plugin_formcreator_kb_categories > div', 'li')[1];
-                parentAnchor = $(parentItem).children('a')[0];
+                var parentItem = $(event.target).parentsUntil('#plugin_formcreator_kb_categories > div', 'li')[1];
+                var parentAnchor = $(parentItem).children('a')[0];
                 updateKbitemsView(parentAnchor.getAttribute('data-parent-category-id'));
             }
         );
