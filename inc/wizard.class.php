@@ -76,6 +76,10 @@ class PluginFormcreatorWizard {
       renderTwigTemplate('headers/utils/accessibility_buttons.twig', []);
       $accessibilityButtons = ob_get_clean();
 
+      $user = new User();
+      $user->getFromDB(Session::getLoginUserID());
+      $user_picture = $user->fields['picture'] ?? '';
+
       renderTwigTemplate('wizard.twig', [
          'root_doc' => $CFG_GLPI['root_doc'],
          'c_menu' => [
@@ -131,7 +135,7 @@ class PluginFormcreatorWizard {
          'profile_info' => $config['enable_profile_info'] == 1,
          'extauth' => isset($_SESSION['glpiextauth']) && $_SESSION['glpiextauth'],
          'username' => formatUserName(0, $_SESSION["glpiname"], $_SESSION["glpirealname"], $_SESSION["glpifirstname"], 0, 20),
-         'userPic' => User::getThumbnailURLForPicture(Session::getLoginUserID()),
+         'userPic' => User::getThumbnailURLForPicture($user_picture),
          'profileSelector' => $profileSelector,
          'accessibilityButtons' => $accessibilityButtons,
       ], '/plugins/formcreator/templates');
