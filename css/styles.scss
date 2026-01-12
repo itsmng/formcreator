@@ -303,8 +303,8 @@ body {
 
     .grid-stack-item .grid-stack-item-content {
         text-align: left;
-        padding-left: 16px;
-        padding-right: 10px;
+        padding-left: 4px;
+        padding-right: 4px;
         margin: 0 2px;
         background: #F0F0F0;
         display: flex;
@@ -329,6 +329,32 @@ body {
         transform: inherit;
         width: 16px;
         height: 16px;
+    }
+
+    .grid-stack>.grid-stack-item>.ui-resizable-e {
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 8px;
+        height: 32px;
+        background-color: rgba(0, 0, 0, 0.1);
+        border-left: 2px solid #999;
+        cursor: ew-resize;
+        transition: background-color 0.2s;
+    }
+
+    .grid-stack>.grid-stack-item>.ui-resizable-e:hover {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-left-color: #666;
+    }
+
+    .grid-stack-item {
+        border: 1px solid transparent;
+        transition: border-color 0.2s;
+    }
+
+    .grid-stack-item:hover {
+        border: 1px solid #ccc;
     }
 
     .plugin_formcreator_question {
@@ -1859,4 +1885,35 @@ form[name="plugin_formcreator_form"] {
     * {
         overflow: hidden !important;
     }
+}
+/* ============================================
+ * GridStack question card styling
+ * ============================================ */
+
+.formcreator-question-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+    padding: 0 8px;
+}
+
+.formcreator-question-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    min-width: 0; /* Allow text truncation */
+}
+
+.formcreator-question-content a {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.formcreator-question-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
 }

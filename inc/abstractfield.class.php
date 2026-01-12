@@ -77,11 +77,14 @@ abstract class PluginFormcreatorAbstractField implements PluginFormcreatorFieldI
     * @param boolean $canEdit is the field editable ?
     */
    public function show($domain, $canEdit = true) {
+      $width = $this->question->fields['width'] ?? 4;
+      $colLg = $width * 3;
+
       $input = [__($this->getLabel()) => [
          'description' => ($this->isEditableField() && !empty($this->question->fields['description'])) ? $this->question->fields['description'] : '',
          'content' => $this->getRenderedHtml($domain, $canEdit),
-         'col_lg' => 12,
-         'col_md' => 12,
+         'col_lg' => $colLg,
+         'col_md' => $colLg,
       ]];
       return $input;
    }

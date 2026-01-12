@@ -1379,12 +1379,22 @@ class PluginFormcreatorForm extends CommonDBTM implements
             echo '<div class="card-header">' . $sectionName . '</div>';
             echo '<div class="card-body">';
 
+            $lastQuestion = null;
+            echo '<div class="row">'; 
+
             foreach ($questions as $question) {
+               if ($lastQuestion !== null && $lastQuestion->fields['row'] < $question->fields['row']) {
+                  echo '</div><div class="row">';  
+               }
+
                $questionHtml = $question->getRenderedHtml($domain, true, $_SESSION['formcreator']['data']);
 
                if (is_array($questionHtml)) {
                   foreach ($questionHtml as $label => $config) {
-                     echo '<div class="form-group mb-3" data-itemtype="' . PluginFormcreatorQuestion::class . '" data-id="' . $question->getID() . '">';
+                     $colLg = $config['col_lg'] ?? 12;
+                     $colMd = $config['col_md'] ?? 12;
+
+                     echo '<div class="col-lg-' . $colLg . ' col-md-' . $colMd . ' form-group mb-3" data-itemtype="' . PluginFormcreatorQuestion::class . '" data-id="' . $question->getID() . '">';
 
                      if (!empty($label)) {
                         echo '<label class="form-label">' . $label . '</label>';
@@ -1397,8 +1407,10 @@ class PluginFormcreatorForm extends CommonDBTM implements
                      echo '</div>';
                   }
                }
+               $lastQuestion = $question;
             }
 
+            echo '</div>'; 
             echo '</div>';
             echo '</div>';
          }
@@ -2047,7 +2059,7 @@ class PluginFormcreatorForm extends CommonDBTM implements
          echo "</tr>";
          echo "<tr>";
          echo "<td>";
-         echo Html::file(['name' => 'json_file']);
+         echo "<input type='file' name='json_file' accept='.json' required>";
          echo "</td>";
          echo "</tr>";
          echo "<td class='center'>";
@@ -2068,7 +2080,73 @@ class PluginFormcreatorForm extends CommonDBTM implements
     */
    public function importJson($params = [])
    {
-      // parse json file(s)
+      if (isset($_FILES['json_file']) && $_FILES['json_file']['error'] === UPLOAD_ERR_OK) {
+         $tmpFile = $_FILES['json_file']['tmp_name'];
+         $filename = $_FILES['json_file']['name'];
+         if (!$json = file_get_contents($tmpFile)) {
+            Session::addMessageAfterRedirect(__("Forms import impossible, the file is empty", 'formcreator'));
+            return;
+         }
+         if (!$forms_toimport = json_decode($json, true)) {
+            Session::addMessageAfterRedirect(__("Forms import impossible, the file seems corrupt", 'formcreator'));
+            return;
+         }
+         if (!isset($forms_toimport['forms'])) {
+            Session::addMessageAfterRedirect(__("Forms import impossible, the file seems corrupt", 'formcreator'));
+            return;
+         }
+         if (isset($forms_toimport['schema_version'])) {
+            if (!self::checkImportVersion($forms_toimport['schema_version'])) {
+               Session::addMessageAfterRedirect(
+                  __("Forms import impossible, the file was generated with another version", 'formcreator'),
+                  false,
+                  ERROR
+               );
+               return;
+            }
+         } else {
+            Session::addMessageAfterRedirect(
+               __("The file does not specifies the schema version. It was probably generated with a version older than 2.10. Giving up.", 'formcreator'),
+               false,
+               ERROR
+            );
+            return;
+         }
+
+         $linker = new PluginFormcreatorLinker();
+         foreach ($forms_toimport['forms'] as $form) {
+            $linker->countItems($form, self::class);
+         }
+         $linker->initProgressBar();
+
+         $success = true;
+         foreach ($forms_toimport['forms'] as $form) {
+            $linker->reset();
+            set_time_limit(30);
+            try {
+               self::import($linker, $form);
+            } catch (ImportFailureException $e) {
+               $success = false;
+               Session::addMessageAfterRedirect($e->getMessage(), false, ERROR);
+               continue;
+            }
+            if (!$linker->linkPostponed()) {
+               Session::addMessageAfterRedirect(sprintf(
+                  __("Failed to import %s", "formcreator"),
+                  $form['name']
+               ));
+            }
+         }
+         if ($success) {
+            Session::addMessageAfterRedirect(sprintf(
+               __("Forms successfully imported from %s", "formcreator"),
+               $filename
+            ));
+         }
+         return;
+      }
+
+      // parse json file(s) from AJAX upload (legacy behavior)
       foreach ($params['_json_file'] as $filename) {
          if (!$json = file_get_contents(GLPI_TMP_DIR . "/" . $filename)) {
             Session::addMessageAfterRedirect(__("Forms import impossible, the file is empty", 'formcreator'));
@@ -2122,7 +2200,7 @@ class PluginFormcreatorForm extends CommonDBTM implements
             if (!$linker->linkPostponed()) {
                Session::addMessageAfterRedirect(sprintf(
                   __("Failed to import %s", "formcreator"),
-                  $$form['name']
+                  $form['name']
                ));
             }
          }
