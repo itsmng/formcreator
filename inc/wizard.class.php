@@ -82,6 +82,7 @@ class PluginFormcreatorWizard {
 
       renderTwigTemplate('wizard.twig', [
          'root_doc' => $CFG_GLPI['root_doc'],
+         'page_tabs' => $_SESSION['plugin_formcreator_page_tabs'] ?? [],
          'c_menu' => [
             __('Seek assistance', 'formcreator') => [
                'selected' => self::findActiveMenuItem() == self::MENU_CATALOG,

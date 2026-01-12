@@ -113,3 +113,14 @@
         </div>
 
         <main id="page" class="plugin_formcreator_page">
+            {% if page_tabs is defined and page_tabs|length > 0 %}
+                <nav class="plugin_formcreator_page_tabs no-print">
+                    <ul class="nav nav-tabs">
+                        {% for tab in page_tabs %}
+                            <li class="nav-item">
+                                <a class="nav-link {{tab.active ? 'active' : ''}}" href="{{tab.href}}">{{tab.label}}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </nav>
+            {% endif %}

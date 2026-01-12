@@ -41,6 +41,27 @@ $kb = new KnowbaseItem();
 if (isset($_GET["id"])) {
    $kb->check($_GET["id"], READ);
 
+   $active_tab = $_GET['tab'] ?? 'article';
+
+   // Show tabs only when the KB item has attached documents.
+   $has_documents = Document_Item::countForItem($kb) > 0;
+   if ($has_documents) {
+      $_SESSION['plugin_formcreator_page_tabs'] = [
+         [
+            'label'  => __('Article', 'formcreator'),
+            'href'   => FORMCREATOR_ROOTDOC . '/front/knowbaseitem.form.php?id=' . (int) $_GET['id'] . '&tab=article',
+            'active' => $active_tab === 'article',
+         ],
+         [
+            'label'  => Document::getTypeName(Session::getPluralNumber()),
+            'href'   => FORMCREATOR_ROOTDOC . '/front/knowbaseitem.form.php?id=' . (int) $_GET['id'] . '&tab=documents',
+            'active' => $active_tab === 'documents',
+         ],
+      ];
+   } else {
+      unset($_SESSION['plugin_formcreator_page_tabs']);
+   }
+
    PluginFormcreatorWizard::header(__('Service catalog', 'formcreator'));
 
    $available_options = ['item_itemtype', 'item_items_id', 'id'];
@@ -51,7 +72,16 @@ if (isset($_GET["id"])) {
       }
    }
    $_SESSION['glpilisturl']['KnowbaseItem'] = Plugin::getWebDir('formcreator') . "/front/wizard.php";
-   $kb->showFull($options);
+
+   if ($active_tab === 'documents' && $has_documents) {
+      echo '<div class="plugin_formcreator_document_wrapper">';
+      Document_Item::showForItem($kb);
+      echo '</div>';
+   } else {
+      $kb->showFull($options);
+   }
 
    PluginFormcreatorWizard::footer();
+
+   unset($_SESSION['plugin_formcreator_page_tabs']);
 }
