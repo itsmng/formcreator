@@ -353,7 +353,10 @@ function plugin_init_formcreator()
         }
 
         // Fix logo redirecting to /front/central.php when in helpdesk replacement mode
-        if (plugin_formcreator_replaceHelpdesk() == PluginFormcreatorEntityconfig::CONFIG_EXTENDED_SERVICE_CATALOG) {
+        if (
+            plugin_formcreator_replaceHelpdesk() == PluginFormcreatorEntityconfig::CONFIG_EXTENDED_SERVICE_CATALOG
+            || plugin_formcreator_replaceHelpdesk() == PluginFormcreatorEntityconfig::CONFIG_SIMPLIFIED_SERVICE_CATALOG
+        ) {
             $PLUGIN_HOOKS['add_javascript']['formcreator'][] = 'js/logo_home_fix.js';
         }
 
