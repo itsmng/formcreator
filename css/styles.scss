@@ -1886,6 +1886,11 @@ form[name="plugin_formcreator_form"] {
         overflow: hidden !important;
     }
 }
+
+.plugin_formcreator_page table.tab_cadre_fixe > tbody > tr:first-child > th[colspan="4"] {
+    display: none;
+}
+
 /* ============================================
  * GridStack question card styling
  * ============================================ */
@@ -1921,3 +1926,5 @@ form[name="plugin_formcreator_form"] {
 .plugin_formcreator_document_wrapper {
     padding: 1rem 2rem;
 }
+
+
