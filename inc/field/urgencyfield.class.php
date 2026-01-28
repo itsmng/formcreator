@@ -176,7 +176,7 @@ class UrgencyField extends PluginFormcreatorAbstractField
 
    public function getValueForTargetText($domain, $richText): ?string {
       $available = $this->getAvailableValues();
-      return $available[$this->value];
+      return $available[$this->value] ?? null;
    }
 
    public function moveUploads() {
