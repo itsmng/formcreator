@@ -146,6 +146,7 @@ function plugin_formcreator_getCondition($itemtype) {
       $condition = " (`$table`.`users_id_validator` = $currentUserId";
       $groups = Group_User::getUserGroups($currentUserId);
       if (count($groups) < 1) {
+         $condition .= " OR (`$table`.`users_id_validator` = 0 AND `$table`.`groups_id_validator` = 0 AND `$table`.`status` = " . PluginFormcreatorFormAnswer::STATUS_WAITING . ")";
          $condition .= ")";
          return $condition;
       }
@@ -157,6 +158,7 @@ function plugin_formcreator_getCondition($itemtype) {
       }
       $groupIDs = implode(',', $groupIDs);
       $condition .= " OR `$table`.`groups_id_validator` IN ($groupIDs)";
+      $condition .= " OR (`$table`.`users_id_validator` = 0 AND `$table`.`groups_id_validator` = 0 AND `$table`.`status` = " . PluginFormcreatorFormAnswer::STATUS_WAITING . ")";
       $condition .= ")";
       return $condition;
    }
@@ -209,6 +211,10 @@ function plugin_formcreator_addDefaultWhere($itemtype) {
          $condition .= " OR `glpi_users_users_id_validate_$complexJoinId`.`id` = '$currentUser'";
          // Add users_id_recipient
          $condition .= " OR `glpi_plugin_formcreator_issues`.`users_id_recipient` = $currentUser ";
+
+         if (PluginFormcreatorCommon::canValidate()) {
+            $condition .= " OR (`glpi_plugin_formcreator_issues`.`users_id_validator` = 0 AND `glpi_plugin_formcreator_issues`.`groups_id_validator` = 0 AND `glpi_plugin_formcreator_issues`.`status` = '" . PluginFormcreatorFormAnswer::STATUS_WAITING . "')";
+         }
 
          $condition = "($condition)";
       break;
