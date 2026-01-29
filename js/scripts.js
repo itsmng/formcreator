@@ -787,7 +787,6 @@ class PluginFormcreator {
         if (this.grid && this.grid.engine) {
             const node = this.grid.engine.nodes.find(n => n.el === el);
             if (node) {
-                console.log(node);
                 x = node.x;
                 y = node.y;
                 w = node.w;
