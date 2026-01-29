@@ -610,40 +610,171 @@ PluginFormcreatorTranslatableInterface
       return ($count < 1);
    }
 
-   public function deleteObsoleteItems(CommonDBTM $container, array $exclude) : bool {
-      $keepCriteria = [
-         self::$items_id => $container->getID(),
-      ];
-      if (count($exclude) > 0) {
-         $keepCriteria[] = ['NOT' => ['id' => $exclude]];
+    public function deleteObsoleteItems(CommonDBTM $container, array $exclude) : bool {
+       $keepCriteria = [
+          self::$items_id => $container->getID(),
+       ];
+       if (count($exclude) > 0) {
+          $keepCriteria[] = ['NOT' => ['id' => $exclude]];
+       }
+       return $this->deleteByCriteria($keepCriteria);
+    }
+
+   /**
+    * Normalize question positions to prevent overlaps
+    * Resolves overlapping questions by reassigning them to valid grid positions
+    *
+    * @return int Number of questions whose positions were updated
+    */
+   public function normalizeQuestionPositions(): int {
+      global $DB;
+
+      $sectionId = $this->getID();
+      $questionTable = PluginFormcreatorQuestion::getTable();
+      $sectionFk = PluginFormcreatorSection::getForeignKeyField();
+
+      // Get all questions for this section
+      $questions = $DB->request([
+         'SELECT' => ['id', 'row', 'col', 'width'],
+         'FROM'   => $questionTable,
+         'WHERE'  => [$sectionFk => $sectionId],
+         'ORDER'  => ['row ASC', 'col ASC']
+      ]);
+
+      $updates = 0;
+      $grid = [];
+      $maxRow = 0;
+
+      // Build grid occupancy map
+      foreach ($questions as $q) {
+         $row = (int) $q['row'];
+         $col = (int) $q['col'];
+         $width = (int) $q['width'];
+
+         // Clamp width to valid range
+         if ($width < 1) {
+            $width = 1;
+         } elseif ($width > self::COLUMNS) {
+            $width = self::COLUMNS;
+         }
+
+         // Clamp col to valid range
+         if ($col < 0) {
+            $col = 0;
+         } elseif ($col >= self::COLUMNS) {
+            $col = self::COLUMNS - $width;
+         }
+
+         // Clamp row to minimum 0
+         if ($row < 0) {
+            $row = 0;
+         }
+
+         if ($row > $maxRow) {
+            $maxRow = $row;
+         }
+
+         $grid[$q['id']] = [
+            'row'   => $row,
+            'col'   => $col,
+            'width'  => $width
+         ];
       }
-      return $this->deleteByCriteria($keepCriteria);
-   }
 
-   public function getTranslatableStrings(array $options = []) : array {
-      $strings = [
-         'itemlink' => [],
-         'string'   => [],
-         'text'     => [],
-      ];
-      $params = [
-         'searchText'      => '',
-         'id'              => '',
-         'is_translated'   => null,
-         'language'        => '', // Mandatory if one of is_translated and is_untranslated is false
-      ];
-      $options = array_merge($params, $options);
+      // Resolve overlaps by reassigning positions
+      $occupied = [];
+      $processed = [];
+      $sortedIds = array_keys($grid);
 
-      $strings = $this->getMyTranslatableStrings($options);
+      // Sort by row, then col (top-left to bottom-right)
+      usort($sortedIds, function($a, $b) use ($grid) {
+         $rowDiff = $grid[$a]['row'] - $grid[$b]['row'];
+         if ($rowDiff !== 0) return $rowDiff;
+         return $grid[$a]['col'] - $grid[$b]['col'];
+      });
 
-      foreach ((new PluginFormcreatorQuestion())->getQuestionsFromSection($this->getID()) as $question) {
-         foreach ($question->getTranslatableStrings($options) as $type => $subStrings) {
-            $strings[$type] = array_merge($strings[$type], $subStrings);
+      foreach ($sortedIds as $qid) {
+         if (isset($processed[$qid])) {
+            continue;
+         }
+         $processed[$qid] = true;
+
+         $targetRow = $grid[$qid]['row'];
+         $targetCol = $grid[$qid]['col'];
+         $width = $grid[$qid]['width'];
+
+         while ($this->hasOverlap($occupied, $targetRow, $targetCol, $width)) {
+            $targetCol += $width;
+            if ($targetCol + $width > self::COLUMNS) {
+               $targetCol = 0;
+               $targetRow++;
+            }
+         }
+
+         if ($targetRow !== $grid[$qid]['row'] || $targetCol !== $grid[$qid]['col']) {
+            $DB->update($questionTable, [
+               'row'  => $targetRow,
+               'col'  => $targetCol,
+               'width' => $width
+            ], [
+               'id' => $qid
+            ]);
+            $updates++;
+         }
+
+         for ($c = $targetCol; $c < $targetCol + $width; $c++) {
+            $occupied[$targetRow][$c] = true;
          }
       }
 
-      $strings = $this->deduplicateTranslatable($strings);
-
-      return $strings;
+      return $updates;
    }
+
+    /**
+     * Check if a position has overlap in the occupancy map
+     *
+     * @param array $occupied Occupancy map
+     * @param int $row Row to check
+     * @param int $col Starting column
+     * @param int $width Width in columns
+     * @return bool True if overlap exists
+     */
+    private function hasOverlap($occupied, $row, $col, $width): bool {
+       if (!isset($occupied[$row])) {
+          return false;
+       }
+       for ($c = $col; $c < $col + $width; $c++) {
+          if (isset($occupied[$row][$c])) {
+             return true;
+          }
+       }
+       return false;
+    }
+
+    public function getTranslatableStrings(array $options = []) : array {
+       $strings = [
+          'itemlink' => [],
+          'string'   => [],
+          'text'     => [],
+       ];
+       $params = [
+          'searchText'      => '',
+          'id'              => '',
+          'is_translated'   => null,
+          'language'        => '', // Mandatory if one of is_translated and is_untranslated is false
+       ];
+       $options = array_merge($params, $options);
+
+       $strings = $this->getMyTranslatableStrings($options);
+
+       foreach ((new PluginFormcreatorQuestion())->getQuestionsFromSection($this->getID()) as $question) {
+          foreach ($question->getTranslatableStrings($options) as $type => $subStrings) {
+             $strings[$type] = array_merge($strings[$type], $subStrings);
+          }
+       }
+
+       $strings = $this->deduplicateTranslatable($strings);
+
+       return $strings;
+    }
 }
