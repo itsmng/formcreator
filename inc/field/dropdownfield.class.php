@@ -480,12 +480,20 @@ class DropdownField extends PluginFormcreatorAbstractField
       $rand         = mt_rand();
       $fieldName    = 'formcreator_field_' . $id;
       if (!empty($this->question->fields['values'])) {
+         $searchParams = $this->buildParams($rand);
+         $searchParams['itemtype'] = $itemtype;
+         if (array_key_exists('entity', $searchParams)) {
+            $searchParams['entity_restrict'] = $searchParams['entity'];
+            unset($searchParams['entity']);
+         }
+         $values = $this->convertDropdownValuesToSelectOptions(Dropdown::getDropdownValue($searchParams, false));
+
          ob_start();
          renderTwigTemplate('macros/input.twig', [
             'id' => 'formcreator_field_' . $id,
             'type' => 'select',
             'name' => $fieldName,
-            'values' => getOptionForItems($itemtype),
+            'values' => $values,
             'value' => $this->value,
          ]);
          $html .= ob_get_clean();
@@ -496,6 +504,34 @@ class DropdownField extends PluginFormcreatorAbstractField
       });");
 
       return $html;
+   }
+
+   private function convertDropdownValuesToSelectOptions($dropdownData): array {
+      $options = [];
+
+      if (!isset($dropdownData['results']) || !is_array($dropdownData['results'])) {
+         return $options;
+      }
+
+      foreach ($dropdownData['results'] as $item) {
+         if (!isset($item['text'])) {
+            continue;
+         }
+
+         if (isset($item['children']) && is_array($item['children'])) {
+            $optgroup = [];
+            foreach ($item['children'] as $child) {
+               if (isset($child['id']) && isset($child['text'])) {
+                  $optgroup[$child['id']] = $child['text'];
+               }
+            }
+            $options[$item['text']] = $optgroup;
+         } elseif (isset($item['id'])) {
+            $options[$item['id']] = $item['text'];
+         }
+      }
+
+      return $options;
    }
 
    public function serializeValue(): string {

@@ -50,6 +50,35 @@ if (!isset($_REQUEST['dropdown_itemtype'])
                    ? $question->fields['default_values']
                    : 0;
 
+   $fieldType = $question->fields['fieldtype'] ?? 'dropdown';
+   $field = PluginFormcreatorFields::getFieldInstance($fieldType, $question);
+   $searchParams = $field->buildParams();
+   $searchParams['itemtype'] = $itemtype;
+   if (array_key_exists('entity', $searchParams)) {
+      $searchParams['entity_restrict'] = $searchParams['entity'];
+      unset($searchParams['entity']);
+   }
+   $values = Dropdown::getDropdownValue($searchParams, false);
+   $selectOptions = [];
+
+   foreach ($values['results'] as $item) {
+      if (!isset($item['text'])) {
+         continue;
+      }
+
+      if (isset($item['children']) && is_array($item['children'])) {
+         $optgroup = [];
+         foreach ($item['children'] as $child) {
+            if (isset($child['id']) && isset($child['text'])) {
+               $optgroup[$child['id']] = $child['text'];
+            }
+         }
+         $selectOptions[$item['text']] = $optgroup;
+      } elseif (isset($item['id'])) {
+         $selectOptions[$item['id']] = $item['text'];
+      }
+   }
+
    $options = [
       'name'  => 'dropdown_default_value',
       'rand'  => mt_rand(),
@@ -61,7 +90,7 @@ if (!isset($_REQUEST['dropdown_itemtype'])
          'type' => 'select',
          'name' => $options['name'],
          'value' => $options['value'],
-         'values' => getOptionForItems($itemtype),
+         'values' => $selectOptions,
          'col_lg' => 12,
          'col_md' => 12,
       ]
