@@ -68,6 +68,7 @@ $inputs = [
    __('Limit subtree depth', 'formcreator') => [
       'type' => 'number',
       'name' => 'show_tree_depth',
+      'style' => 'width: 100%;',
       'value' => $depth,
       'min' => 0,
       'max' => 16,
