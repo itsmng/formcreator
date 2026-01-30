@@ -41,6 +41,13 @@ if (!isset($_REQUEST['id'])) {
    exit();
 }
 $sectionId = (int) $_REQUEST['id'];
+
+$section = new PluginFormcreatorSection();
+if ($section->getFromDB($sectionId)) {
+   if ($designMode) {
+      $section->normalizeQuestionPositions();
+   }
+}
 $questions = (new PluginFormcreatorQuestion())->getQuestionsFromSection($sectionId);
 
 $json = [];
