@@ -762,6 +762,9 @@ class PluginFormcreator {
                 }
                 // Save position after drag
                 this.saveItemPosition(event, item);
+            })
+            .on('change', (event, items) => {
+                this.changeItems(event, items);
             });
     }
 
@@ -783,15 +786,9 @@ class PluginFormcreator {
 
         const section = $el.closest('[data-itemtype="PluginFormcreatorSection"]');
 
-        let x, y, w;
-        if (this.grid && this.grid.engine) {
-            const node = this.grid.engine.nodes.find(n => n.el === el);
-            if (node) {
-                x = node.x;
-                y = node.y;
-                w = node.w;
-            }
-        }
+        let x = Number($el.attr('gs-x')) || 0;
+        let y = Number($el.attr('gs-y')) || 0;
+        let w = Number($el.attr('gs-w')) || 1;
 
         let changes = {};
         changes[id] = {
@@ -839,8 +836,8 @@ class PluginFormcreator {
             var id = $(item.el).attr('gs-id');
             if (typeof (id) !== 'undefined') {
                 changes[id] = {
-                    col: item.x,
-                    row: item.y,
+                    x: item.x,
+                    y: item.y,
                     width: item.w,
                     height: item.h
                 };
