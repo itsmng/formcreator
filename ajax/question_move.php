@@ -58,7 +58,6 @@ foreach ($questions as $id => $item) {
    $question = $questions[$id];
    $question->fields['row'] = (int) $_REQUEST['move'][$id]['y'];
 
-   // Add x and width handling for GridStack
    if (isset($_REQUEST['move'][$id]['x'])) {
       $question->fields['col'] = (int) $_REQUEST['move'][$id]['x'];
    }
