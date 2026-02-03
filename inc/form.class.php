@@ -1389,24 +1389,27 @@ class PluginFormcreatorForm extends CommonDBTM implements
 
                $questionHtml = $question->getRenderedHtml($domain, true, $_SESSION['formcreator']['data']);
 
-               if (is_array($questionHtml)) {
-                  foreach ($questionHtml as $label => $config) {
-                     $colLg = $config['col_lg'] ?? 12;
-                     $colMd = $config['col_md'] ?? 12;
+                if (is_array($questionHtml)) {
+                   foreach ($questionHtml as $label => $config) {
+                      $colXs = $config['col_xs'] ?? 12;
+                      $colSm = $config['col_sm'] ?? 12;
+                      $colMd = $config['col_md'] ?? 12;
+                      $colLg = $config['col_lg'] ?? 12;
+                      $colXl = $config['col_xl'] ?? 12;
 
-                     echo '<div class="col-lg-' . $colLg . ' col-md-' . $colMd . ' form-group mb-3" data-itemtype="' . PluginFormcreatorQuestion::class . '" data-id="' . $question->getID() . '">';
+                      echo '<div class="col-' . $colXs . ' col-sm-' . $colSm . ' col-md-' . $colMd . ' col-lg-' . $colLg . ' col-xl-' . $colXl . ' form-group mb-3" data-itemtype="' . PluginFormcreatorQuestion::class . '" data-id="' . $question->getID() . '">';
 
-                     if (!empty($label)) {
-                        echo '<label class="form-label">' . $label . '</label>';
-                     }
+                      if (!empty($label)) {
+                         echo '<label class="form-label">' . $label . '</label>';
+                      }
 
-                     if (isset($config['content'])) {
-                        echo '<div class="field-content">' . $config['content'] . '</div>';
-                     }
+                      if (isset($config['content'])) {
+                         echo '<div class="field-content">' . $config['content'] . '</div>';
+                      }
 
-                     echo '</div>';
-                  }
-               }
+                      echo '</div>';
+                   }
+                }
                $lastQuestion = $question;
             }
 
