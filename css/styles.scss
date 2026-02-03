@@ -1,3 +1,5 @@
+@use "sass:math";
+
 /**
  * ---------------------------------------------------------------------
  * Formcreator is a plugin which allows creation of custom forms of
@@ -1834,6 +1836,70 @@ form[name="plugin_formcreator_form"] {
     }
 }
 
+#plugin_formcreator_form .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+
+#plugin_formcreator_form .row > [class*="col-"] {
+    position: relative;
+    min-height: 1px;
+    padding-right: 15px;
+    padding-left: 15px;
+    box-sizing: border-box;
+}
+
+$formcreator_grid_columns: 12;
+
+@function formcreator-col-percent($cols) {
+    @return math.div($cols, $formcreator_grid_columns) * 100%;
+}
+
+@for $i from 1 through $formcreator_grid_columns {
+    #plugin_formcreator_form .col-#{$i} {
+        flex: 0 0 formcreator-col-percent($i);
+        max-width: formcreator-col-percent($i);
+    }
+}
+
+@media (min-width: 576px) {
+    @for $i from 1 through $formcreator_grid_columns {
+        #plugin_formcreator_form .col-sm-#{$i} {
+            flex: 0 0 formcreator-col-percent($i);
+            max-width: formcreator-col-percent($i);
+        }
+    }
+}
+
+@media (min-width: 768px) {
+    @for $i from 1 through $formcreator_grid_columns {
+        #plugin_formcreator_form .col-md-#{$i} {
+            flex: 0 0 formcreator-col-percent($i);
+            max-width: formcreator-col-percent($i);
+        }
+    }
+}
+
+@media (min-width: 992px) {
+    @for $i from 1 through $formcreator_grid_columns {
+        #plugin_formcreator_form .col-lg-#{$i} {
+            flex: 0 0 formcreator-col-percent($i);
+            max-width: formcreator-col-percent($i);
+        }
+    }
+}
+
+@media (min-width: 1200px) {
+    @for $i from 1 through $formcreator_grid_columns {
+        #plugin_formcreator_form .col-xl-#{$i} {
+            flex: 0 0 formcreator-col-percent($i);
+            max-width: formcreator-col-percent($i);
+        }
+    }
+}
+
 @media (max-width: 768px) {
     #plugin_formcreator_form.plugin_formcreator_form [data-itemtype="PluginFormcreatorSection"]>div {
         grid-template-columns: 1fr;
@@ -1862,6 +1928,16 @@ form[name="plugin_formcreator_form"] {
     max-width: 100%;
     min-width: 350px;
     box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+    .plugin_formcreator_form [data-itemtype="PluginFormcreatorQuestion"] {
+        min-width: 0;
+    }
+}
+
+#plugin_formcreator_form.plugin_formcreator_form_design [data-itemtype="PluginFormcreatorQuestion"] {
+    min-width: unset !important;
 }
 
 #plugin_formcreator_form[data-questions-locked="1"] {
@@ -1926,5 +2002,3 @@ form[name="plugin_formcreator_form"] {
 .plugin_formcreator_document_wrapper {
     padding: 1rem 2rem;
 }
-
-
