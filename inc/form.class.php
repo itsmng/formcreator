@@ -1399,7 +1399,8 @@ class PluginFormcreatorForm extends CommonDBTM implements
 
                       echo '<div class="col-' . $colXs . ' col-sm-' . $colSm . ' col-md-' . $colMd . ' col-lg-' . $colLg . ' col-xl-' . $colXl . ' form-group mb-3" data-itemtype="' . PluginFormcreatorQuestion::class . '" data-id="' . $question->getID() . '">';
 
-                      if (!empty($label)) {
+                      $showTitle = empty($config['notitle']);
+                      if (!empty($label) && $showTitle) {
                          echo '<label class="form-label">' . $label . '</label>';
                       }
 
