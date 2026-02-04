@@ -574,7 +574,12 @@ class PluginFormcreatorFormAnswer extends CommonDBTM
             if (gettype($input) == 'string') {
                echo $input;
             } else {
-               renderTwigTemplate('macros/wrappedInput.twig', ['title' => array_keys($input)[0], 'input' => array_values($input)[0]]);
+               $title = array_keys($input)[0];
+               $config = array_values($input)[0];
+               if (!empty($config['notitle'])) {
+                  $title = '';
+               }
+               renderTwigTemplate('macros/wrappedInput.twig', ['title' => $title, 'input' => $config]);
             }
             $lastQuestion = $question;
          }
