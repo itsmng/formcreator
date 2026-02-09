@@ -999,6 +999,7 @@ class PluginFormcreator {
     addQuestion() {
         const form = $('form[data-itemtype="PluginFormcreatorQuestion"]');
         const that = this;
+        plugin_formcreator_syncRichtextForm(form[0]);
         $.ajax({
             url: formcreatorRootDoc + '/ajax/question_add.php',
             type: "POST",
@@ -1030,13 +1031,7 @@ class PluginFormcreator {
         const form = $('form[data-itemtype="PluginFormcreatorQuestion"]');
         const questionId = form.find('[name="id"]').val();
         const that = this;
-
-        const editorContent = document.querySelector('.ck-editor__editable[contenteditable="true"]');
-        const textarea = document.getElementById('description');
-
-        if (editorContent && textarea) {
-            textarea.value = editorContent.innerHTML;
-        }
+        plugin_formcreator_syncRichtextForm(form[0]);
 
         $.ajax({
             url: formcreatorRootDoc + '/ajax/question_update.php',
@@ -1998,6 +1993,20 @@ function pluginFormcreatorInitializeUrgency(fieldName, rand) {
     var field = $('[name="' + fieldName + '"]');
     field.on("change", function (e) {
         plugin_formcreator.showFields($(field[0].form));
+    });
+}
+
+function plugin_formcreator_syncRichtextForm(form) {
+    if (!form) {
+        return;
+    }
+
+    var textareas = form.querySelectorAll('textarea[id]');
+    textareas.forEach(function (textarea) {
+        var editor = window[textarea.id];
+        if (editor && typeof editor.getData === 'function') {
+            textarea.value = editor.getData();
+        }
     });
 }
 
