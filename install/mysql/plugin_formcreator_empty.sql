@@ -91,9 +91,40 @@ CREATE TABLE IF NOT EXISTS `glpi_plugin_formcreator_forms_profiles` (
     `id`                          int(11) NOT NULL AUTO_INCREMENT,
     `plugin_formcreator_forms_id` int(11) NOT NULL,
     `profiles_id`                 int(11) NOT NULL,
-    `uuid`                        varchar(255) DEFAULT NULL,
+    `entities_id`                 int(11) NOT NULL DEFAULT '0',
+    `is_recursive`                tinyint(1) NOT NULL DEFAULT '0',
     PRIMARY KEY (`id`),
     UNIQUE KEY `profiles_unicity` (`plugin_formcreator_forms_id`,`profiles_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `glpi_plugin_formcreator_forms_users` (
+    `id`                          int(11) NOT NULL AUTO_INCREMENT,
+    `plugin_formcreator_forms_id` int(11) NOT NULL DEFAULT '0',
+    `users_id`                    int(11) NOT NULL DEFAULT '0',
+    PRIMARY KEY (`id`),
+    KEY `plugin_formcreator_forms_id` (`plugin_formcreator_forms_id`),
+    KEY `users_id` (`users_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `glpi_plugin_formcreator_forms_entities` (
+    `id`                          int(11) NOT NULL AUTO_INCREMENT,
+    `plugin_formcreator_forms_id` int(11) NOT NULL DEFAULT '0',
+    `entities_id`                 int(11) NOT NULL DEFAULT '0',
+    `is_recursive`                tinyint(1) NOT NULL DEFAULT '0',
+    PRIMARY KEY (`id`),
+    KEY `plugin_formcreator_forms_id` (`plugin_formcreator_forms_id`),
+    KEY `entities_id` (`entities_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `glpi_plugin_formcreator_forms_groups` (
+    `id`                          int(11) NOT NULL AUTO_INCREMENT,
+    `plugin_formcreator_forms_id` int(11) NOT NULL DEFAULT '0',
+    `groups_id`                   int(11) NOT NULL DEFAULT '0',
+    `entities_id`                 int(11) NOT NULL DEFAULT '0',
+    `is_recursive`                tinyint(1) NOT NULL DEFAULT '0',
+    PRIMARY KEY (`id`),
+    KEY `plugin_formcreator_forms_id` (`plugin_formcreator_forms_id`),
+    KEY `groups_id` (`groups_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `glpi_plugin_formcreator_forms_validators` (
