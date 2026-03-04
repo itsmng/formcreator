@@ -53,7 +53,7 @@ class FileField extends PluginFormcreatorAbstractField
    }
 
    public function setUploads($uploads) {
-      $this->uploads = $uploads;
+      $this->uploads = is_array($uploads) ? $uploads : [];
    }
 
    public function getRenderedHtml($domain, $canEdit = true): string {
@@ -109,6 +109,9 @@ class FileField extends PluginFormcreatorAbstractField
    }
 
    public function moveUploads() {
+      if (!is_array($this->uploads)) {
+         return;
+      }
       foreach ($this->uploads as $upload) {
          $doc = ItsmngUploadHandler::addFileToDb($upload);
          $this->uploadData[] = $doc->getID();
@@ -116,7 +119,7 @@ class FileField extends PluginFormcreatorAbstractField
    }
 
    public function getDocumentsForTarget(): array {
-      return $this->uploadData;
+      return is_array($this->uploadData) ? $this->uploadData : [];
    }
 
    public function isValid(): bool {

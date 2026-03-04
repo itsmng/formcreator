@@ -730,7 +730,7 @@ class PluginFormcreatorFormAnswer extends CommonDBTM
       if (isset($input['plugin_formcreator_forms_id'])) {
          foreach ($this->getQuestionFields($input['plugin_formcreator_forms_id']) as $questionId => $field) {
             if ($field->getFieldTypeName() == 'file') {
-               $files = json_decode(stripslashes($input['formcreator_field_' . $questionId]), true);
+               $files = json_decode(stripslashes($input['formcreator_field_' . $questionId] ?? '[]'), true);
                $field->setUploads($files);
             };
          }
