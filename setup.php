@@ -144,6 +144,7 @@ function plugin_init_formcreator()
     $PLUGIN_HOOKS['item_add']['formcreator'] = [
         Ticket::class => 'plugin_formcreator_hook_add_ticket',
         ITILFollowup::class => 'plugin_formcreator_hook_update_itilFollowup',
+        TicketValidation::class => 'plugin_formcreator_hook_add_ticketvalidation',
     ];
     $PLUGIN_HOOKS['item_update']['formcreator'] = [
         Ticket::class => 'plugin_formcreator_hook_update_ticket',

@@ -506,15 +506,7 @@ function plugin_formcreator_hook_purge_ticket(CommonDBTM $item) {
    }
 }
 
-function plugin_formcreator_hook_pre_purge_targetTicket(CommonDBTM $item) {
-   $item->pre_purgeItem();
-}
-
-function plugin_formcreator_hook_pre_purge_targetChange(CommonDBTM $item) {
-   $item->pre_purgeItem();
-}
-
-function plugin_formcreator_hook_update_ticketvalidation(CommonDBTM $item) {
+function plugin_formcreator_sync_issue_from_ticketvalidation(TicketValidation $item) {
    $ticket = new Ticket();
    $ticket->getFromDB($item->fields['tickets_id']);
    if ($ticket->isNewItem()) {
@@ -533,9 +525,42 @@ function plugin_formcreator_hook_update_ticketvalidation(CommonDBTM $item) {
       return;
    }
    $issue->update([
-      'id'     => $issue->getID(),
-      'status' => $status['status']
+      'id'                 => $issue->getID(),
+      'status'             => $status['status'],
+      'users_id_validator' => $status['user'],
    ]);
+}
+
+function plugin_formcreator_hook_add_ticketvalidation(CommonDBTM $item) {
+   if (!($item instanceof TicketValidation)) {
+      return;
+   }
+
+   plugin_formcreator_sync_issue_from_ticketvalidation($item);
+}
+
+function plugin_formcreator_hook_pre_purge_targetTicket(CommonDBTM $item) {
+   $item->pre_purgeItem();
+}
+
+function plugin_formcreator_hook_pre_purge_targetChange(CommonDBTM $item) {
+   $item->pre_purgeItem();
+}
+
+function plugin_formcreator_hook_update_ticketvalidation(CommonDBTM $item) {
+   if (!($item instanceof TicketValidation)) {
+      return;
+   }
+
+   plugin_formcreator_sync_issue_from_ticketvalidation($item);
+}
+
+function plugin_formcreator_hook_purge_ticketvalidation(CommonDBTM $item) {
+   if (!($item instanceof TicketValidation)) {
+      return;
+   }
+
+   plugin_formcreator_sync_issue_from_ticketvalidation($item);
 }
 
 function plugin_formcreator_hook_update_itilFollowup($followup) {
