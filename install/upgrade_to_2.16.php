@@ -95,9 +95,27 @@ class PluginFormcreatorUpgradeTo2_16 {
       $migration->addField('glpi_plugin_formcreator_forms_groups', 'entities_id', 'int(11)');
       $migration->addField('glpi_plugin_formcreator_forms_groups', 'is_recursive', 'tinyint(1)');
       $migration->migrationOneTable('glpi_plugin_formcreator_forms_groups');
+      $DB->update('glpi_plugin_formcreator_forms_groups', [
+         'entities_id' => 0,
+         'is_recursive' => 0,
+      ], [
+         'OR' => [
+            'entities_id' => null,
+            'is_recursive' => null,
+         ],
+      ]);
       $migration->dropField('glpi_plugin_formcreator_forms_profiles', 'uuid');
       $migration->addField('glpi_plugin_formcreator_forms_profiles', 'entities_id', 'int(11)');
       $migration->addField('glpi_plugin_formcreator_forms_profiles', 'is_recursive', 'tinyint(1)');
       $migration->migrationOneTable('glpi_plugin_formcreator_forms_profiles');
+      $DB->update('glpi_plugin_formcreator_forms_profiles', [
+         'entities_id' => 0,
+         'is_recursive' => 0,
+      ], [
+         'OR' => [
+            'entities_id' => null,
+            'is_recursive' => null,
+         ],
+      ]);
    }
 }
