@@ -1761,9 +1761,21 @@ function plugin_formcreator_changeGlpiObjectItemType() {
         $('#dropdown_default_value_field').html(response);
     });
 
+    const applianceLinks = [
+        'Computer', 'Monitor', 'NetworkEquipment', 'Peripheral', 'Phone',
+        'Printer', 'Software', 'Cluster'
+    ];
+
+    const isApplianceLink = applianceLinks.includes(glpi_object);
+
     $.post({
-        url: formcreatorRootDoc + '/ajax/commontree.php',
-        data: {
+        url: formcreatorRootDoc + (isApplianceLink ? '/ajax/computerlink.php' : '/ajax/commontree.php'),
+        data: isApplianceLink ? {
+            itemtype: glpi_object,
+            forms_id: $('#plugin_formcreator_form').data('id'),
+            questions_id: $('[data-itemtype="PluginFormcreatorQuestion"] [name="id"]').val(),
+            value: $('#formCreatorLinkValue').val(),
+        } : {
             itemtype: glpi_object,
             root: $("#commonTreeDropdownRoot").val(),
             maxDepth: $("#commonTreeDropdownMaxDepth").val(),
