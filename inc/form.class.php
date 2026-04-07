@@ -1089,9 +1089,9 @@ PluginFormcreatorTranslatableInterface
          'SELECT' => [
              $table_form => ['id', 'name', 'icon_type', 'icon', 'icon_color', 'background_color', 'description', 'usage_count', 'is_default', 'access_rights'],
              new \QueryExpression("GROUP_CONCAT(DISTINCT IF($table_userRestrict.id IS NULL, NULL, $table_userRestrict.users_id)) AS `users_ids`"),
-             new \QueryExpression("GROUP_CONCAT(DISTINCT IF($table_entityRestrict.id IS NULL, NULL, CONCAT($table_entityRestrict.entities_id, ':', COALESCE($table_entityRestrict.is_recursive, 0)))) AS `entities_ids`"),
-             new \QueryExpression("GROUP_CONCAT(DISTINCT IF($table_profileRestrict.id IS NULL, NULL, CONCAT($table_profileRestrict.profiles_id, ':', $table_profileRestrict.entities_id, ':', COALESCE($table_profileRestrict.is_recursive, 0)))) AS `profiles_ids`"),
-             new \QueryExpression("GROUP_CONCAT(DISTINCT IF($table_groupRestrict.id IS NULL, NULL, CONCAT($table_groupRestrict.groups_id, ':', $table_groupRestrict.entities_id, ':', COALESCE($table_groupRestrict.is_recursive, 0)))) AS `groups_ids`"),
+             new \QueryExpression("GROUP_CONCAT(DISTINCT IF($table_entityRestrict.id IS NULL, NULL, CONCAT(COALESCE($table_entityRestrict.entities_id, 0), ':', COALESCE($table_entityRestrict.is_recursive, 0)))) AS `entities_ids`"),
+             new \QueryExpression("GROUP_CONCAT(DISTINCT IF($table_profileRestrict.id IS NULL, NULL, CONCAT($table_profileRestrict.profiles_id, ':', COALESCE($table_profileRestrict.entities_id, 0), ':', COALESCE($table_profileRestrict.is_recursive, 0)))) AS `profiles_ids`"),
+             new \QueryExpression("GROUP_CONCAT(DISTINCT IF($table_groupRestrict.id IS NULL, NULL, CONCAT($table_groupRestrict.groups_id, ':', COALESCE($table_groupRestrict.entities_id, 0), ':', COALESCE($table_groupRestrict.is_recursive, 0)))) AS `groups_ids`"),
          ],
          'FROM' => $table_form,
          'LEFT JOIN' => [
