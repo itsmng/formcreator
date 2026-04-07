@@ -986,22 +986,29 @@ PluginFormcreatorTranslatableInterface
 
    public function canAccessForm($form) {
        if ($form['access_rights'] != self::ACCESS_RESTRICTED) return true;
-       if (in_array((string)Session::getLoginUserID(), explode(',', $form['users_id'] ?? ''))) {
+       if (in_array((string) Session::getLoginUserID(), explode(',', $form['users_ids'] ?? ''))) {
           return true;
        }
-       if (isset($form['groups_ids']) && !empty($form['groups_ids'])) {
+       if (isset($form['groups_ids']) && !empty($form['groups_ids']) && isset($_SESSION['glpigroups'])) {
            foreach (explode(',', $form['groups_ids'] ?? '') as $group) {
-              list($groupId, $group_entity, $group_recursive) = explode(':', $group);
+              if ($group === '') {
+                 continue;
+              }
+              [$groupId, $group_entity, $group_recursive] = array_pad(explode(':', $group), 3, null);
               if (in_array(intval($groupId), $_SESSION['glpigroups'])
                   && Session::haveAccessToEntity($group_entity, $group_recursive)) {
                   return true;
               }
            }
        }
-       if (isset($form['profiles_ids']) && !empty($form['profiles_ids'])) {
+       if (isset($form['profiles_ids']) && !empty($form['profiles_ids'])
+           && isset($_SESSION['glpiactiveprofile']['id'])) {
            foreach (explode(',', $form['profiles_ids'] ?? '') as $profile) {
-              list($profileId, $profile_entity, $profile_recursive) = explode(':', $profile);
-              if (in_array(intval($profileId), $_SESSION['glpiactiveprofile'])
+              if ($profile === '') {
+                 continue;
+              }
+              [$profileId, $profile_entity, $profile_recursive] = array_pad(explode(':', $profile), 3, null);
+              if ((int) $profileId === (int) $_SESSION['glpiactiveprofile']['id']
                   && Session::haveAccessToEntity($profile_entity, $profile_recursive)) {
                   return true;
               }
@@ -1009,7 +1016,10 @@ PluginFormcreatorTranslatableInterface
        }
        if (isset($form['entities_ids']) && !empty($form['entities_ids'])) {
            foreach (explode(',', $form['entities_ids'] ?? '') as $entity) {
-              list($entityId, $is_recursive) = explode(':', $entity);
+              if ($entity === '') {
+                 continue;
+              }
+              [$entityId, $is_recursive] = array_pad(explode(':', $entity), 2, null);
               if (Session::haveAccessToEntity($entityId, $is_recursive)) {
                   return true;
               }
@@ -1078,10 +1088,10 @@ PluginFormcreatorTranslatableInterface
       $result_forms = $DB->request([
          'SELECT' => [
              $table_form => ['id', 'name', 'icon_type', 'icon', 'icon_color', 'background_color', 'description', 'usage_count', 'is_default', 'access_rights'],
-             new \QueryExpression("GROUP_CONCAT(DISTINCT $table_userRestrict.users_id) AS `users_ids`"),
-             new \QueryExpression("GROUP_CONCAT(DISTINCT CONCAT(COALESCE($table_entityRestrict.entities_id, 0), ':', COALESCE($table_entityRestrict.is_recursive, 0))) AS `entities_ids`"),
-             new \QueryExpression("GROUP_CONCAT(DISTINCT CONCAT($table_profileRestrict.profiles_id, ':', COALESCE($table_profileRestrict.entities_id, 0), ':', COALESCE($table_profileRestrict.is_recursive, 0))) AS `profiles_ids`"),
-             new \QueryExpression("GROUP_CONCAT(DISTINCT CONCAT($table_groupRestrict.groups_id, ':', COALESCE($table_groupRestrict.entities_id, 0), ':', COALESCE($table_groupRestrict.is_recursive, 0))) AS `groups_ids`"),
+             new \QueryExpression("GROUP_CONCAT(DISTINCT IF($table_userRestrict.id IS NULL, NULL, $table_userRestrict.users_id)) AS `users_ids`"),
+             new \QueryExpression("GROUP_CONCAT(DISTINCT IF($table_entityRestrict.id IS NULL, NULL, CONCAT($table_entityRestrict.entities_id, ':', COALESCE($table_entityRestrict.is_recursive, 0)))) AS `entities_ids`"),
+             new \QueryExpression("GROUP_CONCAT(DISTINCT IF($table_profileRestrict.id IS NULL, NULL, CONCAT($table_profileRestrict.profiles_id, ':', $table_profileRestrict.entities_id, ':', COALESCE($table_profileRestrict.is_recursive, 0)))) AS `profiles_ids`"),
+             new \QueryExpression("GROUP_CONCAT(DISTINCT IF($table_groupRestrict.id IS NULL, NULL, CONCAT($table_groupRestrict.groups_id, ':', $table_groupRestrict.entities_id, ':', COALESCE($table_groupRestrict.is_recursive, 0)))) AS `groups_ids`"),
          ],
          'FROM' => $table_form,
          'LEFT JOIN' => [
@@ -3072,7 +3082,7 @@ PluginFormcreatorTranslatableInterface
          $params = $this->getShowVisibilityDropdownParams();
 
          Ajax::updateItemOnSelectEvent("dropdown__type".$addrand, "visibility$rand",
-                                       $CFG_GLPI["root_doc"]."/ajax/visibility.php", $params);
+                                       FORMCREATOR_ROOTDOC."/ajax/visibility.php", $params);
 
          echo "</td>";
          echo "<td><span id='visibility$rand'></span>";

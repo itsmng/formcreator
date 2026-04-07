@@ -10,7 +10,7 @@ class PluginFormcreatorForm_User extends CommonDBRelation {
 
    // From CommonDBRelation
    static public $itemtype_1          = 'PluginFormcreatorForm';
-   static public $items_id_1          = 'forms_id';
+   static public $items_id_1          = 'plugin_formcreator_forms_id';
    static public $itemtype_2          = 'User';
    static public $items_id_2          = 'users_id';
 
@@ -47,4 +47,3 @@ class PluginFormcreatorForm_User extends CommonDBRelation {
        return $right == $right;
    }
 }
-
