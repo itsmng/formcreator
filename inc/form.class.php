@@ -459,7 +459,14 @@ class PluginFormcreatorForm extends CommonDBTM implements
          }
       }
 
-      $isIcon = $this->fields['icon_type'] == 1 || !isset($this->fields['icon']);
+      $isImageIcon = $this->fields['icon_type'] == 1;
+      $formImage = '';
+      if ($isImageIcon && !empty($this->fields['icon'])) {
+         $storedIcon = ltrim($this->fields['icon'], '/');
+         $formImage = preg_match('#^_[^/]+/#', $storedIcon)
+            ? $storedIcon
+            : '_pictures/' . $storedIcon;
+      }
 
       $form = [
          'action' => $this->getFormURL(),
@@ -529,12 +536,26 @@ class PluginFormcreatorForm extends CommonDBTM implements
                      ],
                      'col_lg' => 12,
                      'col_md' => 12,
+                     'init' => <<<JS
+                        function pluginFormcreatorToggleIconType() {
+                           const isImageIcon = $('#SelectoForIconType').val() == 1;
+                           const iconSelector = $('#SelectForFormIcon');
+                           const iconColor = $('#ColorForFormIcon');
+                           const imageSelector = $('#FilePickForForm');
+
+                           iconSelector.closest('[class*="col-"]').toggle(!isImageIcon);
+                           iconColor.closest('[class*="col-"]').toggle(!isImageIcon);
+                           imageSelector.closest('[class*="col-"]').toggle(isImageIcon);
+
+                           iconSelector.prop('disabled', isImageIcon);
+                           iconColor.prop('disabled', isImageIcon);
+                           $('input[name="_icon"]').prop('disabled', !isImageIcon);
+                        }
+                        pluginFormcreatorToggleIconType();
+                     JS,
                      'hooks' => [
                         'change' => <<<JS
-                        const iconType = $(this).val();
-                        $('select[name="icon"]').prop('disabled', iconType == 1);
-                        $('input[name="icon_color"]').prop('disabled', iconType == 1);
-                        $('input[name="icon"]').prop('disabled', iconType == 0);
+                        pluginFormcreatorToggleIconType();
                         JS,
                      ],
                   ],
@@ -588,23 +609,24 @@ class PluginFormcreatorForm extends CommonDBTM implements
                            }
                         })();
                      JS,
-                     $isIcon ? 'disabled' : '' => true,
+                     $isImageIcon ? 'disabled' : '' => true,
                   ],
                   __('Icon color', 'formcreator') => [
                      'type' => 'color',
+                     'id' => 'ColorForFormIcon',
                      'name' => 'icon_color',
                      'value' => $this->fields['icon_color'],
                      'col_lg' => 6,
-                     $isIcon ? 'disabled' : '' => true,
+                     $isImageIcon ? 'disabled' : '' => true,
                   ],
                   __('Form image', 'formcreator') => [
-                     'type' => 'file',
+                     'type' => 'imageUpload',
                      'id' => 'FilePickForForm',
                      'accept' => 'image/*',
                      'name' => '_icon',
-                     'value' => $this->fields['icon'],
+                     'value' => $formImage,
                      'col_lg' => 6,
-                     !$isIcon ? 'disabled' : '' => true,
+                     !$isImageIcon ? 'disabled' : '' => true,
                   ],
                   __('Background color', 'formcreator') => [
                      'type' => 'color',
@@ -1517,26 +1539,66 @@ class PluginFormcreatorForm extends CommonDBTM implements
          $input['uuid'] = plugin_formcreator_getUuid();
       }
 
-      if ($input['icon_type'] == 1 && isset($input['_icon'])) {
-         $files = json_decode(stripslashes($_POST['_icon']), true);
-         $doc = ItsmngUploadHandler::addFileToDb($files[0]);
-         $fullpath = $doc->fields['filepath'];
-         if (Document::isImage($fullpath)) {
-            if (isset($input['id'])) {
-               $form = new self();
-               $form->getFromDB($input['id']);
-               if ($form->fields['icon_type'] == 1) {
-                  unlink($form->fields['icon']);
-               }
-            }
-         }
-         ;
-         $input['icon'] = $fullpath;
-      } else if (isset($input['id'])) {
+      $iconType = (int) ($input['icon_type'] ?? 0);
+      $form = null;
+      if (isset($input['id'])) {
          $form = new self();
          $form->getFromDB($input['id']);
-         if ($form->fields['icon_type'] == 1) {
-            unlink($form->fields['icon']);
+      }
+
+      if ($iconType === 1) {
+         if (!empty($input['_blank__icon'])) {
+            if ($form !== null && $form->fields['icon_type'] == 1) {
+               User::dropPictureFiles($form->fields['icon']);
+            }
+            $input['icon'] = '';
+         } else if (!empty($_POST['_icon'])) {
+            $files = is_array($_POST['_icon'])
+               ? $_POST['_icon']
+               : json_decode(stripslashes((string) $_POST['_icon']), true);
+
+            if (
+               is_array($files)
+               && isset($files[0])
+               && is_array($files[0])
+               && isset($files[0]['path'], $files[0]['name'])
+            ) {
+               $file = $files[0];
+               if (Document::isImage($file['path'])) {
+                  $uploadedFileName = ItsmngUploadHandler::uploadFile(
+                     $file['path'],
+                     $file['name'],
+                     ItsmngUploadHandler::PICTURE
+                  );
+                  if ($uploadedFileName === false) {
+                     Session::addMessageAfterRedirect(
+                        __('Failed to write file to disk'),
+                        false,
+                        ERROR
+                     );
+                     return [];
+                  }
+                  if ($form !== null && $form->fields['icon_type'] == 1) {
+                     User::dropPictureFiles($form->fields['icon']);
+                  }
+                  $input['icon'] = preg_replace('#^/?_pictures/+?#', '', (string) $uploadedFileName);
+               } else {
+                  Session::addMessageAfterRedirect(
+                     __('The file is not an image file.'),
+                     false,
+                     ERROR
+                  );
+                  @unlink($file['path']);
+                  return [];
+               }
+            }
+         } else if ($form !== null && $form->fields['icon_type'] != 1) {
+            $input['icon'] = '';
+         }
+      } else if ($form !== null && $form->fields['icon_type'] == 1) {
+         User::dropPictureFiles($form->fields['icon']);
+         if (empty($input['icon'])) {
+            $input['icon'] = 'fa fa-question-circle';
          }
       }
       // Control fields values :
