@@ -134,7 +134,7 @@ class FileField extends PluginFormcreatorAbstractField
 
       // If the field is required it can't be empty
       $key = '_formcreator_field_' . $this->question->getID();
-      if (($this->isRequired() && count($this->uploads[$key]) < 1)) {
+      if (count($this->uploads[$key] ?? []) < 1) {
          Session::addMessageAfterRedirect(
             sprintf(__('A required file is missing: %s', 'formcreator'), $this->getLabel()),
             false,
@@ -149,7 +149,7 @@ class FileField extends PluginFormcreatorAbstractField
    public function isValidValue($value): bool {
       // If the field is required it can't be empty
       $key = 'formcreator_field_' . $this->question->getID();
-      return (count($this->uploads["_$key"]) > 0);
+      return (count($this->uploads["_$key"] ?? []) > 0);
    }
 
    public static function getName(): string {
