@@ -371,7 +371,7 @@ class GlpiselectField extends DropdownField
             $searchParams['entity_restrict'] = $searchParams['entity'];
             unset($searchParams['entity']);
          }
-         $values = $this->convertDropdownValuesToSelectOptions(Dropdown::getDropdownValue($searchParams, false));
+         $values = $this->convertDropdownValuesToSelectOptions($this->getDropdownValues($searchParams));
 
          ob_start();
          echo '<div id="dropdown_wrapper' . $id . $rand . '">';

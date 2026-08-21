@@ -58,7 +58,7 @@ if (!isset($_REQUEST['dropdown_itemtype'])
       $searchParams['entity_restrict'] = $searchParams['entity'];
       unset($searchParams['entity']);
    }
-   $values = Dropdown::getDropdownValue($searchParams, false);
+   $values = $field->getDropdownValues($searchParams);
    $selectOptions = [];
 
    foreach ($values['results'] as $item) {

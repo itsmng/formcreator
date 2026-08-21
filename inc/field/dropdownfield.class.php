@@ -459,6 +459,24 @@ class DropdownField extends PluginFormcreatorAbstractField
       return $dparams;
    }
 
+   /**
+    * Get dropdown values with server-side conditions.
+    *
+    * Core dropdowns only accept a condition key since ITSM-NG 2.1.7. Register
+    * conditions built by Formcreator in the session before fetching values.
+    *
+    * @param array $searchParams Dropdown search parameters
+    *
+    * @return array Dropdown values
+    */
+   public function getDropdownValues(array $searchParams): array {
+      if (!empty($searchParams['condition']) && is_array($searchParams['condition'])) {
+         $searchParams['condition'] = Dropdown::addNewCondition($searchParams['condition']);
+      }
+
+      return Dropdown::getDropdownValue($searchParams, false);
+   }
+
    public function getRenderedHtml($domain, $canEdit = true): string {
       $itemtype = $this->getSubItemtype();
       if (!$canEdit) {
@@ -486,7 +504,7 @@ class DropdownField extends PluginFormcreatorAbstractField
             $searchParams['entity_restrict'] = $searchParams['entity'];
             unset($searchParams['entity']);
          }
-         $values = $this->convertDropdownValuesToSelectOptions(Dropdown::getDropdownValue($searchParams, false));
+         $values = $this->convertDropdownValuesToSelectOptions($this->getDropdownValues($searchParams));
 
          ob_start();
          renderTwigTemplate('macros/input.twig', [

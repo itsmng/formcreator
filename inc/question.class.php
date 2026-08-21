@@ -1256,7 +1256,7 @@ class PluginFormcreatorQuestion extends CommonDBChild implements
                     $searchParams = $field->buildParams();
                     $searchParams['itemtype'] = $itemtype;
                     $searchParams['show_empty'] = false;
-                    $data['_questions'][$key]['_values'] = Dropdown::getDropdownValue($searchParams, false)['results'];
+                    $data['_questions'][$key]['_values'] = $field->getDropdownValues($searchParams)['results'];
                 }
             }
         }
