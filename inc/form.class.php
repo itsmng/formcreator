@@ -420,44 +420,61 @@ class PluginFormcreatorForm extends CommonDBTM implements
     */
    public function showForm($ID, $options = [])
    {
-      global $DB, $CFG_GLPI;
+      global $CFG_GLPI;
 
-      $validators = [];
-      $validatorOptions = [];
-      if ($this->fields['validation_required'] > 0) {
-         $name = $this->fields['validation_required'] == 1 ? 'User' : 'Group';
-         $result = iterator_to_array($DB->request([
-            'SELECT' => ['items_id'],
-            'FROM' => PluginFormcreatorForm_Validator::getTable(),
-            'WHERE' => [
-               'plugin_formcreator_forms_id' => $ID,
-               'itemtype' => $name,
-            ],
-         ]));
-         foreach ($result as $item) {
-            $validators[] = $item['items_id'];
-         }
-         $allOptions = Dropdown::getDropdownValue([
-            'itemtype' => $name,
-            'specific_tags' => [
-               'multiple' => 'multiple',
-            ],
-            'entity_restrict' => $this->fields['entities_id'],
-         ], false);
-         foreach ($allOptions['results'] as $value) {
-            if (!$value || !count($value)) {
-               continue;
-            }
-            if (isset($value['children'])) {
-               $validators[$value['text']] = [];
-               foreach ($value['children'] as $childValue) {
-                  $validatorOptions[$childValue['id']] = $childValue['text'] . ' (' . $value['text'] . ')';
-               }
-            } else {
-               $validatorOptions[$value['id']] = $value['text'];
-            }
-         }
+      $selectedValidatorUsers = [];
+      $selectedValidatorGroups = [];
+      $formValidator = new PluginFormcreatorForm_Validator();
+      foreach ($formValidator->getValidatorsForForm($this, User::class) as $user) {
+         $selectedValidatorUsers[$user->getID()] = formatUserName(
+            $user->getID(),
+            $user->fields['name'],
+            $user->fields['realname'],
+            $user->fields['firstname']
+         );
       }
+      foreach ($formValidator->getValidatorsForForm($this, Group::class) as $group) {
+         $selectedValidatorGroups[$group->getID()] = $group->fields['completename'];
+      }
+
+      $entityRestrict = $this->fields['entities_id'];
+      $dropdownUrl = $CFG_GLPI['root_doc'] . '/ajax/getDropdownValue.php';
+      $commonDropdownParams = [
+         'specific_tags' => [
+            'multiple' => 'multiple',
+         ],
+         'entity_restrict' => $entityRestrict,
+         'display_emptychoice' => false,
+         'width' => '100%',
+      ];
+      $userDropdown = Html::jsAjaxDropdown(
+         '_validator_users[]',
+         'FormcreatorValidatorUsers',
+         $dropdownUrl,
+         $commonDropdownParams + [
+            'itemtype' => User::class,
+            'values' => array_keys($selectedValidatorUsers),
+            'valuesnames' => array_values($selectedValidatorUsers),
+            '_idor_token' => Session::getNewIDORToken(User::class),
+         ]
+      );
+      $groupDropdown = Html::jsAjaxDropdown(
+         '_validator_groups[]',
+         'FormcreatorValidatorGroups',
+         $dropdownUrl,
+         $commonDropdownParams + [
+            'itemtype' => Group::class,
+            'values' => array_keys($selectedValidatorGroups),
+            'valuesnames' => array_values($selectedValidatorGroups),
+            '_idor_token' => Session::getNewIDORToken(Group::class),
+         ]
+      );
+      $userDropdownStyle = $this->fields['validation_required'] == self::VALIDATION_USER ? '' : 'display: none';
+      $groupDropdownStyle = $this->fields['validation_required'] == self::VALIDATION_GROUP ? '' : 'display: none';
+      $validatorPicker = <<<HTML
+      <div id="FormcreatorValidatorUsersContainer" class="w-100" style="$userDropdownStyle">$userDropdown</div>
+      <div id="FormcreatorValidatorGroupsContainer" class="w-100" style="$groupDropdownStyle">$groupDropdown</div>
+      HTML;
 
       $isImageIcon = $this->fields['icon_type'] == 1;
       $formImage = '';
@@ -669,76 +686,17 @@ class PluginFormcreatorForm extends CommonDBTM implements
                      'hooks' => [
                         'change' => <<<JS
                         const validationRequired = $(this).val();
-                        $('#ChecklistForValidationBy').empty();
-                        if (validationRequired > 0) {
-                           $.ajax ({
-                              url: '{$CFG_GLPI['root_doc']}/ajax/getDropdownValue.php',
-                              type: 'POST',
-                              data: {
-                                 itemtype: validationRequired == 1 ? 'User' : 'Group',
-                                 specific_tags: {
-                                    'multiple': 'multiple',
-                                 },
-                                 entity_restrict: {$this->fields['entities_id']},
-                              },
-                              success: function (data) {
-                                 const result = data.results;
-                                 if (!result || result.length == 0) return;
-                                 for (let i = 0; i < result.length; i++) {
-                                    if (!result[i].children) {
-                                       $('#ChecklistForValidationBy').append($('<div>', {
-                                          class: 'row',
-                                          html: [
-                                             $('<input>', {
-                                                class: 'form-check-input col col-2',
-                                                type: 'checkbox',
-                                                value: result[i].id,
-                                                id: 'ChecklistForValidationBy_' + result[i].id,
-                                                name: '_validator_' + (validationRequired == 1 ? 'users' : 'groups') + '[]',
-                                                checked: result[i].selected,
-                                             }),
-                                             $('<label>', {
-                                                class: 'form-check-label col col-10',
-                                                for: 'ChecklistForValidationBy_' + result[i].id,
-                                                text: result[i].text,
-                                             }),
-                                          ],
-                                       }));
-                                       continue;
-                                    }
-                                    for (let j = 0; j < result[i].children.length; j++) {
-                                       $('#ChecklistForValidationBy').append($('<div>', {
-                                          class: 'row',
-                                          html: [
-                                             $('<input>', {
-                                                class: 'form-check-input col col-2',
-                                                type: 'checkbox',
-                                                value: result[i].children[j].id,
-                                                id: 'ChecklistForValidationBy_' + result[i].children[j].id,
-                                                name: '_validator_' + (validationRequired == 1 ? 'users' : 'groups') + '[]',
-                                                checked: result[i].children[j].selected,
-                                             }),
-                                             $('<label>', {
-                                                class: 'form-check-label col col-10',
-                                                for: 'ChecklistForValidationBy_' + result[i].children[j].id,
-                                                text: result[i].children[j].text,
-                                             }),
-                                          ],
-                                       }));
-                                    }
-                                 }
-                              }
-                           })
-                        }
+                        const validatesUsers = validationRequired == 1;
+                        const validatesGroups = validationRequired == 2;
+                        $('#FormcreatorValidatorUsersContainer').toggle(validatesUsers);
+                        $('#FormcreatorValidatorGroupsContainer').toggle(validatesGroups);
+                        $('#FormcreatorValidatorUsers').prop('disabled', !validatesUsers);
+                        $('#FormcreatorValidatorGroups').prop('disabled', !validatesGroups);
                         JS,
                      ]
                   ],
                   __('By') => [
-                     'type' => 'checklist',
-                     'id' => 'ChecklistForValidationBy',
-                     'name' => '_validator_' . ($this->fields['validation_required'] == 1 ? 'users' : 'groups'),
-                     'options' => $validatorOptions,
-                     'values' => $validators,
+                     'content' => $validatorPicker,
                      'col_lg' => 6,
                   ],
                   __('Default form in service catalog', 'formcreator') => [
@@ -1731,39 +1689,34 @@ class PluginFormcreatorForm extends CommonDBTM implements
       if (!isset($this->input['validation_required'])) {
          return;
       }
-      if ($this->input['validation_required'] == PluginFormcreatorForm_Validator::VALIDATION_NONE) {
-         return;
-      }
-      if (
-         $this->input['validation_required'] == PluginFormcreatorForm_Validator::VALIDATION_USER
-         && empty($this->input['_validator_users'])
-      ) {
-         return;
-      }
-      if (
-         $this->input['validation_required'] == PluginFormcreatorForm_Validator::VALIDATION_GROUP
-         && empty($this->input['_validator_groups'])
-      ) {
-         return;
+
+      switch ($this->input['validation_required']) {
+         case PluginFormcreatorForm_Validator::VALIDATION_NONE:
+            $validators = [];
+            $validatorItemtype = null;
+            break;
+         case PluginFormcreatorForm_Validator::VALIDATION_USER:
+            $validators = $this->input['_validator_users'] ?? [];
+            $validatorItemtype = User::class;
+            break;
+         case PluginFormcreatorForm_Validator::VALIDATION_GROUP:
+            $validators = $this->input['_validator_groups'] ?? [];
+            $validatorItemtype = Group::class;
+            break;
+         default:
+            return;
       }
 
       $form_validator = new PluginFormcreatorForm_Validator();
       $form_validator->deleteByCriteria(['plugin_formcreator_forms_id' => $this->getID()]);
 
-      switch ($this->input['validation_required']) {
-         case PluginFormcreatorForm_Validator::VALIDATION_USER:
-            $validators = $this->input['_validator_users'];
-            $validatorItemtype = User::class;
-            break;
-         case PluginFormcreatorForm_Validator::VALIDATION_GROUP:
-            $validators = $this->input['_validator_groups'];
-            $validatorItemtype = Group::class;
-            break;
+      if ($validatorItemtype === null) {
+         return;
       }
       if (!is_array($validators)) {
          $validators = [$validators];
       }
-      foreach ($validators as $itemId) {
+      foreach (array_unique(array_filter($validators)) as $itemId) {
          $form_validator = new PluginFormcreatorForm_Validator();
          $form_validator->add([
             'plugin_formcreator_forms_id' => $this->getID(),
