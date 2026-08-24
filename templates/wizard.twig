@@ -15,7 +15,8 @@
     'reloadonclose' => true]);
 
 } #}
-<body>
+<body{% if impersonateBanner %} class="plugin_formcreator_impersonating"{% endif %}>
+    {{impersonateBanner|raw}}
     {{accessibilityButtons|raw}}
     <div
         class="plugin_formcreator_container {{toggle_menu}}">

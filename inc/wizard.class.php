@@ -76,6 +76,14 @@ class PluginFormcreatorWizard {
       renderTwigTemplate('headers/utils/accessibility_buttons.twig', []);
       $accessibilityButtons = ob_get_clean();
 
+      $impersonateBanner = '';
+      $impersonate_banner = Html::getImpersonateBanner();
+      if (!empty($impersonate_banner)) {
+         ob_start();
+         renderTwigTemplate($impersonate_banner['path'], $impersonate_banner['args']);
+         $impersonateBanner = ob_get_clean();
+      }
+
       $user = new User();
       $user->getFromDB(Session::getLoginUserID());
       $user_picture = $user->fields['picture'] ?? '';
@@ -139,6 +147,7 @@ class PluginFormcreatorWizard {
          'userPic' => User::getThumbnailURLForPicture($user_picture),
          'profileSelector' => $profileSelector,
          'accessibilityButtons' => $accessibilityButtons,
+         'impersonateBanner' => $impersonateBanner,
       ], '/plugins/formcreator/templates');
 
       // echo '<main id="page" class="plugin_formcreator_page">';

@@ -37,6 +37,31 @@ body {
     height: 100%;
 }
 
+body.plugin_formcreator_impersonating {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    >.banner-impersonate {
+        flex: 0 0 auto;
+    }
+
+    >.plugin_formcreator_container {
+        position: relative;
+        flex: 1 1 auto;
+        min-height: 0;
+
+        #header #c_menu {
+            position: absolute;
+            height: calc(100% - #{$header_height});
+        }
+
+        >.plugin_formcreator_page {
+            height: calc(100% - #{$header_height});
+        }
+    }
+}
+
 @-moz-keyframes ripple {
 
     0%,
