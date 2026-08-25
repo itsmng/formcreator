@@ -1,0 +1,15 @@
+Source: formcreator
+Section: web
+Priority: standard
+Maintainer: ITSMng SysAdmin <sysadmin@itsm-ng.com>
+Build-Depends:	debhelper (>= 9),
+				bash,
+				composer,
+				npm
+Rules-Requires-Root: no
+Homepage: https://github.com/itsmng/formcreator
+
+Package: itsm-ng-plugin-formcreator
+Architecture: all
+Depends: itsm-ng (>= 1:2.0),
+Description: Formcreator is a plugin which allow creation of custom forms of easy access. At the same time, the plugin allow the creation of one or more tickets when the form is filled.
