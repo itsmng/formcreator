@@ -411,6 +411,25 @@ class PluginFormcreatorFormAnswer extends CommonDBTM
 
       // do search
       $params = Search::manageParams(__CLASS__, $params, false);
+
+      $formCriterion = [
+         'link'       => 'AND',
+         'field'      => 9,
+         'searchtype' => 'equals',
+         'value'      => (int) $form->getID(),
+      ];
+      if (count($params['criteria']) > 0) {
+         $params['criteria'] = [
+            [
+               'link'     => 'AND',
+               'criteria' => $params['criteria'],
+            ],
+            $formCriterion,
+         ];
+      } else {
+         $params['criteria'] = [$formCriterion];
+      }
+
       $data   = Search::prepareDatasForSearch(__CLASS__, $params, $forcedisplay);
       Search::constructSQL($data);
       Search::constructData($data);
@@ -727,15 +746,6 @@ class PluginFormcreatorFormAnswer extends CommonDBTM
       $input['request_date']                = date('Y-m-d H:i:s');
       $input['comment']                     = '';
 
-      if (isset($input['plugin_formcreator_forms_id'])) {
-         foreach ($this->getQuestionFields($input['plugin_formcreator_forms_id']) as $questionId => $field) {
-            if ($field->getFieldTypeName() == 'file') {
-               $files = json_decode(stripslashes($input['formcreator_field_' . $questionId] ?? '[]'), true);
-               $field->setUploads($files);
-            };
-         }
-      }
-      
       return $input;
    }
 
