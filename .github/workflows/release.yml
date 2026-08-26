@@ -38,7 +38,7 @@ jobs:
       - name: Build project
         run: |
           cd /home/runner/work/formcreator/
-          rm -rf formcreator/.git* formcreator/tools formcreator/.yarnrc formcreator/README.md formcreator/composer.* formcreator/package.*
+          rm -rf formcreator/.git* formcreator/tools formcreator/.yarnrc formcreator/README.md formcreator/composer.* formcreator/package.* formcreator/debian
           tar -zcvf formcreator-${{ github.ref_name }}.tgz formcreator
 
       - name: Upload release
