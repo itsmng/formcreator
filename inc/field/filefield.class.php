@@ -34,14 +34,10 @@ namespace GlpiPlugin\Formcreator\Field;
 
 use PluginFormcreatorAbstractField;
 use Document;
-use Html;
-use Toolbox;
 use Session;
 use PluginFormcreatorForm;
 use GlpiPlugin\Formcreator\Exception\ComparisonException;
 use ItsmngUploadHandler;
-use PluginFormcreatorSection;
-use PluginFormcreatorQuestion;
 
 class FileField extends PluginFormcreatorAbstractField
 {
@@ -53,7 +49,19 @@ class FileField extends PluginFormcreatorAbstractField
    }
 
    public function setUploads($uploads) {
-      $this->uploads = is_array($uploads) ? $uploads : [];
+      $this->uploads = [];
+      if (!is_array($uploads)) {
+         return;
+      }
+
+      foreach ($uploads as $upload) {
+         if (
+            is_array($upload)
+            && isset($upload['path'], $upload['name'])
+         ) {
+            $this->uploads[] = $upload;
+         }
+      }
    }
 
    public function getRenderedHtml($domain, $canEdit = true): string {
@@ -109,12 +117,16 @@ class FileField extends PluginFormcreatorAbstractField
    }
 
    public function moveUploads() {
-      if (!is_array($this->uploads)) {
+      if (count($this->uploads) < 1) {
          return;
       }
+
+      $this->uploadData = [];
       foreach ($this->uploads as $upload) {
          $doc = ItsmngUploadHandler::addFileToDb($upload);
-         $this->uploadData[] = $doc->getID();
+         if ($doc->getID() > 0) {
+            $this->uploadData[] = $doc->getID();
+         }
       }
    }
 
@@ -128,8 +140,7 @@ class FileField extends PluginFormcreatorAbstractField
       }
 
       // If the field is required it can't be empty
-      $key = '_formcreator_field_' . $this->question->getID();
-      if (count($this->uploads[$key] ?? []) < 1) {
+      if (count($this->uploads) < 1) {
          Session::addMessageAfterRedirect(
             sprintf(__('A required file is missing: %s', 'formcreator'), $this->getLabel()),
             false,
@@ -143,8 +154,7 @@ class FileField extends PluginFormcreatorAbstractField
 
    public function isValidValue($value): bool {
       // If the field is required it can't be empty
-      $key = 'formcreator_field_' . $this->question->getID();
-      return (count($this->uploads["_$key"] ?? []) > 0);
+      return count($this->uploads) > 0;
    }
 
    public static function getName(): string {
@@ -159,110 +169,50 @@ class FileField extends PluginFormcreatorAbstractField
       return true;
    }
 
-   public function saveUploads($input) {
-      $key = 'formcreator_field_' . $this->question->getID();
-      $index = 0;
-      $answer_value = [];
-      foreach ($input["_$key"] as $document) {
-         $document = Toolbox::stripslashes_deep($document);
-         if (is_file(GLPI_TMP_DIR . '/' . $document)) {
-            $prefix = $input['_prefix_formcreator_field_' . $this->question->getID()][$index];
-            $answer_value[] = $this->saveDocument($document, $prefix);
-         }
-         $index++;
-      }
-      $this->uploadData = $answer_value;
-   }
-
    public function hasInput($input): bool {
-      // key with unserscore when testing unput from a requester
-      // key without underscore when testing data from DB (display a saved answer)
       $key = 'formcreator_field_' . $this->question->getID();
-      return isset($input["_$key"])
-         || isset($input[$key]);
-   }
-
-   /**
-    * Save an uploaded file into a document object, link it to the answers
-    * and returns the document ID
-    * @param PluginFormcreatorForm $form
-    * @param PluginFormcreatorQuestion $question
-    * @param array $file                         an item from $_FILES array
-    *
-    * @return integer|NULL
-    */
-   private function saveDocument($file, $prefix) {
-      $sectionTable = PluginFormcreatorSection::getTable();
-      $sectionFk = PluginFormcreatorSection::getForeignKeyField();
-      $questionTable = PluginFormcreatorQuestion::getTable();
-      $formTable = PluginFormcreatorForm::getTable();
-      $formFk = PluginFormcreatorForm::getForeignKeyField();
-      $form = new PluginFormcreatorForm();
-      $form->getFromDBByRequest([
-         'LEFT JOIN' => [
-            $sectionTable => [
-               'FKEY' => [
-                  $sectionTable => $formFk,
-                  $formTable => 'id'
-               ]
-            ],
-            $questionTable => [
-               'FKEY' => [
-                  $sectionTable => 'id',
-                  $questionTable => $sectionFk
-               ]
-            ]
-         ],
-         'WHERE' => [
-            "$questionTable.id" => $this->question->getID(),
-         ],
-      ]);
-      if ($form->isNewItem()) {
-         // A problem occured while finding the form of the field
-         return;
-      }
-
-      $doc                             = new Document();
-      $file_data                       = [];
-      $file_data["name"]               = Toolbox::addslashes_deep($form->getField('name') . ' - ' . $this->question->fields['name']);
-      $file_data["entities_id"]        = isset($_SESSION['glpiactive_entity'])
-         ? $_SESSION['glpiactive_entity']
-         : $form->getField('entities_id');
-      $file_data["is_recursive"]       = $form->getField('is_recursive');
-      $file_data['_filename']          = [$file];
-      $file_data['_prefix_filename']   = [$prefix];
-      if ($docID = $doc->add($file_data)) {
-         return $docID;
-      }
-      return null;
+      return isset($input[$key]);
    }
 
    public function parseAnswerValues($input, $nonDestructive = false): bool {
       $key = 'formcreator_field_' . $this->question->getID();
-      if (isset($input['_tag_' . $key]) && isset($input['_' . $key]) && isset($input['_prefix_' . $key])) {
-         $this->uploads['_' . $key] = $input['_' . $key];
-         $this->uploads['_prefix_' . $key] = $input['_prefix_' . $key];
-         $this->uploads['_tag_' . $key] = $input['_tag_' . $key];
-      }
-      if (isset($input["_$key"])) {
-         if (!is_array($input["_$key"])) {
-            return false;
-         }
-
-         if ($this->hasInput($input)) {
-            $this->value = __('Attached document', 'formcreator');
-         }
+      if (!isset($input[$key])) {
+         $this->setUploads([]);
+         $this->uploadData = [];
+         $this->value = '';
          return true;
       }
-      if (isset($input[$key])) {
-         // To restore input from database
-         $this->uploadData = json_decode($input[$key]);
-         $this->value = __('Attached document', 'formcreator');
-         return true;
 
+      if (!is_string($input[$key])) {
+         return false;
       }
-      $this->uploadData = [];
-      $this->value = '';
+
+      $decodedValue = json_decode(stripslashes($input[$key]), true);
+      if (!is_array($decodedValue)) {
+         return false;
+      }
+
+      $hasUploads = false;
+      foreach ($decodedValue as $upload) {
+         if (is_array($upload) && isset($upload['path'], $upload['name'])) {
+            $hasUploads = true;
+            break;
+         }
+      }
+
+      if ($hasUploads) {
+         // v2 uploader payload: temporary file descriptors.
+         $this->setUploads($decodedValue);
+         $this->uploadData = [];
+      } else {
+         // Existing answer payload: document IDs.
+         $this->setUploads([]);
+         $this->uploadData = $decodedValue;
+      }
+
+      $this->value = count($decodedValue) > 0
+         ? __('Attached document', 'formcreator')
+         : __('No attached document', 'formcreator');
       return true;
    }
 
