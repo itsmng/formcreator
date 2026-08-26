@@ -1,0 +1,31 @@
+#!/usr/bin/make -f
+
+SHELL := /bin/bash
+
+# Variables
+NAME = formcreator
+VERSION = CHANGEVERSION
+
+%:
+	dh $@
+
+override_dh_auto_install:
+
+	composer install --no-dev -n
+	npm install yarn
+	./node_modules/yarn/bin/yarn install --prod
+
+	mkdir -p usr/share/itsm-ng/plugins/$(NAME)
+	find . -mindepth 1 -maxdepth 1 \
+		! -name usr \
+		! -name debian \
+		! -name .git \
+		-exec cp -a {} usr/share/itsm-ng/plugins/$(NAME)/ \;
+
+	pushd usr/share/itsm-ng/plugins/$(NAME) && \
+		rm -rf .* composer.* package.json yarn.lock && \
+	popd
+
+override_dh_gencontrol:
+	dh_gencontrol -- -v$(VERSION)
+
