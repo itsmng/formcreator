@@ -68,9 +68,8 @@ $(function () {
         height: "auto",
         modal: true,
         position: { my: 'center' },
-        open: function (event, ui) {
-            //remove existing tinymce when reopen modal (without this, tinymce don't load on 2nd opening of dialog)
-            modalWindow.find('.mce-container').remove();
+        close: function () {
+            plugin_formcreator_destroyRichtextEditors(modalWindow);
         }
     });
 
@@ -2018,6 +2017,19 @@ function plugin_formcreator_syncRichtextForm(form) {
         var editor = window[textarea.id];
         if (editor && typeof editor.getData === 'function') {
             textarea.value = editor.getData();
+        }
+    });
+}
+
+function plugin_formcreator_destroyRichtextEditors(container) {
+    container.find('textarea[id]').each(function () {
+        var editorId = this.id;
+        var editor = window[editorId];
+        if (editor && typeof editor.destroy === 'function') {
+            delete window[editorId];
+            Promise.resolve(editor.destroy()).catch(function (error) {
+                console.error(error);
+            });
         }
     });
 }
