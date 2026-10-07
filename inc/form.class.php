@@ -569,8 +569,8 @@ PluginFormcreatorTranslatableInterface
             "$profileRightTable.name" => "ticketvalidation",
             [
                'OR' => [
-                  "$profileRightTable.rights" => ['&', TicketValidation::VALIDATEREQUEST],
-                  "$profileRightTable.rights" => ['&', TicketValidation::VALIDATEINCIDENT],
+                  ["$profileRightTable.rights" => ['&', TicketValidation::VALIDATEREQUEST]],
+                  ["$profileRightTable.rights" => ['&', TicketValidation::VALIDATEINCIDENT]],
                ],
             ],
             "$userTable.is_active" => '1',
@@ -604,8 +604,11 @@ PluginFormcreatorTranslatableInterface
          'values'          => array_keys($selectedValidatorUsers),
          'valuesnames'     => array_values($selectedValidatorUsers),
          'condition'       => Dropdown::addNewCondition($usersCondition),
-         '_idor_token'     => Session::getNewIDORToken(User::getType()),
       ];
+      $params['_idor_token'] = Session::getNewIDORToken(User::getType(), [
+         'entity_restrict' => $params['entity_restrict'],
+         'condition'       => $params['condition'],
+      ]);
       echo Html::jsAjaxDropdown(
          '_validator_users[]',
          '_validator_users' . mt_rand(),
@@ -649,8 +652,8 @@ PluginFormcreatorTranslatableInterface
             "$profileRightTable.name" => "ticketvalidation",
             [
                'OR' => [
-                  "$profileRightTable.rights" => ['&', TicketValidation::VALIDATEREQUEST],
-                  "$profileRightTable.rights" => ['&', TicketValidation::VALIDATEINCIDENT],
+                  ["$profileRightTable.rights" => ['&', TicketValidation::VALIDATEREQUEST]],
+                  ["$profileRightTable.rights" => ['&', TicketValidation::VALIDATEINCIDENT]],
                ],
             ],
             "$userTable.is_active" => '1',
@@ -685,8 +688,11 @@ PluginFormcreatorTranslatableInterface
          'valuesnames'     => array_values($selectecValidatorGroups),
          'condition'       => Dropdown::addNewCondition($groupsCondition),
          'display_emptychoice' => false,
-         '_idor_token'    => Session::getNewIDORToken(Group::getType()),
       ];
+      $params['_idor_token'] = Session::getNewIDORToken(Group::getType(), [
+         'entity_restrict' => $params['entity_restrict'],
+         'condition'       => $params['condition'],
+      ]);
       echo Html::jsAjaxDropdown(
          '_validator_groups[]',
          '_validator_groups' . mt_rand(),
