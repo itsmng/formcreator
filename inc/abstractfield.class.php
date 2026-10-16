@@ -90,9 +90,14 @@ abstract class PluginFormcreatorAbstractField implements PluginFormcreatorFieldI
          $title .= ' <span class="red">*</span>';
       }
 
+      $content = $this->getRenderedHtml($domain, $canEdit);
+      if ($this->isEditableField() && !empty($this->question->fields['description'])) {
+         $description = Toolbox::convertTagToImage(__($this->question->fields['description'], $domain), $this->question);
+         $content = '<div class="w-100"><div class="help-block">' . html_entity_decode($description) . '</div>' . $content . '</div>';
+      }
+
       $input = [$title => [
-         'description' => ($this->isEditableField() && !empty($this->question->fields['description'])) ? $this->question->fields['description'] : '',
-         'content' => $this->getRenderedHtml($domain, $canEdit),
+         'content' => $content,
          'col_xs' => $colXs,
          'col_sm' => $colSm,
          'col_md' => $colMd,
