@@ -66,17 +66,18 @@ class PluginFormcreatorCategory extends CommonTreeDropdown
 
    public function getAdditionalFields() {
       return [
-         [
+         __('Knowbase category', 'formcreator') => [
             'name'      => KnowbaseItemCategory::getForeignKeyField(),
-            'type'      => 'dropdownValue',
-            'label'     => __('Knowbase category', 'formcreator'),
-            'list'      => false
+            'type'      => 'select',
+            'itemtype'  => KnowbaseItemCategory::class,
+            'value'     => $this->fields[KnowbaseItemCategory::getForeignKeyField()],
          ],
-         [
+         __('As child of') => [
             'name'      => $this->getForeignKeyField(),
-            'type'      => 'parent',
-            'label'     => __('As child of'),
-            'list'      => false
+            'type'      => 'select',
+            'itemtype'  => self::class,
+            'value'     => $this->fields[$this->getForeignKeyField()],
+            'used'      => [$this->getID()],
          ]
       ];
    }
