@@ -1354,50 +1354,48 @@ class PluginFormcreatorForm extends CommonDBTM implements
 
          $questions = (new PluginFormcreatorQuestion())->getQuestionsFromSection($section->getID());
 
-         if (!empty($questions)) {
-            echo '<div class="card" data-itemtype="' . PluginFormcreatorSection::class . '" data-id="' . $sectionId . '">';
-            echo '<div class="card-header">' . $sectionName . '</div>';
-            echo '<div class="card-body">';
+         echo '<div class="card" data-itemtype="' . PluginFormcreatorSection::class . '" data-id="' . $sectionId . '">';
+         echo '<div class="card-header">' . $sectionName . '</div>';
+         echo '<div class="card-body">';
 
-            $lastQuestion = null;
-            echo '<div class="row">'; 
+         $lastQuestion = null;
+         echo '<div class="row">';
 
-            foreach ($questions as $question) {
-               if ($lastQuestion !== null && $lastQuestion->fields['row'] < $question->fields['row']) {
-                  echo '</div><div class="row">';  
-               }
-
-               $questionHtml = $question->getRenderedHtml($domain, true, $_SESSION['formcreator']['data']);
-
-                if (is_array($questionHtml)) {
-                   foreach ($questionHtml as $label => $config) {
-                      $colXs = $config['col_xs'] ?? 12;
-                      $colSm = $config['col_sm'] ?? 12;
-                      $colMd = $config['col_md'] ?? 12;
-                      $colLg = $config['col_lg'] ?? 12;
-                      $colXl = $config['col_xl'] ?? 12;
-
-                      echo '<div class="col-' . $colXs . ' col-sm-' . $colSm . ' col-md-' . $colMd . ' col-lg-' . $colLg . ' col-xl-' . $colXl . ' form-group mb-3" data-itemtype="' . PluginFormcreatorQuestion::class . '" data-id="' . $question->getID() . '">';
-
-                      $showTitle = empty($config['notitle']);
-                      if (!empty($label) && $showTitle) {
-                         echo '<label class="form-label">' . $label . '</label>';
-                      }
-
-                      if (isset($config['content'])) {
-                         echo '<div class="field-content">' . $config['content'] . '</div>';
-                      }
-
-                      echo '</div>';
-                   }
-                }
-               $lastQuestion = $question;
+         foreach ($questions as $question) {
+            if ($lastQuestion !== null && $lastQuestion->fields['row'] < $question->fields['row']) {
+               echo '</div><div class="row">';
             }
 
-            echo '</div>'; 
-            echo '</div>';
-            echo '</div>';
+            $questionHtml = $question->getRenderedHtml($domain, true, $_SESSION['formcreator']['data']);
+
+            if (is_array($questionHtml)) {
+               foreach ($questionHtml as $label => $config) {
+                  $colXs = $config['col_xs'] ?? 12;
+                  $colSm = $config['col_sm'] ?? 12;
+                  $colMd = $config['col_md'] ?? 12;
+                  $colLg = $config['col_lg'] ?? 12;
+                  $colXl = $config['col_xl'] ?? 12;
+
+                  echo '<div class="col-' . $colXs . ' col-sm-' . $colSm . ' col-md-' . $colMd . ' col-lg-' . $colLg . ' col-xl-' . $colXl . ' form-group mb-3" data-itemtype="' . PluginFormcreatorQuestion::class . '" data-id="' . $question->getID() . '">';
+
+                  $showTitle = empty($config['notitle']);
+                  if (!empty($label) && $showTitle) {
+                     echo '<label class="form-label">' . $label . '</label>';
+                  }
+
+                  if (isset($config['content'])) {
+                     echo '<div class="field-content">' . $config['content'] . '</div>';
+                  }
+
+                  echo '</div>';
+               }
+            }
+            $lastQuestion = $question;
          }
+
+         echo '</div>';
+         echo '</div>';
+         echo '</div>';
       }
 
       // Captcha for anonymous forms
