@@ -163,7 +163,8 @@ function plugin_init_formcreator()
     ];
     $PLUGIN_HOOKS['pre_item_purge']['formcreator'] = [
         PluginFormcreatorTargetTicket::class => 'plugin_formcreator_hook_pre_purge_targetTicket',
-        PluginFormcreatorTargetChange::class => 'plugin_formcreator_hook_pre_purge_targetChange'
+        PluginFormcreatorTargetChange::class => 'plugin_formcreator_hook_pre_purge_targetChange',
+        PluginFormcreatorTargetWorkflow::class => 'plugin_formcreator_hook_pre_purge_targetWorkflow',
     ];
     // hook to add custom actions on a ticket in service catalog
     $PLUGIN_HOOKS['timeline_actions']['formcreator'] = 'plugin_formcreator_timelineActions';

@@ -724,69 +724,51 @@ class PluginFormcreatorForm extends CommonDBTM implements
 
    public function showTargets($ID, $options = [])
    {
-      echo '<table class="tab_cadrehov">';
-
-      echo '<tr>';
-      echo '<th>' . _n('Target', 'Targets', 1, 'formcreator') . '</th>';
-      echo '<th>' . __('Workflow', 'workflows') . '</th>';
-      echo '<th colspan="2">' . __('Actions') . '</th>';
-      echo '</tr>';
-
-      $allTargets = $this->getTargetsFromForm();
-      $token = Session::getNewCSRFToken();
-      $i = 0;
-
-      foreach ($allTargets as $targetType => $targets) {
-         foreach ($targets as $targetId => $target) {
-            $i++;
-            echo '<tr class="tab_bg_' . ($i % 2) . '">';
-
-            $targetItemUrl = Toolbox::getItemTypeFormURL($targetType) . '?id=' . $targetId;
-            $onclick = "plugin_formcreator_editTarget('$targetType', $targetId)";
-            echo '<td onclick="' . $onclick . '" style="cursor: pointer; font-weight: bold;">';
-            echo $target->fields['name'];
-            echo '</td>';
-
-            echo '<td>';
-            if (!empty($target->fields['workflows_id'])) {
-               $workflow = new PluginWorkflowsWorkflow();
-               if ($workflow->getFromDB($target->fields['workflows_id'])) {
-                  echo $workflow->fields['name'];
-               } else {
-                  echo '<span style="color: #ff0000;">' . __('Workflow not found') . '</span>';
-               }
-            } else {
-               echo '<span style="color: #666;">' . __('No workflow') . '</span>';
-            }
-            echo '</td>';
-
-            echo '<td align="center" width="32">';
-            echo '<img src="' . FORMCREATOR_ROOTDOC . '/pics/delete.png"
-                     alt="*" title="' . __('Delete', 'formcreator') . '"
-                     onclick="plugin_formcreator_deleteTarget(\'' . $target->getType() . '\', ' . $targetId . ', \'' . $token . '\')"
-                     align="absmiddle" style="cursor: pointer" /> ';
-            echo '</td>';
-
-            echo '</tr>';
-         }
+      $canedit = $this->can($ID, UPDATE);
+      $container = 'formcreator_targets_' . (int) $ID;
+      if ($canedit) {
+         echo '<div class="mb-3"><button type="button" class="btn btn-secondary" onclick="plugin_formcreator_addTarget(' . (int) $ID . ')">';
+         echo '<i class="fas fa-plus me-1"></i>' . __('Add a target', 'formcreator') . '</button></div>';
+         Html::showMassiveActions([
+            'container' => $container,
+            'is_deleted' => false,
+            'display_arrow' => false,
+            'specific_actions' => [
+               'MassiveAction:clone' => _x('button', 'Clone'),
+               'MassiveAction:purge' => _x('button', 'Delete permanently'),
+            ],
+         ]);
       }
 
-      // Display add target link
-      echo '<tr class="tab_bg_' . (($i + 1) % 2) . '" id="add_target_row">';
-      echo '<td colspan="4">';
-      echo '<a href="javascript:plugin_formcreator_addTarget(' . $ID . ', \'' . $token . '\');">
-             <i class="fa fa-plus"></i>
-             ' . __('Add a target', 'formcreator') . '
-         </a>';
-      echo '</td>';
-      echo '</tr>';
-
-      // OR display add target form
-      echo '<tr class="line' . (($i + 1) % 2) . '" id="add_target_form" style="display: none;">';
-      echo '<td colspan="4" id="add_target_form_td"></td>';
-      echo '</tr>';
-
-      echo "</table>";
+      $values = [];
+      $selection = [];
+      foreach ($this->getTargetsFromForm() as $targetType => $targets) {
+         foreach ($targets as $targetId => $target) {
+            $url = Toolbox::getItemTypeFormURL($targetType) . '?id=' . (int) $targetId;
+            $name = htmlspecialchars($target->fields['name'], ENT_QUOTES, 'UTF-8');
+            $link = '<a href="' . $url . '" onclick="plugin_formcreator_editTarget(\'' . $targetType . '\', ' . (int) $targetId . '); return false;">' . $name . '</a>';
+            $workflowName = __('No workflow');
+            if (!empty($target->fields['workflows_id']) && class_exists('PluginWorkflowsWorkflow')) {
+               $workflow = new PluginWorkflowsWorkflow();
+               if ($workflow->getFromDB($target->fields['workflows_id'])) {
+                  $workflowName = $workflow->fields['name'];
+               } else {
+                  $workflowName = __('Workflow not found');
+               }
+            }
+            $values[] = [$link, $targetType::getTypeName(1), htmlspecialchars($workflowName, ENT_QUOTES, 'UTF-8')];
+            $selection[] = sprintf('item[%s][%d]', $targetType, $targetId);
+         }
+      }
+      $params = [
+         'id' => $container,
+         'fields' => [_n('Target', 'Targets', 1, 'formcreator'), __('Type'), __('Workflow', 'workflows')],
+         'values' => $values,
+      ];
+      if ($canedit) {
+         $params['massive_action'] = $selection;
+      }
+      renderTwigTemplate('table.twig', $params);
    }
 
    public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)

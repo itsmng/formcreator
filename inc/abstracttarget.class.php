@@ -1663,6 +1663,79 @@ SCRIPT;
       return $input;
    }
 
+   public function prepareInputForClone($input) {
+      $input = parent::prepareInputForClone($input);
+      unset($input['uuid']);
+      $input['_skip_checks'] = true;
+      $input['_skip_create_actors'] = true;
+      return $input;
+   }
+
+   /**
+    * Clone the target inside its form, keeping references to the same questions
+    * and other targets. Roll back incomplete copies if a child cannot be added.
+    */
+   public function clone(array $override_input = [], bool $history = true) {
+      global $DB;
+
+      $formFk = PluginFormcreatorForm::getForeignKeyField();
+      $form = new PluginFormcreatorForm();
+      if ($this->isNewItem()
+          || !$this->can($this->getID(), READ)
+          || !$form->can($this->fields[$formFk], UPDATE)) {
+         return false;
+      }
+      $override_input[$formFk] = $this->fields[$formFk];
+      $ownsTransaction = !$DB->inTransaction();
+      if ($ownsTransaction && !$DB->beginTransaction()) {
+         return false;
+      }
+
+      try {
+         $newId = parent::clone($override_input, $history);
+         if (!$newId) {
+            throw new RuntimeException('Cannot clone target');
+         }
+
+         $children = [
+            PluginFormcreatorTarget_Actor::class => ['itemtype' => $this->getType(), 'items_id' => $this->getID()],
+            PluginFormcreatorCondition::class => ['itemtype' => $this->getType(), 'items_id' => $this->getID()],
+         ];
+         // This relation is keyed by target ticket ID, not by target itemtype.
+         if ($this instanceof PluginFormcreatorTargetTicket) {
+            $children[PluginFormcreatorItem_TargetTicket::class] = [
+               'plugin_formcreator_targettickets_id' => $this->getID(),
+            ];
+         }
+         foreach ($children as $itemtype => $criteria) {
+            foreach ($DB->request(['FROM' => $itemtype::getTable(), 'WHERE' => $criteria]) as $row) {
+               unset($row['id'], $row['uuid']);
+               $foreignKey = $itemtype === PluginFormcreatorItem_TargetTicket::class
+                  ? 'plugin_formcreator_targettickets_id' : 'items_id';
+               $row[$foreignKey] = $newId;
+               if (!(new $itemtype())->add(Toolbox::addslashes_deep($row))) {
+                  throw new RuntimeException('Cannot clone target child: ' . $itemtype);
+               }
+            }
+         }
+         if ($ownsTransaction) {
+            $DB->commit();
+         }
+         return $newId;
+      } catch (Throwable $e) {
+         if (!$ownsTransaction) {
+            throw $e;
+         }
+         $DB->rollBack();
+         Toolbox::logError($e->getMessage());
+         return false;
+      }
+   }
+
+   public function getForbiddenStandardMassiveAction() {
+      return ['update', 'add_note'];
+   }
+
    public function prepareInputForUpdate($input) {
       if (!isset($input['_skip_checks'])
             || !$input['_skip_checks']) {
@@ -1727,6 +1800,14 @@ SCRIPT;
       // delete actors related to this instance
       $targetItemActor = new PluginFormcreatorTarget_Actor();
       if (!$targetItemActor->deleteByCriteria(['itemtype' => $this->getType(), 'items_id' => $this->getID()])) {
+         $this->input = false;
+         return false;
+      }
+
+      if (!(new PluginFormcreatorCondition())->deleteByCriteria([
+         'itemtype' => $this->getType(),
+         'items_id' => $this->getID(),
+      ])) {
          $this->input = false;
          return false;
       }

@@ -547,6 +547,10 @@ function plugin_formcreator_hook_pre_purge_targetChange(CommonDBTM $item) {
    $item->pre_purgeItem();
 }
 
+function plugin_formcreator_hook_pre_purge_targetWorkflow(CommonDBTM $item) {
+   $item->pre_purgeItem();
+}
+
 function plugin_formcreator_hook_update_ticketvalidation(CommonDBTM $item) {
    if (!($item instanceof TicketValidation)) {
       return;
