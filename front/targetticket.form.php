@@ -65,7 +65,7 @@ if (isset($_POST['update'])) {
    $targetTicket_actor = new PluginFormcreatorTarget_Actor();
    $targetTicket_actor->delete([
       'itemtype' => $targetticket->getType(),
-      'items_id' => $id,
+      'items_id' => (int) ($_GET['id'] ?? 0),
       'id'       => (int) $_GET['delete_actor']
    ]);
    Html::back();

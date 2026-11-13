@@ -155,6 +155,11 @@ class PluginFormcreatorTargetTicket extends PluginFormcreatorAbstractTarget
          $title =  __('Edit a target', 'formcreator');
       }
 
+      $actorPanels = $this->getActorPanels();
+      ob_start();
+      $this->showActorsSettings($actorPanels, false);
+      $actorContent = ob_get_clean();
+
       $form = [
          'action' => self::getFormURL(),
          'buttons' => [
@@ -169,6 +174,12 @@ class PluginFormcreatorTargetTicket extends PluginFormcreatorAbstractTarget
             $title => [
                'visible' => true,
                'inputs' => [
+                  ['type' => 'hidden', 'name' => 'id', 'value' => $ID],
+                  [
+                     'type' => 'hidden',
+                     'name' => PluginFormcreatorForm::getForeignKeyField(),
+                     'value' => $this->fields[PluginFormcreatorForm::getForeignKeyField()],
+                  ],
                   __('Name') => [
                      'type' => 'text',
                      'name' => 'name',
@@ -217,26 +228,16 @@ class PluginFormcreatorTargetTicket extends PluginFormcreatorAbstractTarget
                ]
             ],
             __('Condition to create the target', 'formcreator') => $this->showConditionsSettings(),
-            __('Actors') => [],
-            '' => [
-               'visible' => false,
+            __('Actors') => [
+               'visible' => true,
                'inputs' => [
-                  [
-                     'type' => 'hidden',
-                     'name' => 'id',
-                     'value' => $ID
-                  ],
-                  [
-                     'type' => 'hidden',
-                     'name' => PluginFormcreatorForm::getForeignKeyField(),
-                     'value' => $this->fields[PluginFormcreatorForm::getForeignKeyField()]
-                  ]
-               ]
-            ]
+                  '' => ['content' => $actorContent, 'col_lg' => 12, 'col_md' => 12],
+               ],
+            ],
          ]
       ];
       renderTwigForm($form);
-      $this->showActorsSettings();
+      renderTwigTemplate('itil/actorPickerForms.twig', ['panels' => $actorPanels]);
 
       $this->showTagsList();
    }
@@ -333,13 +334,15 @@ class PluginFormcreatorTargetTicket extends PluginFormcreatorAbstractTarget
                'type' => 'select',
                'id' => 'selectForLinkTargetTicket',
                'name' => '_link_targettickets_id',
-               'values' => getOptionForItems(PluginFormcreatorTargetTicket::class, [], true, false, ['id' => $this->getID()]),
+               'itemtype' => PluginFormcreatorTargetTicket::class,
+               'condition' => [PluginFormcreatorForm::getForeignKeyField() => $this->getForm()->getID()],
+               'used' => [$this->getID()],
             ],
             __('Ticket') => [
                'type' => 'select',
                'id' => 'selectForLinkTicket',
                'name' => '_link_tickets_id',
-               'values' => getOptionForItems(Ticket::class),
+               'itemtype' => Ticket::class,
                'disabled' => ''
             ],
             __('Question') => [
@@ -926,11 +929,13 @@ class PluginFormcreatorTargetTicket extends PluginFormcreatorAbstractTarget
                'name' => 'associate_rule',
                'values' => static::getEnumAssociateRule(),
                'value' => $this->fields['associate_rule'],
+               'col_lg' => 3,
             ],
             __('Question', 'formcreator') => [
                'type' => 'select',
                'id' => 'selectForAssociateQuestionTargetTicket',
                'name' => 'associate_question',
+               'col_lg' => 3,
                'values' => $question->getQuestionsFromFormBySection(
                   $this->getForm()->getID(),
                   [ 'fieldtype' => 'glpiselect', ],
@@ -938,6 +943,8 @@ class PluginFormcreatorTargetTicket extends PluginFormcreatorAbstractTarget
             ],
             __('Item ', 'formcreator') => [
                'content' => $content,
+               'col_lg' => 6,
+               'col_md' => 12,
             ]
          ]
       ];

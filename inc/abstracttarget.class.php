@@ -931,7 +931,7 @@ PluginFormcreatorTranslatableInterface
                'type' => 'select',
                'id' => 'selectFormcreatorDestinationEntityValue',
                'name' => '_destination_entity_value_specific',
-               'values' => getOptionForItems(Entity::class),
+               'itemtype' => Entity::class,
                'value' => $this->fields['destination_entity_value'],
                'actions' => getItemActionButtons(['info', 'add'], Entity::class),
                PluginFormcreatorAbstractTarget::DESTINATION_ENTITY_SPECIFIC == $this->fields['destination_entity'] ? '' : 'disabled' => 'disabled',
@@ -967,7 +967,7 @@ PluginFormcreatorTranslatableInterface
             '' => [
                'type' => 'select',
                'name' => $templateFk,
-               'values' => getOptionForItems($templateType),
+               'itemtype' => $templateType,
                'value' => $this->fields[$templateFk],
             ]
          ]
@@ -1037,11 +1037,6 @@ PluginFormcreatorTranslatableInterface
 
    protected function showSLASettings() {
       $question = new PluginFormcreatorQuestion();
-      
-      // Récupération manuelle des SLA TTO et TTR
-      $slaTtoOptions = $this->getSLAOptions(SLM::TTO);
-      $slaTtrOptions = $this->getSLAOptions(SLM::TTR);
-      
       $blocks = [
           'visible' => true,
           'inputs' => [
@@ -1069,7 +1064,8 @@ PluginFormcreatorTranslatableInterface
                   'type' => 'select',
                   'id' => 'selectFormcreatorSlaSpecificTto',
                   'name' => '_sla_specific_tto',
-                  'values' => $slaTtoOptions,
+                  'itemtype' => SLA::class,
+                  'condition' => ['type' => SLM::TTO],
                   'value' => $this->fields["sla_question_tto"],
                   'col_lg' => 6,
                   $this->fields["sla_rule"] == PluginFormcreatorAbstractTarget::SLA_RULE_SPECIFIC ? '' : 'disabled' => 'disabled',
@@ -1078,7 +1074,8 @@ PluginFormcreatorTranslatableInterface
                   'type' => 'select',
                   'id' => 'selectFormcreatorSlaSpecificTtr',
                   'name' => '_sla_question_ttr',
-                  'values' => $slaTtrOptions,
+                  'itemtype' => SLA::class,
+                  'condition' => ['type' => SLM::TTR],
                   'value' => $this->fields["sla_question_ttr"],
                   'col_lg' => 6,
                   $this->fields["sla_rule"] == PluginFormcreatorAbstractTarget::SLA_RULE_SPECIFIC ? '' : 'disabled' => 'disabled',
@@ -1113,27 +1110,6 @@ PluginFormcreatorTranslatableInterface
       ];
       return $blocks;
   }
-  
-  private function getSLAOptions($type) {
-      global $DB;
-      
-      $options = ['' => '-----'];
-      
-      $slas = $DB->request([
-          'SELECT' => ['id', 'name'],
-          'FROM' => 'glpi_slas',
-          'WHERE' => [
-              'type' => $type
-          ],
-          'ORDER' => 'name'
-      ]);
-      
-      foreach ($slas as $sla) {
-          $options[$sla['id']] = $sla['name'];
-      }
-      
-      return $options;
-  }
 
    protected function showOLASettings() {
       $question = new PluginFormcreatorQuestion();
@@ -1164,7 +1140,8 @@ PluginFormcreatorTranslatableInterface
                'type' => 'select',
                'id' => 'selectFormcreatorOlaSpecificTto',
                'name' => '_ola_specific_tto',
-               'values' => getOptionForItems(OLA::class, ['condition' => ['type' => SLM::TTO]]),
+               'itemtype' => OLA::class,
+               'condition' => ['type' => SLM::TTO],
                'value' => $this->fields["ola_question_tto"],
                'col_lg' => 6,
                $this->fields["ola_rule"] == PluginFormcreatorAbstractTarget::OLA_RULE_SPECIFIC ? '' : 'disabled' => 'disabled',
@@ -1173,7 +1150,8 @@ PluginFormcreatorTranslatableInterface
                'type' => 'select',
                'id' => 'selectFormcreatorOlaSpecificTtr',
                'name' => '_ola_question_ttr',
-               'values' => getOptionForItems(OLA::class, ['condition' => ['type' => SLM::TTR]]),
+               'itemtype' => OLA::class,
+               'condition' => ['type' => SLM::TTR],
                'value' => $this->fields["ola_question_ttr"],
                'col_lg' => 6,
                $this->fields["ola_rule"] == PluginFormcreatorAbstractTarget::OLA_RULE_SPECIFIC ? '' : 'disabled' => 'disabled',
@@ -1234,7 +1212,8 @@ PluginFormcreatorTranslatableInterface
                'type' => 'select',
                'id' => 'selectFormcreatorCategorySpecific',
                'name' => '_category_specific',
-               'values' => getOptionForItems(ITILCategory::class, [$this->getCategoryFilter()]),
+               'itemtype' => ITILCategory::class,
+               'condition' => $this->getCategoryFilter(),
                'value' => $this->fields["category_question"],
                $this->fields["category_rule"] == PluginFormcreatorAbstractTarget::CATEGORY_RULE_SPECIFIC ? '' : 'disabled' => 'disabled',
             ],
@@ -1416,7 +1395,7 @@ SCRIPT;
       }
    }
 
-   protected function showActorsSettings() {
+   protected function getActorPanels() {
       global $DB;
 
       // Get available questions for actors lists
@@ -1441,33 +1420,36 @@ SCRIPT;
          ];
       }
 
-      echo '<table class="tab_cadre_fixe">';
+      $canedit = $this->can($this->getID(), UPDATE);
+      $panels = [];
+      foreach (PluginFormcreatorTarget_Actor::getEnumRole() as $role => $title) {
+         $panel = [
+            'id' => 'formcreator-actor-' . $role . '-' . mt_rand(),
+            'title' => $title,
+            'actorType' => $role,
+            'itemtype' => $this->getType(),
+            'itemsId' => $this->getID(),
+            'values' => [],
+         ];
+         foreach ($actors[$role] as $id => $actor) {
+            $panel['values'][] = $this->getActorPanelEntry($id, $actor, $canedit);
+         }
+         if ($canedit) {
+            $panel['pickerForm'] = $this->getActorPanelPicker($role, $actors[$role], $panel['id']);
+         }
+         $panels[] = $panel;
+      }
+      return $panels;
+   }
 
-      echo '<tr><th colspan="3">' . __('Actors', 'formcreator') . '</th></tr>';
-
-      echo '<tr>';
-      // Requester header
-      $this->showActorSettingsHeader(CommonITILActor::REQUESTER);
-
-      // Watcher header
-      $this->showActorSettingsHeader(CommonITILActor::OBSERVER);
-
-      // Assigned header
-      $this->showActorSettingsHeader(CommonITILActor::ASSIGN);
-      echo '</tr>';
-
-      echo '<tr>';
-      // Requester
-      $this->showActorSettingsForType(CommonITILActor::REQUESTER, $actors);
-
-      // Observer
-      $this->showActorSettingsForType(CommonITILActor::OBSERVER, $actors);
-
-      // Assigned to
-      $this->showActorSettingsForType(CommonITILActor::ASSIGN, $actors);
-      echo '</tr>';
-
-      echo '</table>';
+   protected function showActorsSettings($panels = null, $renderPickerForms = true) {
+      if ($panels === null) {
+         $panels = $this->getActorPanels();
+      }
+      renderTwigTemplate('itil/actorPanel.twig', [
+         'panels' => $panels,
+         'renderPickerForms' => $renderPickerForms,
+      ]);
    }
 
    protected function showLocationSettings($rand = '') {
@@ -1531,7 +1513,7 @@ SCRIPT;
                'type' => 'select',
                'id' => 'selectFormcreatorLocationSpecific',
                'name' => '_location_specific',
-               'values' => getOptionForItems(Location::class),
+               'itemtype' => Location::class,
                'value' => $this->fields['location_question'],
                'col_lg' => 6,
                $this->fields['location_rule'] == PluginFormcreatorAbstractTarget::LOCATION_RULE_SPECIFIC ? '' : 'disabled' => 'disabled',
@@ -1919,439 +1901,134 @@ SCRIPT;
       return $condition->showConditionsForItem($this);
    }
 
-   private function showUserDropdown($name) {
-      global $DB;
-      
-      $users = $DB->request([
-          'SELECT' => ['id', 'name', 'firstname', 'realname'],
-          'FROM' => 'glpi_users',
-          'WHERE' => [
-              'is_active' => 1,
-              'is_deleted' => 0
-          ],
-          'ORDER' => ['realname', 'firstname']
-      ]);
-  
-      echo '<select name="' . $name . '" class="form-control">';
-      echo '<option value="">-----</option>';
-      foreach ($users as $user) {
-          $userName = trim($user['firstname'] . ' ' . $user['realname']);
-          if (empty($userName)) {
-              $userName = $user['name'];
-          }
-          echo '<option value="' . $user['id'] . '">' . htmlspecialchars($userName) . '</option>';
-      }
-      echo '</select>';
-  }
-  
-  private function showGroupDropdown($name) {
-      global $DB;
-      
-      $groups = $DB->request([
-          'SELECT' => ['id', 'name'],
-          'FROM' => 'glpi_groups',
-          'ORDER' => 'name'
-      ]);
-  
-      echo '<select name="' . $name . '" class="form-control">';
-      echo '<option value="">-----</option>';
-      foreach ($groups as $group) {
-          echo '<option value="' . $group['id'] . '">' . htmlspecialchars($group['name']) . '</option>';
-      }
-      echo '</select>';
-  }
-
-   /**
-    * Show header for actors edition
-    *
-    * @param int $type see CommonITILActor constants
-    * @return void
-    */
-   protected function showActorSettingsHeader($type) {
-      switch ($type) { // Values from CommonITILObject::getSearchOptionsActors()
-         case CommonITILActor::REQUESTER:
-            $label =  _n('Requester', 'Requesters', 1);
-            $displayJSFunction = 'plugin_formcreator_displayRequesterForm()';
-            $hideJSFunction = 'plugin_formcreator_hideRequesterForm()';
-            $buttonAdd = 'btn_add_requester';
-            $buttonCancel = 'btn_cancel_requester';
-            break;
-         case CommonITILActor::OBSERVER:
-            $label =  _n('Watcher', 'Watchers', 1);
-            $displayJSFunction = 'plugin_formcreator_displayWatcherForm()';
-            $hideJSFunction = 'plugin_formcreator_hideWatcherForm()';
-            $buttonAdd = 'btn_add_watcher';
-            $buttonCancel = 'btn_cancel_watcher';
-            break;
-         case CommonITILActor::ASSIGN:
-            $label =  __('Assigned to');
-            $displayJSFunction = 'plugin_formcreator_displayAssignedForm()';
-            $hideJSFunction = 'plugin_formcreator_hideAssignedForm()';
-            $buttonAdd = 'btn_add_assigned';
-            $buttonCancel = 'btn_cancel_assigned';
-            break;
+   /** Build the Formcreator source picker for the shared core actor cards. */
+   protected function getActorPanelPicker($role, array $actors, $panelId) {
+      $actorClass = PluginFormcreatorTarget_Actor::class;
+      $types = $actorClass::getEnumActorType();
+      if ($role != $actorClass::ACTOR_ROLE_ASSIGNED) {
+         unset($types[$actorClass::ACTOR_TYPE_SUPPLIER], $types[$actorClass::ACTOR_TYPE_QUESTION_SUPPLIER]);
+      } else {
+         unset($types[$actorClass::ACTOR_TYPE_AUTHORS_SUPERVISOR]);
       }
 
-      echo '<th width="33%">';
-      echo $label . ' &nbsp;';
-      echo '<i class="fas fa-plus-circle" title="' . __('Add', 'formcreator'). '" alt="' . __('Add', 'formcreator'). '" onclick="' . $displayJSFunction . '" class="pointer"
-         id="' . $buttonAdd . '" src="../../../pics/add_dropdown.png"></i>';
-      echo '<i class="fas fa-minus-circle" title="' . __('Cancel', 'formcreator'). '" alt="' . __('Cancel', 'formcreator'). '" onclick="' . $hideJSFunction . '" class="pointer"
-         id="' . $buttonCancel . '" src="../../../pics/delete.png" style="display:none"></i>';
-      echo '</th>';
+      $question = new PluginFormcreatorQuestion();
+      $questionTypes = [
+         $actorClass::ACTOR_TYPE_QUESTION_PERSON => [
+            'OR' => [
+               ['fieldtype' => 'glpiselect', 'values' => ['LIKE', '%"itemtype":"User"%']],
+               ['fieldtype' => 'email'],
+            ],
+         ],
+         $actorClass::ACTOR_TYPE_QUESTION_GROUP => [
+            'fieldtype' => 'glpiselect', 'values' => ['LIKE', '%"itemtype":"Group"%'],
+         ],
+         $actorClass::ACTOR_TYPE_QUESTION_SUPPLIER => [
+            'fieldtype' => 'glpiselect', 'values' => ['LIKE', '%"itemtype":"Supplier"%'],
+         ],
+         $actorClass::ACTOR_TYPE_QUESTION_ACTORS => ['fieldtype' => 'actor'],
+         $actorClass::ACTOR_TYPE_GROUP_FROM_OBJECT => ['fieldtype' => 'glpiselect'],
+         $actorClass::ACTOR_TYPE_TECH_GROUP_FROM_OBJECT => ['fieldtype' => 'glpiselect'],
+      ];
+      $itemtypes = [
+         $actorClass::ACTOR_TYPE_PERSON => User::class,
+         $actorClass::ACTOR_TYPE_GROUP => Group::class,
+         $actorClass::ACTOR_TYPE_SUPPLIER => Supplier::class,
+      ];
+      $valueFields = [];
+      foreach (array_keys($types) as $type) {
+         $used = array_column(array_filter($actors, static function ($actor) use ($type) {
+            return $actor['actor_type'] == $type;
+         }), 'actor_value');
+         $field = [
+            'type' => 'select',
+            'id' => $panelId . '_value_' . $type,
+            'name' => 'actor_value_' . $type,
+            'value' => 0,
+            'actions' => [],
+         ];
+         if ($type != $actorClass::ACTOR_TYPE_PERSON) {
+            $field['disabled'] = true;
+         }
+         if (isset($itemtypes[$type])) {
+            $field['itemtype'] = $itemtypes[$type];
+            $field['used'] = $used;
+            if ($type == $actorClass::ACTOR_TYPE_PERSON) {
+               $field['condition'] = ['is_active' => 1, 'is_deleted' => 0];
+            }
+         } elseif (isset($questionTypes[$type])) {
+            $field['values'] = $question->getQuestionsFromFormBySection($this->getForm()->getID(), $questionTypes[$type]);
+            foreach ($field['values'] as &$questions) {
+               $questions = array_diff_key($questions, array_flip($used));
+            }
+            unset($questions);
+            $field['values'] = [0 => Dropdown::EMPTY_VALUE] + $field['values'];
+         } else {
+            continue;
+         }
+         $valueFields[$type] = $field;
+      }
+
+      return [
+         'id' => $panelId . '_form',
+         'action' => static::getFormURL(),
+         'typeField' => [
+            'type' => 'select',
+            'id' => $panelId . '_type',
+            'name' => 'actor_type',
+            'values' => $types,
+            'value' => $actorClass::ACTOR_TYPE_PERSON,
+            'data-role' => 'custom-type-selector',
+         ],
+         'valueFields' => $valueFields,
+         'notificationField' => [
+            'type' => 'select',
+            'name' => 'use_notification',
+            'value' => 1,
+            'values' => [0 => __('No'), 1 => __('Yes')],
+         ],
+         'hiddenFields' => [
+            ['name' => 'id', 'value' => $this->getID()],
+            ['name' => 'actor_role', 'value' => $role],
+            ['name' => '_glpi_csrf_token', 'value' => Session::getNewCSRFToken()],
+         ],
+      ];
    }
 
-   /**
-    * Show header for actors edition
-    *
-    * @param int $actorType see CommonITILActor constants
-    * @param array $actors actors to show
-    * @return void
-    */
-   protected function showActorSettingsForType($actorType, array $actors) {
-      global $DB;
-
-      $itemActor = new PluginFormcreatorTarget_Actor();
-      $dropdownItems = ['' => Dropdown::EMPTY_VALUE] + $itemActor::getEnumActorType();
-
-      switch ($actorType) { // Values from CommonITILObject::getSearchOptionsActors()
-         case CommonITILActor::REQUESTER:
-            $type = 'requester';
-            unset($dropdownItems[PluginFormcreatorTarget_Actor::ACTOR_TYPE_SUPPLIER]);
-            unset($dropdownItems[PluginFormcreatorTarget_Actor::ACTOR_TYPE_QUESTION_SUPPLIER]);
-            $changeActorJSFunction = 'plugin_formcreator_ChangeActorRequester(this.value)';
-            $actorRole = PluginFormcreatorTarget_Actor::ACTOR_ROLE_REQUESTER;
-            break;
-         case CommonITILActor::OBSERVER:
-            $type = 'watcher';
-            $changeActorJSFunction = 'plugin_formcreator_ChangeActorWatcher(this.value)';
-            $actorRole = PluginFormcreatorTarget_Actor::ACTOR_ROLE_OBSERVER;
-            break;
-         case CommonITILActor::ASSIGN:
-            $type = 'assigned';
-            unset($dropdownItems[PluginFormcreatorTarget_Actor::ACTOR_TYPE_AUTHORS_SUPERVISOR]);
-            $changeActorJSFunction = 'plugin_formcreator_ChangeActorAssigned(this.value)';
-            $actorRole = PluginFormcreatorTarget_Actor::ACTOR_ROLE_ASSIGNED;
-            break;
-      }
-
-      echo '<td valign="top">';
-      echo '<form name="form_target" id="form_add_' . $type . '" method="post" style="display:none" action="'
-           . static::getFormURL() . '">';
-      Dropdown::showFromArray(
-         'actor_type',
-         $dropdownItems, [
-            'on_change' => $changeActorJSFunction,
-         ]
-      );
-
-      echo '<div id="block_' . $type . '_user" style="display:none">';
-      $this->showUserDropdown('actor_value_' . PluginFormcreatorTarget_Actor::ACTOR_TYPE_PERSON);
-      echo '</div>';
-      
-      echo '<div id="block_' . $type . '_group" style="display:none">';
-      $this->showGroupDropdown('actor_value_' . PluginFormcreatorTarget_Actor::ACTOR_TYPE_GROUP);
-      echo '</div>';
-
-      echo '<div id="block_' . $type . '_question_user" style="display:none">';
-      // find already used items
-      $request = $DB->request([
-         'FROM'  => PluginFormcreatorTarget_Actor::getTable(),
-         'WHERE' => [
-            'itemtype'   => $this->getType(),
-            'items_id'   => $this->getID(),
-            'actor_role' => $actorRole,
-            'actor_type' => PluginFormcreatorTarget_Actor::ACTOR_TYPE_QUESTION_PERSON,
-         ]
-      ]);
-      $used = [];
-      foreach ($request as $row) {
-         $used[$row['actor_value']] = $row['actor_value'];
-      }
-
-      PluginFormcreatorQuestion::dropdownForForm(
-         $this->getForm()->getID(),
-         [
-            'OR' => [
-               'AND' => [
-                  'fieldtype' => ['glpiselect'],
-                  'values'    => ['LIKE', '%"itemtype":"' . User::class . '"%'],
-               ],
-               [
-                  'fieldtype' => ['email'],
-               ]
-            ],
-         ],
-         'actor_value_' . PluginFormcreatorTarget_Actor::ACTOR_TYPE_QUESTION_PERSON,
-         0,
-         [
-            'used' => $used,
-         ]
-      );
-      echo '</div>';
-
-      echo '<div id="block_' . $type . '_question_group" style="display:none">';
-      // find already used items
-      $request = $DB->request([
-         'FROM'  => PluginFormcreatorTarget_Actor::getTable(),
-         'WHERE' => [
-            'itemtype'   => $this->getType(),
-            'items_id'   => $this->getID(),
-            'actor_role' => $actorRole,
-            'actor_type' => PluginFormcreatorTarget_Actor::ACTOR_TYPE_QUESTION_GROUP,
-         ]
-      ]);
-      $used = [];
-      foreach ($request as $row) {
-         $used[$row['actor_value']] = $row['actor_value'];
-      }
-
-      PluginFormcreatorQuestion::dropdownForForm(
-         $this->getForm()->getID(),
-         [
-            'fieldtype' => ['glpiselect'],
-            'values'    => ['LIKE', '%"itemtype":"' . Group::class . '"%'],
-         ],
-         'actor_value_' .  PluginFormcreatorTarget_Actor::ACTOR_TYPE_QUESTION_GROUP,
-         0,
-         [
-            'used' => $used,
-         ]
-      );
-      echo '</div>';
-
-      echo '<div id="block_' . $type . '_group_from_object" style="display:none">';
-      // find already used items
-      $request = $DB->request([
-         'FROM'  => PluginFormcreatorTarget_Actor::getTable(),
-         'WHERE' => [
-            'itemtype'   => $this->getType(),
-            'items_id'   => $this->getID(),
-            'actor_role' => $actorRole,
-            'actor_type' => PluginFormcreatorTarget_Actor::ACTOR_TYPE_GROUP_FROM_OBJECT,
-         ]
-      ]);
-      $used = [];
-      foreach ($request as $row) {
-         $used[$row['actor_value']] = $row['actor_value'];
-      }
-
-      PluginFormcreatorQuestion::dropdownForForm(
-         $this->getForm()->getID(),
-         [
-            'fieldtype' => ['glpiselect'],
-         ],
-         'actor_value_' .  PluginFormcreatorTarget_Actor::ACTOR_TYPE_GROUP_FROM_OBJECT,
-         0,
-         [
-            'used' => $used,
-         ]
-      );
-      echo '</div>';
-
-      echo '<div id="block_' . $type . '_tech_group_from_object" style="display:none">';
-      // find already used items
-      $request = $DB->request([
-         'FROM'  => PluginFormcreatorTarget_Actor::getTable(),
-         'WHERE' => [
-            'itemtype'   => $this->getType(),
-            'items_id'   => $this->getID(),
-            'actor_role' => $actorRole,
-            'actor_type' => PluginFormcreatorTarget_Actor::ACTOR_TYPE_TECH_GROUP_FROM_OBJECT,
-         ]
-      ]);
-      $used = [];
-      foreach ($request as $row) {
-         $used[$row['actor_value']] = $row['actor_value'];
-      }
-
-      PluginFormcreatorQuestion::dropdownForForm(
-         $this->getForm()->getID(),
-         [
-            'fieldtype' => ['glpiselect'],
-         ],
-         'actor_value_' .  PluginFormcreatorTarget_Actor::ACTOR_TYPE_TECH_GROUP_FROM_OBJECT,
-         0,
-         [
-            'used' => $used,
-         ]
-      );
-      echo '</div>';
-
-      echo '<div id="block_' . $type . '_question_actors" style="display:none">';
-       // find already used items
-      $request = $DB->request([
-         'FROM'  => PluginFormcreatorTarget_Actor::getTable(),
-         'WHERE' => [
-            'itemtype'   => $this->getType(),
-            'items_id'   => $this->getID(),
-            'actor_role' => $actorRole,
-            'actor_type' => PluginFormcreatorTarget_Actor::ACTOR_TYPE_QUESTION_ACTORS,
-         ]
-      ]);
-      $used = [];
-      foreach ($request as $row) {
-         $used[$row['actor_value']] = $row['actor_value'];
-      }
-
-      PluginFormcreatorQuestion::dropdownForForm(
-         $this->getForm()->getID(),
-         [
-            'fieldtype' => ['actor'],
-         ],
-         'actor_value_' . PluginFormcreatorTarget_Actor::ACTOR_TYPE_QUESTION_ACTORS,
-         0,
-         [
-            'used' => $used,
-         ]
-      );
-      echo '</div>';
-
-      if ($actorType == CommonITILActor::ASSIGN) {
-         echo '<div id="block_' . $type . '_supplier" style="display:none">';
-         // find already used items
-         $request = $DB->request([
-            'FROM'  => PluginFormcreatorTarget_Actor::getTable(),
-            'WHERE' => [
-               'itemtype'   => $this->getType(),
-               'items_id'   => $this->getID(),
-               'actor_role' => $actorRole,
-               'actor_type' => PluginFormcreatorTarget_Actor::ACTOR_TYPE_SUPPLIER,
-            ]
-         ]);
-         $used = [];
-         foreach ($request as $row) {
-            $used[$row['actor_value']] = $row['actor_value'];
+   protected function getActorPanelEntry($id, array $actor, $canedit) {
+      $actorClass = PluginFormcreatorTarget_Actor::class;
+      $type = $actor['actor_type'];
+      $label = $actorClass::getEnumActorType()[$type] ?? '';
+      $itemtypes = [
+         $actorClass::ACTOR_TYPE_PERSON => User::class,
+         $actorClass::ACTOR_TYPE_GROUP => Group::class,
+         $actorClass::ACTOR_TYPE_SUPPLIER => Supplier::class,
+      ];
+      $name = $label;
+      $url = '';
+      if (isset($itemtypes[$type])) {
+         $itemtype = $itemtypes[$type];
+         $item = new $itemtype();
+         if ($item->getFromDB($actor['actor_value'])) {
+            $name = $item->getName();
+            $url = $itemtype::canView() ? $itemtype::getFormURLWithID($actor['actor_value']) : '';
          }
-
-         Supplier::dropdown([
-            'name' => 'actor_value_' . PluginFormcreatorTarget_Actor::ACTOR_TYPE_SUPPLIER,
-            'used' => $used,
-         ]);
-         echo '</div>';
-
-         echo '<div id="block_' . $type . '_question_supplier" style="display:none">';
-         // find already used items
-         $request = $DB->request([
-            'FROM'  => PluginFormcreatorTarget_Actor::getTable(),
-            'WHERE' => [
-               'itemtype'   => $this->getType(),
-               'items_id'   => $this->getID(),
-               'actor_role' => $actorRole,
-               'actor_type' => PluginFormcreatorTarget_Actor::ACTOR_TYPE_QUESTION_SUPPLIER,
-            ]
-         ]);
-         $used = [];
-         foreach ($request as $row) {
-            $used[$row['actor_value']] = $row['actor_value'];
+      } elseif (!in_array($type, [$actorClass::ACTOR_TYPE_AUTHOR, $actorClass::ACTOR_TYPE_VALIDATOR, $actorClass::ACTOR_TYPE_AUTHORS_SUPERVISOR])) {
+         $question = new PluginFormcreatorQuestion();
+         if ($question->getFromDB($actor['actor_value'])) {
+            $name = $question->getName();
          }
-
-         PluginFormcreatorQuestion::dropdownForForm(
-            $this->getForm()->getID(),
-            [
-               'fieldtype' => ['glpiselect'],
-               'values'    => ['LIKE', '%"itemtype":"' . Supplier::class . '"%'],
-            ],
-            'actor_value_' . PluginFormcreatorTarget_Actor::ACTOR_TYPE_QUESTION_SUPPLIER,
-            0,
-            [
-               'used' => $used,
-            ]
-         );
-         echo '</div>';
       }
-
-      echo '<div>';
-      echo __('Email followup');
-      Dropdown::showYesNo('use_notification', 1);
-      echo '</div>';
-
-      echo '<p align="center">';
-      echo Html::hidden('id', ['value' => $this->getID()]);
-      echo Html::hidden('actor_role', ['value' => $actorRole]);
-      echo '<input type="submit" value="' . __('Add') . '" class="submit_button" />';
-      echo '</p>';
-
-      echo "<hr>";
-
-      Html::closeForm();
-
-      $img_user     = '<i class="fas fa-user" alt="' . __('User') . '" title="' . __('User') . '" width="20"></i>';
-      $img_group    = '<i class="fas fa-users" alt="' . __('Group') . '" title="' . __('Group') . '" width="20"></i>';
-      $img_supplier = '<i class="fas fa-suitcase" alt="' . __('Supplier') . '" title="' . __('Supplier') . '" width="20"></i>';
-      $img_mail     = '<i class="fas fa-envelope pointer"  title="' . __('Email followup') . ' ' . __('Yes') . '" width="20"></i>';
-      $img_nomail   = '<i class="fas fa-envelope pointer" title="' . __('Email followup') . ' ' . __('No') . '" width="20"></i>';
-
-      foreach ($actors[$actorRole] as $id => $values) {
-         echo '<div>';
-         switch ($values['actor_type']) {
-            case PluginFormcreatorTarget_Actor::ACTOR_TYPE_AUTHOR :
-               echo $img_user . ' <b>' . __('Form author', 'formcreator') . '</b>';
-               break;
-            case PluginFormcreatorTarget_Actor::ACTOR_TYPE_VALIDATOR :
-               echo $img_user . ' <b>' . __('Form validator', 'formcreator') . '</b>';
-               break;
-            case PluginFormcreatorTarget_Actor::ACTOR_TYPE_PERSON :
-               $user = new User();
-               $user->getFromDB($values['actor_value']);
-               echo $img_user . ' <b>' . __('User') . ' </b> "' . $user->getName() . '"';
-               break;
-            case PluginFormcreatorTarget_Actor::ACTOR_TYPE_QUESTION_PERSON :
-               $question = new PluginFormcreatorQuestion();
-               $question->getFromDB($values['actor_value']);
-               echo $img_user . ' <b>' . __('Person from the question', 'formcreator')
-               . '</b> "' . $question->getName() . '"';
-               break;
-            case PluginFormcreatorTarget_Actor::ACTOR_TYPE_GROUP :
-               $group = new Group();
-               $group->getFromDB($values['actor_value']);
-               echo $img_group . ' <b>' . __('Group') . ' </b> "' . $group->getName() . '"';
-               break;
-            case PluginFormcreatorTarget_Actor::ACTOR_TYPE_QUESTION_GROUP :
-               $question = new PluginFormcreatorQuestion();
-               $question->getFromDB($values['actor_value']);
-               echo $img_group . ' <b>' . __('Group from the question', 'formcreator')
-               . '</b> "' . $question->getName() . '"';
-               break;
-            case PluginFormcreatorTarget_Actor::ACTOR_TYPE_GROUP_FROM_OBJECT:
-               $question = new PluginFormcreatorQuestion();
-               $question->getFromDB($values['actor_value']);
-               echo $img_group . ' <b>' . __('Group from the object', 'formcreator')
-               . '</b> "' . $question->getName() . '"';
-               break;
-            case PluginFormcreatorTarget_Actor::ACTOR_TYPE_TECH_GROUP_FROM_OBJECT:
-               $question = new PluginFormcreatorQuestion();
-               $question->getFromDB($values['actor_value']);
-               echo $img_group . ' <b>' . __('Tech group from the object', 'formcreator')
-               . '</b> "' . $question->getName() . '"';
-               break;
-            case PluginFormcreatorTarget_Actor::ACTOR_TYPE_QUESTION_ACTORS:
-               $question = new PluginFormcreatorQuestion();
-               $question->getFromDB($values['actor_value']);
-               echo $img_user . ' <b>' . __('Actors from the question', 'formcreator')
-               . '</b> "' . $question->getName() . '"';
-               break;
-            case PluginFormcreatorTarget_Actor::ACTOR_TYPE_SUPPLIER :
-               $supplier = new Supplier();
-               $supplier->getFromDB($values['actor_value']);
-               echo $img_supplier . ' <b>' . __('Supplier') . ' </b> "' . $supplier->getName() . '"';
-               break;
-            case PluginFormcreatorTarget_Actor::ACTOR_TYPE_QUESTION_SUPPLIER :
-               $question = new PluginFormcreatorQuestion();
-               $question->getFromDB($values['actor_value']);
-               echo $img_supplier . ' <b>' . __('Supplier from the question', 'formcreator')
-               . '</b> "' . $question->getName() . '"';
-               break;
-            case PluginFormcreatorTarget_Actor::ACTOR_TYPE_AUTHORS_SUPERVISOR :
-               echo $img_user . ' <b>' . __('Form author\'s supervisor', 'formcreator') . '</b>';
-               break;
-         }
-         echo $values['use_notification'] ? ' ' . $img_mail . ' ' : ' ' . $img_nomail . ' ';
-         echo self::getDeleteImage($id);
-         echo '</div>';
-      }
-
-      echo '</td>';
+      $groupTypes = [$actorClass::ACTOR_TYPE_GROUP, $actorClass::ACTOR_TYPE_QUESTION_GROUP, $actorClass::ACTOR_TYPE_GROUP_FROM_OBJECT, $actorClass::ACTOR_TYPE_TECH_GROUP_FROM_OBJECT];
+      return [
+         'id' => $id,
+         'type' => $type,
+         'name' => htmlspecialchars($name, ENT_QUOTES, 'UTF-8'),
+         'url' => $url,
+         'subtitle' => htmlspecialchars($label . ' | ' . __('Email followup') . ': ' . ($actor['use_notification'] ? __('Yes') : __('No')), ENT_QUOTES, 'UTF-8'),
+         'icon' => in_array($type, $groupTypes) ? 'fas fa-users' : (in_array($type, [$actorClass::ACTOR_TYPE_SUPPLIER, $actorClass::ACTOR_TYPE_QUESTION_SUPPLIER]) ? 'fas fa-building' : 'fas fa-user'),
+         'persisted' => true,
+         'removeUrl' => $canedit ? static::getFormURL() . '?id=' . $this->getID() . '&delete_actor=' . $id : '',
+      ];
    }
 
    public function deleteObsoleteItems(CommonDBTM $container, array $exclude) : bool {

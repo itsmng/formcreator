@@ -173,7 +173,7 @@ class PluginFormcreatorTargetWorkflow extends PluginFormcreatorAbstractTarget
                      __('Workflow', 'workflows') => [
                          'type' => 'select',
                          'name' => 'workflows_id',
-                         'values' => getOptionForItems(PluginWorkflowsWorkflow::class),
+                         'itemtype' => PluginWorkflowsWorkflow::class,
                          'value' => $this->fields['workflows_id'],
                          'required' => true,
                          'col_lg' => 12,
@@ -286,13 +286,14 @@ class PluginFormcreatorTargetWorkflow extends PluginFormcreatorAbstractTarget
                'type' => 'select',
                'id' => 'selectForLinkTargetTicket',
                'name' => '_link_targettickets_id',
-               'values' => getOptionForItems(PluginFormcreatorTargetTicket::class, [], true, false, ['id' => $this->getID()]),
+               'itemtype' => PluginFormcreatorTargetTicket::class,
+               'condition' => [PluginFormcreatorForm::getForeignKeyField() => $this->getForm()->getID()],
             ],
             __('Ticket') => [
                'type' => 'select',
                'id' => 'selectForLinkTicket',
                'name' => '_link_tickets_id',
-               'values' => getOptionForItems(Ticket::class),
+               'itemtype' => Ticket::class,
                'disabled' => ''
             ],
             __('Question') => [

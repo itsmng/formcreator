@@ -377,6 +377,11 @@ public function showForm($ID, $options = []) {
 
    $rand = mt_rand();
 
+   $actorPanels = $this->getActorPanels();
+   ob_start();
+   $this->showActorsSettings($actorPanels, false);
+   $actorContent = ob_get_clean();
+
    $form = [
       'action' => self::getFormURL(),
       'buttons' => [
@@ -391,6 +396,12 @@ public function showForm($ID, $options = []) {
          $title => [
             'visible' => true,
             'inputs' => [
+               ['type' => 'hidden', 'name' => 'id', 'value' => $ID],
+               [
+                  'type' => 'hidden',
+                  'name' => PluginFormcreatorForm::getForeignKeyField(),
+                  'value' => $this->fields[PluginFormcreatorForm::getForeignKeyField()],
+               ],
                __('Name') => [
                   'type' => 'text',
                   'name' => 'name',
@@ -464,26 +475,17 @@ public function showForm($ID, $options = []) {
          __('Urgency') => $this->showUrgencySettings($rand),
          __('Tags', 'formcreator') => $this->showPluginTagsSettings($rand),
          __('Condition to create the target', 'formcreator') => $this->showConditionsSettings($rand),
-         '' => [
-            'visible' => false,
+         __('Actors') => [
+            'visible' => true,
             'inputs' => [
-               [
-                  'type' => 'hidden',
-                  'name' => 'id',
-                  'value' => $ID
-               ],
-               [
-                  'type' => 'hidden',
-                  'name' => PluginFormcreatorForm::getForeignKeyField(),
-                  'value' => $this->fields[PluginFormcreatorForm::getForeignKeyField()]
-               ]
-            ]
-         ]
+               '' => ['content' => $actorContent, 'col_lg' => 12, 'col_md' => 12],
+            ],
+         ],
       ]
    ];
    
    renderTwigForm($form);
-   $this->showActorsSettings();
+   renderTwigTemplate('itil/actorPickerForms.twig', ['panels' => $actorPanels]);
    $this->showTagsList();
 }
 
