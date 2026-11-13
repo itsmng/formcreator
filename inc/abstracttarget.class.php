@@ -2019,7 +2019,7 @@ SCRIPT;
          }
       }
       $groupTypes = [$actorClass::ACTOR_TYPE_GROUP, $actorClass::ACTOR_TYPE_QUESTION_GROUP, $actorClass::ACTOR_TYPE_GROUP_FROM_OBJECT, $actorClass::ACTOR_TYPE_TECH_GROUP_FROM_OBJECT];
-      return [
+      $entry = [
          'id' => $id,
          'type' => $type,
          'name' => htmlspecialchars($name, ENT_QUOTES, 'UTF-8'),
@@ -2029,6 +2029,16 @@ SCRIPT;
          'persisted' => true,
          'removeUrl' => $canedit ? static::getFormURL() . '?id=' . $this->getID() . '&delete_actor=' . $id : '',
       ];
+      if ($canedit) {
+         $entry['followupTitle'] = htmlspecialchars(__('Email followup') . ': ' . Dropdown::getYesNo($actor['use_notification']), ENT_QUOTES, 'UTF-8');
+         $entry['modal'] = 'formcreator-actor-followup-' . $id . '-' . mt_rand();
+         Ajax::createIframeModalWindow(
+            $entry['modal'],
+            $actorClass::getFormURLWithID($id),
+            ['width' => 600, 'height' => 300, 'title' => __('Email followup')]
+         );
+      }
+      return $entry;
    }
 
    public function deleteObsoleteItems(CommonDBTM $container, array $exclude) : bool {
