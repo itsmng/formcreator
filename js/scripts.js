@@ -2007,6 +2007,26 @@ function pluginFormcreatorInitializeUrgency(fieldName, rand) {
     });
 }
 
+/**
+ * Get the CKEditor instance bound to a textarea.
+ * Editors are registered in window[<textarea id>], which does not work when
+ * the id is numeric (window[<number>] refers to a frame), so fall back to the
+ * instance attached to the editable element rendered after the textarea.
+ */
+function plugin_formcreator_getRichtextEditor(textarea) {
+    var editor = window[textarea.id];
+    if (editor && typeof editor.getData === 'function') {
+        return editor;
+    }
+
+    var sibling = textarea.nextElementSibling;
+    while (sibling && !sibling.classList.contains('ck-editor')) {
+        sibling = sibling.nextElementSibling;
+    }
+    var editable = sibling ? sibling.querySelector('.ck-editor__editable') : null;
+    return editable && editable.ckeditorInstance ? editable.ckeditorInstance : null;
+}
+
 function plugin_formcreator_syncRichtextForm(form) {
     if (!form) {
         return;
@@ -2014,8 +2034,8 @@ function plugin_formcreator_syncRichtextForm(form) {
 
     var textareas = form.querySelectorAll('textarea[id]');
     textareas.forEach(function (textarea) {
-        var editor = window[textarea.id];
-        if (editor && typeof editor.getData === 'function') {
+        var editor = plugin_formcreator_getRichtextEditor(textarea);
+        if (editor) {
             textarea.value = editor.getData();
         }
     });
@@ -2023,10 +2043,9 @@ function plugin_formcreator_syncRichtextForm(form) {
 
 function plugin_formcreator_destroyRichtextEditors(container) {
     container.find('textarea[id]').each(function () {
-        var editorId = this.id;
-        var editor = window[editorId];
+        var editor = plugin_formcreator_getRichtextEditor(this);
         if (editor && typeof editor.destroy === 'function') {
-            delete window[editorId];
+            delete window[this.id];
             Promise.resolve(editor.destroy()).catch(function (error) {
                 console.error(error);
             });
